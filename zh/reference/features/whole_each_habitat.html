@@ -1,0 +1,978 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Whole / Each Habitat 放射组学 &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/features/whole_each_habitat';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/reference/features/whole_each_habitat.html" />
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="Glossary" href="../../user_guide/glossary.html" />
+    <link rel="prev" title="Non-放射组学 Morphology" href="non_radiomics.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">特征公式</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="traditional.html">IBSI 数字体膜</a></li>
+<li class="toctree-l1"><a class="reference internal" href="msi.html">MSI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ith_score.html">ITH</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graph.html">图网络</a></li>
+<li class="toctree-l1"><a class="reference internal" href="non_radiomics.html">Non-放射组学 summaries</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">整图与各生境放射组学</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">特征公式</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Whole / Each Habitat 放射组学</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="whole-each-habitat-radiomics">
+<h1>Whole / Each Habitat 放射组学<a class="headerlink" href="#whole-each-habitat-radiomics" title="Link to this heading">#</a></h1>
+<section id="whole-habitat">
+<h2>whole_habitat<a class="headerlink" href="#whole-habitat" title="Link to this heading">#</a></h2>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">whole_habitat_radiomics.csv</span></code></p>
+</section>
+<section id="definition">
+<h3>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h3>
+<p>PyRadiomics run on the <strong>multi-label habitat map</strong> itself: the habitat label
+image is passed as both <code class="docutils literal notranslate"><span class="pre">image</span></code> and <code class="docutils literal notranslate"><span class="pre">mask</span></code> to PyRadiomics, so voxel
+<strong>intensities are habitat label IDs</strong> (not original MR/PET values). Parameters:
+<code class="docutils literal notranslate"><span class="pre">params_file_of_habitat</span></code> (optional; bundled <code class="docutils literal notranslate"><span class="pre">habitat</span></code> preset →
+<code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/parameter_habitat.yaml</span></code> when omitted).</p>
+<p>特征定义遵循 <a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a> 与 <a class="reference internal" href="traditional.html"><span class="doc">传统放射组学</span></a> 上 IBSI Phase 1 数字体膜表。默认设置对齐 PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute()</span></code> （见该页 <strong>PyRadiomics alignment</strong> ）。</p>
+</section>
+<section id="output-columns">
+<h3>输出列<a class="headerlink" href="#output-columns" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 32.0%" />
+<col style="width: 68.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列模式</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{pyradiomics_feature}</span></code></p></td>
+<td><p>PyRadiomics 特征名（无模态后缀）</p></td>
+</tr>
+<tr class="row-odd"><td><p>(excluded)</p></td>
+<td><p>名称含 <code class="docutils literal notranslate"><span class="pre">diagnostic</span></code> 的列在导出前丢弃</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="implementation">
+<h3>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py</span></code>
+(<code class="docutils literal notranslate"><span class="pre">WholeHabitatPlugin</span></code>) → <code class="docutils literal notranslate"><span class="pre">habitat_radiomics.py</span></code></p>
+</section>
+</section>
+<section id="each-habitat">
+<h2>each_habitat<a class="headerlink" href="#each-habitat" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h3>Output<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">habitat_{k}_radiomics.csv</span></code> — one file per habitat index <em>k</em> = 1 … <em>K</em>
+(<em>K</em> = <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> from config or <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habitat_count.csv</span></code> — binary flags <code class="docutils literal notranslate"><span class="pre">has_habitat_1</span></code> … <code class="docutils literal notranslate"><span class="pre">has_habitat_K</span></code></p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>Definition<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>对每个生境索引 <em>k</em> ，在 <strong>原始预处理后图像</strong> 上运行 PyRadiomics，以 <strong>多标签生境图</strong> 为掩膜且 <code class="docutils literal notranslate"><span class="pre">label=k</span></code> （标签 <em>k</em> 外体素排除）。用 <code class="docutils literal notranslate"><span class="pre">params_file_of_non_habitat</span></code> （roi 预设）， <strong>非</strong> <code class="docutils literal notranslate"><span class="pre">params_file_of_habitat</span></code> 。对 1 … <em>K</em> 每个 <em>k</em> 写文件，即使受试者图缺该标签（空 ROI → 按受试者 NaN / 错误处理）。</p>
+<p>特征定义遵循 <a class="reference external" href="https://pyradiomics.readthedocs.io/en/latest/features.html">PyRadiomics Feature Reference</a> 与 <a class="reference internal" href="traditional.html"><span class="doc">传统放射组学</span></a> 上 IBSI Phase 1 数字体膜表。默认设置对齐 PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute()</span></code> （见该页 <strong>PyRadiomics alignment</strong> ）。</p>
+</section>
+<section id="id4">
+<h3>输出列<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">habitat_{k}_radiomics.csv</span></code>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 32.0%" />
+<col style="width: 68.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列模式</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{pyradiomics_feature}_of_{modality}</span></code></p></td>
+<td><p>One column per PyRadiomics 特征 × image 模态</p></td>
+</tr>
+<tr class="row-odd"><td><p>(excluded)</p></td>
+<td><p>名称含 <code class="docutils literal notranslate"><span class="pre">diagnostic</span></code> 的列在导出前丢弃</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">habitat_count.csv</span></code>:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 32.0%" />
+<col style="width: 68.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">has_habitat_{k}</span></code></p></td>
+<td><p>受试者图含标签 <em>k</em> 则为 <code class="docutils literal notranslate"><span class="pre">1</span></code> ，否则 <code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id5">
+<h3>Implementation<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py</span></code>
+(<code class="docutils literal notranslate"><span class="pre">EachHabitatPlugin</span></code>) → <code class="docutils literal notranslate"><span class="pre">habitat_radiomics.py</span></code>. v1
+<a class="reference internal" href="../../api/generated/habit.habitat_features.EachHabitatRadiomicsFeatures.html#habit.habitat_features.EachHabitatRadiomicsFeatures" title="habit.habitat_features.each_habitat.EachHabitatRadiomicsFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">EachHabitatRadiomicsFeatures</span></code></a>
+uses one union-bbox crop and the native C multi-label path per modality;
+<code class="docutils literal notranslate"><span class="pre">binWidth</span></code> stays per habitat (<code class="docutils literal notranslate"><span class="pre">union_bin=False</span></code>).</p>
+</section>
+</section>
+<section id="compare-habitats-cohort-or-one-subject">
+<h2>比较生境（队列或单受试者）<a class="headerlink" href="#compare-habitats-cohort-or-one-subject" title="Link to this heading">#</a></h2>
+<p>The wide <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> table is one row per 受试者. To argue that 生境 are distinct -- the figure a reviewer expects -- melt it and contrast 生境 <strong>across the 队列</strong> (paired Cliff's delta + BH-FDR). The same objects also describe one 受试者 (differences without p-values).</p>
+<p>Tens-to-hundreds of texture 特征: draw a 生境 x 特征 heatmap and the default <strong>特征 x pair</strong> Cliff's <span class="math notranslate nohighlight">\(delta\)</span> heatmap (top-k by max <span class="math notranslate nohighlight">\(|delta|\)</span> when the bank is large). Pass <code class="docutils literal notranslate"><span class="pre">pair=(a,</span> <span class="pre">b)</span></code> for the single-pair lollipop. If that heatmap would be too tall, <a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_components()</span></code></a> shows the same contrast on a few CVA/PCA component scores (not a 2-D embedding). Violins / bars are for a shortlist, not the full bank. Bars are <strong>one panel per 特征</strong> (independent y-axis) so Energy and <code class="docutils literal notranslate"><span class="pre">volume_fraction</span></code> are not forced onto one linear scale.</p>
+<p>可运行 gallery（合成占位表；将 <code class="docutils literal notranslate"><span class="pre">table</span></code> 换为您的 <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> 提取）:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">habitat_feature_compare_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.habitat_features</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_habitat_features</span><span class="p">,</span> <span class="n">to_habitat_feature_panel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">plot_habitat_feature_bars</span><span class="p">,</span>
+    <span class="n">plot_habitat_feature_components</span><span class="p">,</span>
+    <span class="n">plot_habitat_feature_effect</span><span class="p">,</span>
+    <span class="n">plot_habitat_feature_heatmap</span><span class="p">,</span>
+    <span class="n">plot_habitat_feature_violin</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">panel</span> <span class="o">=</span> <span class="n">to_habitat_feature_panel</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>          <span class="c1"># wide each_habitat FeatureTable</span>
+<span class="n">cmp</span> <span class="o">=</span> <span class="n">compare_habitat_features</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>            <span class="c1"># cohort if table has &gt;= 2 subjects</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_heatmap</span><span class="p">(</span><span class="n">cmp</span><span class="p">)</span>          <span class="c1"># overview (z-scored)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_effect</span><span class="p">(</span><span class="n">cmp</span><span class="p">)</span>           <span class="c1"># features x pair Cliff&#39;s delta</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_effect</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">pair</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># one pair</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_components</span><span class="p">(</span><span class="n">cmp</span><span class="p">)</span>       <span class="c1"># CVA contrast when the heatmap is too tall</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_violin</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_heatmap</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj001&quot;</span><span class="p">)</span>  <span class="c1"># one subject</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_bars</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj001&quot;</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">compare_habitat_features(...,</span> <span class="pre">subject_id=...)</span></code> 先限制 panel。仅余一名受试者时 pairwise <code class="docutils literal notranslate"><span class="pre">p_value</span></code> / <code class="docutils literal notranslate"><span class="pre">q_value</span></code> 为 NaN。</p>
+<p>可运行 gallery（合成占位表；将 <code class="docutils literal notranslate"><span class="pre">table</span></code> 换为你的 extract）：<a class="reference internal" href="../../auto_examples/04_quantifying_habitats/index.html"><span class="doc">量化栖息地</span></a> 。图拓扑列（ <code class="docutils literal notranslate"><span class="pre">single_h*</span></code> / <code class="docutils literal notranslate"><span class="pre">pair_h*_h*</span></code> ）可共用合并表但不经本 API melt。</p>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_heatmap_cohort.png"><img alt="队列生境×特征 z-score 热图" src="../../_images/habitat_feature_heatmap_cohort.png" style="width: 520px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">队列均值热图，逐特征 z-score（<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a> ）。</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_heatmap_subject.png"><img alt="单受试者生境×特征 z-score 热图" src="../../_images/habitat_feature_heatmap_subject.png" style="width: 520px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">单受试者剖面（<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a> ）。</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_effect.png"><img alt="特征×配对 Cliff's delta 热图" src="../../_images/habitat_feature_effect.png" style="width: 520px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">默认特征×对 Cliff's delta（星号 = BH q &lt; 0.05）（<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_effect()</span></code></a> ）。特征多时热图按 max <span class="math notranslate nohighlight">\(|delta|\)</span> 保留 top-k。过高则改比较少量 CVA/PCA 分量。</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id9">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_components.png"><img alt="CVA 成分得分上的生境对比" src="../../_images/habitat_feature_components.png" style="width: 620px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">相同对比，显示在 2 个 CVA 分量上（特征很多时用）（<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_components()</span></code></a> ）。</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id10">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_violin.png"><img alt="逐特征生境分布" src="../../_images/habitat_feature_violin.png" style="width: 520px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">逐特征分布；n &lt; 5 时 box + strip（<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_violin()</span></code></a> ）。</span><a class="headerlink" href="#id10" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id11">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_bars.png"><img alt="逐特征生境均值，独立 y 轴" src="../../_images/habitat_feature_bars.png" style="width: 620px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">每特征一面板，独立 y 轴（<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_bars.html#habit.viz.plot_habitat_feature_bars" title="habit.viz.plot_habitat_feature_bars"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_bars()</span></code></a> ）。</span><a class="headerlink" href="#id11" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="non_radiomics.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">Non-放射组学 Morphology</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../user_guide/glossary.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">Glossary</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#whole-habitat">whole_habitat</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#output">Output</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">Definition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#output-columns">输出列</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#each-habitat">each_habitat</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Output</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Definition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">输出列</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Implementation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-habitats-cohort-or-one-subject">比较生境（队列或单受试者）</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

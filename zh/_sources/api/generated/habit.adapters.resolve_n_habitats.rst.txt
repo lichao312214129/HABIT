@@ -1,0 +1,19 @@
+﻿resolve\_n\_habitats
+====================
+
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
+.. currentmodule:: habit.adapters
+
+.. autofunction:: resolve_n_habitats
+
+.. include:: habit.adapters.resolve_n_habitats.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

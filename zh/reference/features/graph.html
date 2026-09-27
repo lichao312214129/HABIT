@@ -1,0 +1,1363 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>图拓扑特征 &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/features/graph';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/reference/features/graph.html" />
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="Non-放射组学 Morphology" href="non_radiomics.html" />
+    <link rel="prev" title="ITH 分数" href="ith_score.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">特征公式</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="traditional.html">IBSI 数字体膜</a></li>
+<li class="toctree-l1"><a class="reference internal" href="msi.html">MSI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ith_score.html">ITH</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">图网络</a></li>
+<li class="toctree-l1"><a class="reference internal" href="non_radiomics.html">Non-放射组学 summaries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whole_each_habitat.html">整图与各生境放射组学</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">特征公式</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">图拓扑特征</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="graph-topology-features">
+<h1>图拓扑特征<a class="headerlink" href="#graph-topology-features" title="Link to this heading">#</a></h1>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">habitat_graph_features.csv</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">graph</span></code> 为 <strong>内置</strong> 轻量生境特征族（ <code class="docutils literal notranslate"><span class="pre">habitat_feature_extractor</span></code> 名 <code class="docutils literal notranslate"><span class="pre">graph</span></code> ）。优先域/公开 API；旧 <code class="docutils literal notranslate"><span class="pre">habit.compat.graph_plugin</span></code> shim 于 v2.0.0 移除。</p>
+<p>数值定义在 L0 <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.kernels.habitat_graph</span></code> ，对领域提取器、核 helper <a class="reference internal" href="../../api/generated/habit.kernels.extract_graph_features.html#habit.kernels.extract_graph_features" title="habit.kernels.extract_graph_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code></a> 与可选 <a class="reference internal" href="../../api/viz.html#module-habit.viz" title="habit.viz"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code></a> 图（相同节点/边构造）一致。本页与该源码一致，不另造理论。该指标族改编自 PathPrism（Liang et al., <em>Cancer Cell</em> 2026）组织病理 tissue-graph 方法；HABIT 将其用于 2-D / 3-D 生境图并文档化下文体素索引与 VOI 细化。</p>
+</section>
+<section id="notation-and-domains">
+<h2>符号与域<a class="headerlink" href="#notation-and-domains" title="Link to this heading">#</a></h2>
+<p>设 <span class="math notranslate nohighlight">\(L:Omega        o{0,1,ldots,K}\)</span> 为 2-D 或 3-D 体素格 <span class="math notranslate nohighlight">\(Omegasubsetmathbb{Z}^{d}\)</span> （<span class="math notranslate nohighlight">\(din{2,3}\)</span> ）上的整数生境标签图。</p>
+<ul class="simple">
+<li><p><strong>背景。</strong> 标签 <span class="math notranslate nohighlight">\(0\)</span> 为背景，在节点提取、图构建及下述肿瘤 VOI 测度 <span class="math notranslate nohighlight">\(V\)</span> 中 <strong>排除</strong> 。非图节点。</p></li>
+<li><p><strong>生境标签。</strong> <span class="math notranslate nohighlight">\(mathcal{H}={kinmathbb{Z}:k&gt;0,; existsmathbf{x}inOmega,; L(mathbf{x})=k}\)</span>. When the caller supplies <code class="docutils literal notranslate"><span class="pre">expected_labels</span></code>, every listed id still emits columns even if it is absent from this map (empty graph → all metrics <code class="docutils literal notranslate"><span class="pre">0</span></code>), so 队列 tables keep a stable schema (same contract as <a class="reference internal" href="ith_score.html"><span class="doc">ITH 分数</span></a>).</p></li>
+<li><p><strong>坐标。</strong> 质心与距离为 <strong>索引/体素单位</strong> ，非毫米。内核内不应用 spacing。下列尺寸伴生量仅在所有标签图重采样到相同各向同性 spacing 后跨受试者物理可比。不校正采集分辨率变化。</p></li>
+<li><p><strong>未定义算术。</strong> 空序列、零分母、非有限 NetworkX 输出，以及低于指标最小尺寸的图表将返回 <code class="docutils literal notranslate"><span class="pre">0.0</span></code> （导出表中永远不会是 NaN）。</p></li>
+</ul>
+<p>肿瘤 VOI（仅用于尺寸归一化伴随量）：</p>
+<div class="math notranslate nohighlight">
+\[V = \#\{\mathbf{x}\in\Omega: L(\mathbf{x})\ne 0\},
+\qquad
+\delta_{\mathrm{bbox}}
+= \bigl\|(\mathbf{u}_{\max}-\mathbf{u}_{\min}+\mathbf{1})\bigr\|_{2}\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(mathbf{u}_{min},mathbf{u}_{max}\)</span> 为非背景体素的 inclusive 索引界。若 <span class="math notranslate nohighlight">\(V=0\)</span> ，不写 <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> 伴随列。</p>
+</section>
+<section id="graph-construction">
+<h2>图构建<a class="headerlink" href="#graph-construction" title="Link to this heading">#</a></h2>
+<section id="nodes-connected-regions">
+<h3>节点（连通区域）<a class="headerlink" href="#nodes-connected-regions" title="Link to this heading">#</a></h3>
+<p>对每个生境 <span class="math notranslate nohighlight">\(kinmathcal{H}\)</span> ：</p>
+<ol class="arabic">
+<li><p>构建二值掩膜 <span class="math notranslate nohighlight">\(M_k=mathbf{1}[L=k]\)</span> 。</p></li>
+<li><p>若 <code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> <span class="math notranslate nohighlight">\(rge 1\)</span> ，用结构元 <span class="math notranslate nohighlight">\(M_k\)</span> 对 <span class="math notranslate nohighlight">\(r\)</span> 做 <span class="math notranslate nohighlight">\(S\)</span> 次二值腐蚀， <code class="docutils literal notranslate"><span class="pre">border_value=0</span></code> 。<a class="reference internal" href="../../api/generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code></a> 默认 <span class="math notranslate nohighlight">\(r=0\)</span> （关）：邻接与接触按绘制标签测量。正 <span class="math notranslate nohighlight">\(r\)</span> 可在标注与连边前收缩各生境。</p></li>
+<li><p>用 <code class="docutils literal notranslate"><span class="pre">scipy.ndimage.label</span></code> 与结构 <span class="math notranslate nohighlight">\(S\)</span> 标记（可能腐蚀后）掩膜的连通分量：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">connectivity='full'</span></code> （默认）：二维中的对角线包含的8邻域 / 三维中的26邻域（ <code class="docutils literal notranslate"><span class="pre">generate_binary_structure(rank=d,</span> <span class="pre">connectivity=d)</span></code> ）；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">connectivity='face'</span></code> ：2-D 4 邻 / 3-D 6 邻（ <code class="docutils literal notranslate"><span class="pre">generate_binary_structure(rank=d,</span> <span class="pre">connectivity=1)</span></code> ）。需要 4/6 连通时仍可用 face。</p></li>
+</ul>
+</li>
+<li><p>Drop a component <span class="math notranslate nohighlight">\(C\)</span> if <span class="math notranslate nohighlight">\(|C| &lt;\)</span> <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code>
+(default <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
+<li><p><strong>Default</strong> <code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> 跳过按分量拆分。整个肿瘤 VOI 涂上边 <code class="docutils literal notranslate"><span class="pre">block_size</span></code> <span class="math notranslate nohighlight">\(b\)</span> （默认 <span class="math notranslate nohighlight">\(b=8\)</span> <strong>体素</strong> ，非毫米）的 <strong>全局</strong> 轴对齐立方格子，原点为 VOI 包围盒最小值。立方体占用比例超过 <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> （默认 <code class="docutils literal notranslate"><span class="pre">0.2</span></code> ；格级过滤）时保留。每个保留立方体内，每个生境的每个连通分量在该子区域体素索引质心处成为独立节点，故一立方体可贡献多节点。小于 <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code> 的格内片段丢弃。 <code class="docutils literal notranslate"><span class="pre">node_method='component'</span></code> 为旧规则：若 <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> <span class="math notranslate nohighlight">\(s&gt;0\)</span> 且 <span class="math notranslate nohighlight">\(|C|&gt;s\)</span> ，将 <span class="math notranslate nohighlight">\(C\)</span> 拆为边 <span class="math notranslate nohighlight">\(b\)</span> 的轴对齐网格块（默认 <span class="math notranslate nohighlight">\(s=1000\)</span> ）。体素集 <span class="math notranslate nohighlight">\(B\)</span> 的块 <strong>保留</strong> 仅当</p>
+<div class="math notranslate nohighlight">
+\[|B| / b^{d} ;&gt;; mathrm{block_min_coverage}\]</div>
+<p>(strict inequality; default coverage <code class="docutils literal notranslate"><span class="pre">0.2</span></code>). Each kept block becomes
+its own node. If no block passes, or subdivision is off, the whole
+component is one node.</p>
+</li>
+</ol>
+<p>每个保留的区域（组件或模块）都是一个节点</p>
+<div class="math notranslate nohighlight">
+\[v=(k,;mathrm{id},;mathbf{c}_{v},;n_{v},;mathrm{bbox}_{v})\]</div>
+<p>质心 <span class="math notranslate nohighlight">\(mathbf{c}_{v}\)</span> = 区域体素 <strong>索引</strong> 均值（float），<span class="math notranslate nohighlight">\(n_{v}=|B| ` 或 :math:`|C| ` ，及半开包围盒。节点 id 为稳定字符串 ``h{k}_c{id}`\)</span> 。</p>
+</section>
+<section id="edges-centroid-distance">
+<h3>边：质心距离<a class="headerlink" href="#edges-centroid-distance" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">edge_method='centroid_distance'</span></code> （可选）。设 :math:`      au=` <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> （默认 <code class="docutils literal notranslate"><span class="pre">5.0</span></code> 体素单位）。不同节点 <span class="math notranslate nohighlight">\(u,v\)</span> 间存在无向边当</p>
+<div class="math notranslate nohighlight">
+\[距离约束：$d(u,v)=|mathbf{c}_{u}-mathbf{c}_{v}|_{2} le    au$\]</div>
+<p>使用 KD 树实现 (<code class="docutils literal notranslate"><span class="pre">scipy.spatial.cKDTree.query_pairs</span></code> / <code class="docutils literal notranslate"><span class="pre">query_ball_point</span></code>)。</p>
+<ul class="simple">
+<li><p><strong>Single-habitat graph</strong> for label <span class="math notranslate nohighlight">\(k\)</span>: nodes of habitat <span class="math notranslate nohighlight">\(k\)</span>
+only; every pair with <span class="math notranslate nohighlight">\(d\le\tau\)</span> is an edge of type
+<code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code>.</p></li>
+<li><p><strong>成对图</strong> 针对无序标签 <span class="math notranslate nohighlight">\((a,b)\)</span> 、<span class="math notranslate nohighlight">\(a&lt;b\)</span> ：<span class="math notranslate nohighlight">\(a\)</span> 节点与 <span class="math notranslate nohighlight">\(b\)</span> 节点在 <span class="math notranslate nohighlight">\(dle       au\)</span> 下的 <strong>inter</strong> 边。若 <code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code> 为 true（默认），同 :math:`      au` 下各标签内也加 <strong>intra</strong> 边。下方界面指标仅用 <strong>类间邻居</strong> （isolated ratio、R21/R12、pair degree 族）；全图指标（modularity、assortativity、betweenness、components、extended efficiency）用该对的完整双标签图（inter + 可选 intra），非全生境并图。它们不是纯界面分数。</p></li>
+</ul>
+<p>来自 <code class="docutils literal notranslate"><span class="pre">w</span></code> 的边权重 <code class="docutils literal notranslate"><span class="pre">edge_weight</span></code> ：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}w =
+\begin{cases}
+1 &amp; \text{if none (default)} \\
+d(u,v) &amp; \text{if distance} \\
+1/(d(u,v)+10^{-6}) &amp; \text{if inverse-distance}
+\end{cases}\end{split}\]</div>
+<p><code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> is unused for this method (stored as missing).</p>
+</section>
+<section id="edges-minimum-voxel-distance">
+<h3>边：最小体素距离<a class="headerlink" href="#edges-minimum-voxel-distance" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> （ <strong>默认</strong> ）。复用 <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> :math:`     au` （默认 <code class="docutils literal notranslate"><span class="pre">5.0</span></code> 体素索引单位）。默认 8 体素立方时，面邻立方相连（最近体素相距一跳）。立方间空一格最近体素距离约 8，大于 :math:`  au=5` ，故不连。当两节点 <span class="math notranslate nohighlight">\(u,v\)</span> 体素集分离的最近体素距离满足条件时存在无向边</p>
+<div class="math notranslate nohighlight">
+\[d_{min}(u,v)=min_{pin B_{u},,qin B_{v}}|p-q|_{2} le  au\]</div>
+<p>这是两体素集间的最小 pairwise 距离， <strong>非</strong> Hausdorff 距离（max-of-mins）， <strong>非</strong> 质心距离：两大连通区边界可很近而质心很远。用体素索引 KD 树实现（ <code class="docutils literal notranslate"><span class="pre">scipy.spatial.cKDTree</span></code> ）。单生境与 pairwise（inter / 可选 intra）图结构与 <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> 相同。存储边 <code class="docutils literal notranslate"><span class="pre">distance</span></code> 即此 <span class="math notranslate nohighlight">\(d_{min}\)</span> （故 <code class="docutils literal notranslate"><span class="pre">avg_edge_distance</span></code> / <code class="docutils literal notranslate"><span class="pre">std_edge_distance</span></code> 概括最近体素长度，非质心长度）。 <code class="docutils literal notranslate"><span class="pre">edge_weight</span></code> 为 <code class="docutils literal notranslate"><span class="pre">distance</span></code> 或 <code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code> 时用 <span class="math notranslate nohighlight">\(d_{min}\)</span> 。 <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> 未用（存为缺失）。</p>
+</section>
+<section id="edges-voxel-adjacency-opt-in">
+<h3>边：体素邻接（可选）<a class="headerlink" href="#edges-voxel-adjacency-opt-in" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code> （可选）。将每节点绘制到整数 id 数组（背景与未请求标签保持 <code class="docutils literal notranslate"><span class="pre">0</span></code> ）。对 <strong>半空间</strong> 中每个唯一邻接偏移（第一个非零分量 <span class="math notranslate nohighlight">\(=+1\)</span> ，故每个无序体素对只计一次）：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">corner</span></code> （默认）：最多 <span class="math notranslate nohighlight">\(d\)</span> 个非零偏移（2-D 8 连通，3-D 26 连通）。2-D 中 <code class="docutils literal notranslate"><span class="pre">edge</span></code> 与 <code class="docutils literal notranslate"><span class="pre">corner</span></code> 一致；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge</span></code>: up to two non-zero offsets (8-conn / 18-conn);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">face</span></code> ：一个非零偏移量（4-连通 / 6-连通）。在需要4/6连通性时，面保持可用。</p></li>
+</ul>
+<p>Let <span class="math notranslate nohighlight">\(N_{mathrm{adj}}(u,v)\)</span> be the number of neighbouring 体素 pairs whose ids are <span class="math notranslate nohighlight">\((u,v)\)</span>. An edge exists iff</p>
+<div class="math notranslate nohighlight">
+\[N_{mathrm{adj}}(u,v) ge mathrm{adjacency_min_voxels}\]</div>
+<p>(default <code class="docutils literal notranslate"><span class="pre">10</span></code>). An edge exists when two regions are adjacent and the contact (shared-boundary) 体素 count is &gt;= 10, measured on the (possibly eroded) 掩膜. Default <code class="docutils literal notranslate"><span class="pre">erosion_radius=0</span></code> means the 生境 labels as drawn. <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> <span class="math notranslate nohighlight">\(=N_{mathrm{adj}}\)</span>. Distance on the edge is still the centroid Euclidean distance (used by distance summaries). Weight is <code class="docutils literal notranslate"><span class="pre">1</span></code> unless <code class="docutils literal notranslate"><span class="pre">edge_weight='contact_voxels'</span></code>, in which case <span class="math notranslate nohighlight">\(w=N_{mathrm{adj}}\)</span>. Pairwise intra / inter filtering matches the centroid-distance case.</p>
+</section>
+</section>
+<section id="single-habitat-metrics">
+<h2>单生境指标<a class="headerlink" href="#single-habitat-metrics" title="Link to this heading">#</a></h2>
+<p>前缀 <code class="docutils literal notranslate"><span class="pre">single_h{k}_</span></code> 。设 <span class="math notranslate nohighlight">\(G=(V_G,E_G)\)</span> 为生境 <span class="math notranslate nohighlight">\(k\)</span> 的无向 NetworkX 图，<span class="math notranslate nohighlight">\(n=|V_G| ` 、:math:`m=|E_G| ` 。度 :math:`deg(v)\)</span> 为非加权。<span class="math notranslate nohighlight">\(G_{mathrm{LCC}}\)</span> 为最大连通分量（按节点数），<span class="math notranslate nohighlight">\(n_{mathrm{LCC}}=|V(G_{mathrm{LCC}})|\)</span> 。总体标准差 <span class="math notranslate nohighlight">\(mathrm{sd}\)</span> 为 <code class="docutils literal notranslate"><span class="pre">numpy.std</span></code> （ <code class="docutils literal notranslate"><span class="pre">ddof=0</span></code> ）。空/未定义返回 <span class="math notranslate nohighlight">\(0\)</span> 。</p>
+<p>规模与分量：</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{n_nodes} &amp;= n \mathrm{n_edges} &amp;= m \mathrm{edge_density} &amp;   begin{cases   mbig/binom{n}{2} &amp; nge 2 \   0 &amp; n&lt;   end{cases} \mathrm{connected_components} &amp;   begin{cases   c(G) &amp; n&gt;0 \   0 &amp; n=   end{cases} \mathrm{connected_components_ratio} &amp;   begin{cases   c(G)/n &amp; n&gt;0 \   0 &amp; n=   end{cases} \mathrm{largest_component_ratio} &amp;   begin{cases   n_{mathrm{LCC}}/n &amp; n&gt;0 \   0 &amp; n=   end{casesend{aligned}\]</div>
+<p>度统计。<span class="math notranslate nohighlight">\({deg(v)}_{vin V_G}\)</span> 时 <span class="math notranslate nohighlight">\(n=0\)</span> 为空。跳数归一化伴生量除以 <span class="math notranslate nohighlight">\(n-1\)</span> （<span class="math notranslate nohighlight">\(0\)</span> 时为 <span class="math notranslate nohighlight">\(nle 1\)</span> ）。<span class="math notranslate nohighlight">\(0\)</span> 时 <code class="docutils literal notranslate"><span class="pre">degree_cv</span></code> 为 <span class="math notranslate nohighlight">\(overline{deg}&lt;10^{-12}\)</span> ：</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{avg_degree} &amp;= overline{deg} \mathrm{max_degree} &amp;= max_v deg(v) \mathrm{min_degree} &amp;= min_v deg(v) \mathrm{avg_degree_norm} &amp;= overline{deg}/(n-1) \mathrm{max_degree_norm} &amp;= max_v deg(v)/(n-1) \mathrm{min_degree_norm} &amp;= min_v deg(v)/(n-1) \mathrm{degree_cv} &amp;= mathrm{sd}(deg)/overline{deg} \mathrm{degree_entropy&amp;= -sum_{t} p_{t}log_{2}(p_{t}+10^{-12})qquap_{t}=#{v:deg(v)=t}/end{aligned}\]</div>
+<p>边长使用 <span class="math notranslate nohighlight">\(d_e\)</span> <strong>全部</strong> 边上存储的边 <code class="docutils literal notranslate"><span class="pre">distance</span></code> <span class="math notranslate nohighlight">\(G\)</span> （<span class="math notranslate nohighlight">\(0\)</span> 时为 <span class="math notranslate nohighlight">\(m=0\)</span> ）。默认 <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> 存最近体素 <span class="math notranslate nohighlight">\(d_{min}\)</span> ； <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> 与 <code class="docutils literal notranslate"><span class="pre">adjacency</span></code> 存质心欧氏距离。节点大小用体素计数 <span class="math notranslate nohighlight">\({n_v}\)</span> ：</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{avg_edge_distance} &amp;= overline{{d_e:ein E_G}} \mathrm{std_edge_distance} &amp;= mathrm{sd}({d_e:ein E_G}) \mathrm{avg_node_voxels} &amp;= overline{{n_v:vin V_G}} \mathrm{std_node_voxels} &amp;= mathrm{sd}({n_v:vin V_G}) \mathrm{node_voxels_cv} &amp;= mathrm{sd}({n_v})/overline{{n_v}end{aligned}\]</div>
+<p>空间离散度为质心各轴标准差的均值（<span class="math notranslate nohighlight">\(0\)</span> 时为 <span class="math notranslate nohighlight">\(n&lt;2\)</span> ）：</p>
+<div class="math notranslate nohighlight">
+\[mathrm{spatial_dispersion= frac{1}{d}sum_{alpha=1}^{d  mathrm{sd}bigl({c_{v,alpha}}_{vin V_G}bigr)\]</div>
+<p>最近邻比（Clark–Evans <span class="math notranslate nohighlight">\(R\)</span> ）。设 <span class="math notranslate nohighlight">\(d_{mathrm{NN}}\)</span> 为各质心到最近 <strong>其他</strong> 质心的平均欧氏距离（KD-tree，<span class="math notranslate nohighlight">\(k=2\)</span> ）。研究区域测度 <span class="math notranslate nohighlight">\(A=sum_{v}n_{v}\)</span> （占用体素数，非质心包围盒；绝对值 <strong>不可</strong> 与 PathPrism 2-D 包围盒形式比较）。密度 :math:</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedd_{mathrm{CSR}} &amp;   begin{cases   1big/(2sqrt\]</div>
+<p><span class="math notranslate nohighlight">\(R&lt;1\)</span> 聚类，<span class="math notranslate nohighlight">\(R=1\)</span> CSR，<span class="math notranslate nohighlight">\(R&gt;1\)</span> 规则性。</p>
+<p>平均聚类系数为 Watts–Strogatz <a class="reference internal" href="#watts1998" id="id1"><span>[Watts1998]</span></a> 局部聚类系数均值（<span class="math notranslate nohighlight">\(0\)</span> 时为 <span class="math notranslate nohighlight">\(n=0\)</span> ；<span class="math notranslate nohighlight">\(deg(v)&lt;2\)</span> 的节点贡献 <span class="math notranslate nohighlight">\(0\)</span> ）：</p>
+<div class="math notranslate nohighlight">
+\[mathrm{avg_聚类= frac{1}{n}sum_{vin V_G  frac{2，t_v}{deg（v），（deg（v）-1）}\]</div>
+<p>where <span class="math notranslate nohighlight">\(t_v\)</span> is the number of triangles through <span class="math notranslate nohighlight">\(v\)</span>.</p>
+<p>路径指标仅用 <span class="math notranslate nohighlight">\(G_{mathrm{LCC}}\)</span> 上 <strong>跳数</strong> ，且仅当 <span class="math notranslate nohighlight">\(n_{mathrm{LCC}}ge 2\)</span> （否则 <span class="math notranslate nohighlight">\(0\)</span> ）：</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{avg_path_length&amp;= frac{1}{n_{mathrm{LCC}}(n_{mathrm{LCC}}-1)   sum_{s
+eq t} d_G(s,t   quad ext{在 }G_{mathrm{LCC}}  ext{ 上} \mathrm{diameter&amp;= max_{s,t} d_G(s,t   quad     ext{在 }G_{mathrm{LCC}}  ext{ 上} \mathrm{avg_path_length_norm&amp;= mathrm{avg_path_length}/(n_{mathrm{LCC}}-1) \mathrm{diameter_norm&amp;= mathrm{diameter}/(n_{mathrm{LCC}}-1end{aligned}\]</div>
+<p>同一 LCC 上的中心性（<span class="math notranslate nohighlight">\(n_{mathrm{LCC}}&gt;1\)</span> ）。Betweenness 用 NetworkX <code class="docutils literal notranslate"><span class="pre">normalized=True</span></code> （已除以无向最大 <span class="math notranslate nohighlight">\((n_{mathrm{LCC}}-1)(n_{mathrm{LCC}}-2)/2\)</span> ）。Closeness 用连通图形式：</p>
+<div class="math notranslate nohighlight">
+\[图论中心性（公式同英文原文）begin{alignedmathrm{BC}(v&amp;= frac{2}{(n_{mathrm{LCC}}-1)(n_{mathrm{LCC}}-2)   sum_{s
+eq v
+eq t   frac{sigma_{st}(v)}{sigma_{st}} \mathrm{CC}(v&amp;= (n_{mathrm{LCC}}-1)Big/sum_{u
+eq v} d_G(v,u) \mathrm{avg_betweenness&amp;= overline{{mathrm{BC}(v):vin V(G_{mathrm{LCC}})}} \mathrm{avg_closeness&amp;= overline{{mathrm{CC}(v):vin V(G_{mathrm{LCC}})}end{aligned}\]</div>
+<p>Degree assortativity is Newman's degree–degree Pearson correlation
+on <span class="math notranslate nohighlight">\(G\)</span> (unweighted). Non-finite values and exceptions become
+<span class="math notranslate nohighlight">\(0\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[mathrm{degree_assortativity= r_{deg}(G)\]</div>
+<p>模块度使用 Louvain 社区（ <code class="docutils literal notranslate"><span class="pre">louvain_communities(G,</span> <span class="pre">weight='weight',</span> <span class="pre">seed=0)</span></code> ）再 Newman–Girvan <span class="math notranslate nohighlight">\(Q\)</span> 。<span class="math notranslate nohighlight">\(m=0\)</span> 则 <span class="math notranslate nohighlight">\(Q=0\)</span> 。典型范围约 <span class="math notranslate nohighlight">\([-0.5,1]\)</span> ：</p>
+<div class="math notranslate nohighlight">
+\[mathrm{modularity= = frac{1}{2W}sum_{i,j  left(A_{ij}-frac{k_i k_j}{2W\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(W\)</span> 为边权总和，<span class="math notranslate nohighlight">\(k_i\)</span> 为加权度，<span class="math notranslate nohighlight">\(c_i\)</span> 为节点 <span class="math notranslate nohighlight">\(i\)</span> 的 Louvain 社区。默认 <code class="docutils literal notranslate"><span class="pre">edge_weight='none'</span></code> 时，每个 <span class="math notranslate nohighlight">\(A_{ij}\)</span> 为 <span class="math notranslate nohighlight">\(0\)</span> 或 <span class="math notranslate nohighlight">\(1\)</span> 。</p>
+</section>
+<section id="pairwise-metrics">
+<h2>成对指标<a class="headerlink" href="#pairwise-metrics" title="Link to this heading">#</a></h2>
+<p>Prefix <code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_</span></code> with <span class="math notranslate nohighlight">\(a&lt;b\)</span>. This graph contains <strong>only</strong> nodes of 生境 <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>. It is <strong>not</strong> a union of all 生境 in the map: <code class="docutils literal notranslate"><span class="pre">pair_h1_h2_modularity</span></code> does not see H3, and there is no default all-生境 mega-graph. <code class="docutils literal notranslate"><span class="pre">single_h{k}_*</span></code> is the one-生境 graph for label <span class="math notranslate nohighlight">\(k\)</span> only.</p>
+<p>Let <span class="math notranslate nohighlight">\(V_a,V_b\)</span> be the node sets of the two labels,
+<span class="math notranslate nohighlight">\(n_1=|V_a|\)</span>, <span class="math notranslate nohighlight">\(n_2=|V_b|\)</span>, <span class="math notranslate nohighlight">\(N=n_1+n_2\)</span>, and
+<span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> the inter-class edges only
+(<code class="docutils literal notranslate"><span class="pre">edge_type</span> <span class="pre">!=</span> <span class="pre">'intra'</span></code>). Interface metrics below use cross-class
+neighbors / <span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> only (isolated ratio, R21/R12,
+<code class="docutils literal notranslate"><span class="pre">degree_cv</span></code>, <code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code>, <code class="docutils literal notranslate"><span class="pre">degree_skewness</span></code>). &quot;Whole-graph&quot;
+below means the <strong>full two-label pair graph</strong> (inter + optional intra
+inside this pair), not the whole-tumour habitat map. Those pair
+topology columns (components, modularity, assortativity, betweenness,
+extended efficiency) are therefore <strong>not</strong> interface-only scores.</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{n_nodes_1} &amp;= n_1 \mathrm{n_nodes_2} &amp;= n_2 \mathrm{n_edges} &amp;= |E_{mathrm{inter}}| \mathrm{edge_density} &amp;   begin{cases   |E_{mathrm{inter}}|/(n_1 n_2) &amp; n_1 n_2&gt;0 \   0 &amp; n_1 n_2=   end{casesend{aligned}\]</div>
+<p>距离摘要仅使用 <span class="math notranslate nohighlight">\(d_e\)</span> 上存储的 <code class="docutils literal notranslate"><span class="pre">distance</span></code> <span class="math notranslate nohighlight">\(E_{mathrm{inter}}\)</span> （默认 <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> 的最近体素 <span class="math notranslate nohighlight">\(d_{min}\)</span> ； <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> / <code class="docutils literal notranslate"><span class="pre">adjacency</span></code> 为质心欧氏距离）：</p>
+<div class="math notranslate nohighlight">
+\[边距离汇总（公式同英文原文）begin{alignedmathrm{avg_edge_distance&amp;= overline{{d_e:ein E_{mathrm{inter}}}} \mathrm{std_edge_distance&amp;= mathrm{sd}({d_e:ein E_{mathrm{inter}}}end{aligned}\]</div>
+<p>接触体素（adjacency 方法；除非 <code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code> 否则 <span class="math notranslate nohighlight">\(0\)</span> ）。<span class="math notranslate nohighlight">\(N_{mathrm{adj}}(e)\)</span> 为边 <span class="math notranslate nohighlight">\(e\)</span> 上相邻体素 <strong>对</strong> 计数：</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{contact_体素_sum&amp;= sum_{ein E_{mathrm{inter}}} N_{mathrm{adj}}(e) \mathrm{contact_体素_mean&amp;= overline{{N_{mathrm{adj}}(e)}} \mathrm{contact_体素_max&amp;= max_e N_{mathrm{adj}}(e   quad ext{(0 if no inter edges)end{aligned}\]</div>
+<p><span class="math notranslate nohighlight">\(vin V_a\)</span> 的交叉度仅统计 <span class="math notranslate nohighlight">\(V_b\)</span> 中邻居。孤立比、R21 / R12、 <code class="docutils literal notranslate"><span class="pre">degree_cv</span></code> 与 <code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code> 均用此计数。不导出 pair <code class="docutils literal notranslate"><span class="pre">avg_degree_*</span></code> ：会与 <code class="docutils literal notranslate"><span class="pre">avg_h{b}_per_h{a}</span></code> 重复。生境内平均度为 <code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_degree</span></code> 。</p>
+<div class="math notranslate nohighlight">
+\[begin{aligneddeg_{mathrm{cross}}(v&amp;= #{usim v:       ext{label}(u)
+eq   ext{label}(v)} \mathrm{isolated_ratio_1&amp;= #{vin V_a:deg_{mathrm{cross}}(v)=0}/n_1 \mathrm{isolated_ratio_2&amp;= #{vin V_b:deg_{mathrm{cross}}(v)=0}/n_2 \mathrm{avg_h{b}_per_h{a}&amp;= overline{deg_{mathrm{cross}}}(V_a) \mathrm{avg_h{b}_per_h{a}_norm&amp;= overline{deg_{mathrm{cross}}}(V_a)/n_2 \mathrm{avg_h{a}_per_h{b}&amp;= overline{deg_{mathrm{cross}}}(V_b) \mathrm{avg_h{a}_per_h{b}_norm&amp;= overline{deg_{mathrm{cross}}}(V_b)/n_1 \mathrm{degree_cv_1&amp;= mathrm{sd}(deg_{mathrm{cross}}|_{V_a})   overline{deg_{mathrm{cross}}|_{V_a}} \mathrm{degree_cv_2&amp;= mathrm{sd}(deg_{mathrm{cross}}|_{V_b})   overline{deg_{mathrm{cross}}|_{V_b}} \mathrm{degree_entropy_1&amp;= H({deg_{mathrm{cross}}(v):vin V_a}) \mathrm{degree_entropy_2&amp;= H({deg_{mathrm{cross}}(v):vin V_b}end{aligned}\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(H\)</span> 与上文 <code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code> 相同的 Shannon 熵。</p>
+<p>连通分量与模块度使用 <strong>完整双标签</strong> 对图 <span class="math notranslate nohighlight">\(G\)</span> （仅生境 <span class="math notranslate nohighlight">\(a\)</span> 与 <span class="math notranslate nohighlight">\(b\)</span> ）：</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{connected_components} &amp;= c(G) \mathrm{connected_components_norm} &amp;= c(G)/N \mathrm{modularity} &amp;= Q(G   quad     ext{(same Louvain }Q    ext{ as single-habitat)end{aligned}\]</div>
+<p>平均 betweenness 为 NetworkX 归一化 BC，在 <strong>完整</strong> 图（intra + inter 路径）上按类平均（<span class="math notranslate nohighlight">\(0\)</span> 或 <span class="math notranslate nohighlight">\(Nle 1\)</span> 时为 <span class="math notranslate nohighlight">\(m_{mathrm{full}}=0\)</span> ）。它不是仅界面的 brokerage 分数。生境标签 assortativity 为 <code class="docutils literal notranslate"><span class="pre">habitat_label</span></code> 上 Newman 属性 assortativity（相同可定义性门控）；需要 intra 边非平凡（仅 inter 图完全 disassortative）：</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{betweenness_mean_1&amp;= overline{{mathrm{BC}(v):vin V_a}} \mathrm{betweenness_mean_2&amp;= overline{{mathrm{BC}(v):vin V_b}} \mathrm{生境_assortativity&amp;= r_{mathrm{label}}(Gend{aligned}\]</div>
+</section>
+<section id="extended-metrics">
+<h2>扩展指标<a class="headerlink" href="#extended-metrics" title="Link to this heading">#</a></h2>
+<p>由 <code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> 启用（默认 <code class="docutils literal notranslate"><span class="pre">true</span></code> ；传 <code class="docutils literal notranslate"><span class="pre">false</span></code> 省略）。小世界用 Humphries 解析 ER <span class="math notranslate nohighlight">\(S\)</span> ，除非 <code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> 为 <code class="docutils literal notranslate"><span class="pre">config</span></code> 或 <code class="docutils literal notranslate"><span class="pre">rewire</span></code> 。<span class="math notranslate nohighlight">\(G^{star}\)</span> 为 <strong>分析子图</strong> ：输入图连通且有边则用输入图；否则用最大连通分量（空/无边图保持原样）。<span class="math notranslate nohighlight">\(n^{star}=|V(G^{star})|\)</span> 。<span class="math notranslate nohighlight">\(0\)</span> 或 <span class="math notranslate nohighlight">\(n^{star}&lt;2\)</span> 无边时下列整合指标为 <span class="math notranslate nohighlight">\(G^{star}\)</span> 。</p>
+<p>Global / local efficiency (Latora–Marchiori <a class="reference internal" href="#latora2001" id="id2"><span>[Latora2001]</span></a>; hop distances, unweighted):</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{global_efficiency&amp;= frac{1}{n^{star}(n^{star}-1)   sum_{i
+eq j}frac{1}{d_{ij}} \mathrm{local_efficiency&amp;= frac{1}{n^{star}}sum_{v   E_{mathrm{glob}}bigl(G^{star}[N(v)]bigrend{aligned}\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(G^{star}[N(v)]\)</span> 是由 <span class="math notranslate nohighlight">\(v\)</span> 的邻居诱导的子图，而邻居少于两个的节点（或它们之间没有边的节点）贡献 <span class="math notranslate nohighlight">\(0\)</span> 。</p>
+<section id="small-worldness-and-random-graph-nulls">
+<h3>小世界性与随机图零模型<a class="headerlink" href="#small-worldness-and-random-graph-nulls" title="Link to this heading">#</a></h3>
+<p>Watts and Strogatz <a class="reference internal" href="#watts1998" id="id3"><span>[Watts1998]</span></a> called a network small-world when it has lattice-like 聚类 and random-graph path lengths. Humphries and Gurney <a class="reference internal" href="#humphries2006" id="id4"><span>[Humphries2006]</span></a> <a class="reference internal" href="#humphries2008" id="id5"><span>[Humphries2008]</span></a> turned that into one ratio <span class="math notranslate nohighlight">\(sigma=(C/C_{mathrm{rand}})/(L/L_{mathrm{rand}})\)</span>, with <span class="math notranslate nohighlight">\(sigma&gt;1\)</span> commonly read as small-world. HABIT uses that ratio. <span class="math notranslate nohighlight">\(C\)</span> is <strong>transitivity</strong> (global 聚类, not the mean of local coefficients) and <span class="math notranslate nohighlight">\(L\)</span> is mean shortest-path length on <span class="math notranslate nohighlight">\(G^{star}\)</span>, matching NetworkX <code class="docutils literal notranslate"><span class="pre">sigma</span></code>. The exported value is <strong>0</strong> unless <span class="math notranslate nohighlight">\(n^{star}ge\)</span> <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> (default <code class="docutils literal notranslate"><span class="pre">10</span></code>), <span class="math notranslate nohighlight">\(G^{star}\)</span> is connected, and it has at least one edge. This is a <strong>descriptor</strong>, not a hypothesis test.</p>
+<p>HABIT 写入 <strong>一</strong> 列 <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> 。三个 <code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> 值为 <span class="math notranslate nohighlight">\(C_{mathrm{rand}}\)</span> 与 <span class="math notranslate nohighlight">\(L_{mathrm{rand}}\)</span> 的互斥 <strong>零模型</strong> 。非三种不同观测图指标。勿当作可互换，勿发明第四种 sampler。</p>
+<p><strong>analytic（默认）— Erdős–Rényi（ER）。</strong> Humphries 原始零模型为同节点数 <span class="math notranslate nohighlight">\(n\)</span> 与边数 <span class="math notranslate nohighlight">\(m\)</span> 的 ER 随机图 <a class="reference internal" href="#erdosrenyi1959" id="id6"><span>[ErdosRenyi1959]</span></a>。HABIT 用 <a class="reference internal" href="#humphries2008" id="id7"><span>[Humphries2008]</span></a> 解析近似：:math:<a href="#id3"><span class="problematic" id="id4">`</span></a>C_{mathrm{rand}}approxlangle</p>
+<p><strong>config — configuration model.</strong> 保持观测度序列的 stub-matching 随机图 <a class="reference internal" href="#newman2001" id="id8"><span>[Newman2001]</span></a> <a class="reference internal" href="#milo2004" id="id9"><span>[Milo2004]</span></a>。<span class="math notranslate nohighlight">\(C_{mathrm{rand}}\)</span> 与 <span class="math notranslate nohighlight">\(L_{mathrm{rand}}\)</span> 为 <code class="docutils literal notranslate"><span class="pre">small_world_nrand</span></code> 接受简单连通图均值（默认 <code class="docutils literal notranslate"><span class="pre">100</span></code> ）。配对失败或图不连通则拒绝。快速采样无法填满 ensemble 时，HABIT 回退 Maslov–Sneppen 混合观测图， <code class="docutils literal notranslate"><span class="pre">nrand</span></code> 不静默缩小。</p>
+<p><strong>rewire — Maslov–Sneppen。</strong> 从观测图副本出发做双边交换（约每条边 <code class="docutils literal notranslate"><span class="pre">small_world_niter</span></code> 次交换，默认 <code class="docutils literal notranslate"><span class="pre">100</span></code> ）[Maslov2002]_。每个节点度保持不变；连接关系被混合。NetworkX <code class="docutils literal notranslate"><span class="pre">smallworld.sigma</span></code> / <code class="docutils literal notranslate"><span class="pre">random_reference</span></code> 即此实现（NetworkX 默认 ensemble 仅 <code class="docutils literal notranslate"><span class="pre">nrand=10</span></code> ；HABIT 用 <code class="docutils literal notranslate"><span class="pre">100</span></code> ）。Rubinov 与 Sporns <a class="reference internal" href="#rubinov2010" id="id11"><span>[Rubinov2010]</span></a> 综述了脑图的同一保度思想。</p>
+<p>选择采样器以匹配引用，而不是为了“改进” <span class="math notranslate nohighlight">\(sigma\)</span> ：</p>
+<ul class="simple">
+<li><p>按 2008 论文报告 Humphries <em>S</em> → <code class="docutils literal notranslate"><span class="pre">analytic</span></code> 。</p></li>
+<li><p>将 NetworkX <code class="docutils literal notranslate"><span class="pre">sigma</span></code> → <code class="docutils literal notranslate"><span class="pre">rewire</span></code> 。</p></li>
+<li><p>教科书配置-模型集成 → <code class="docutils literal notranslate"><span class="pre">config</span></code> 。</p></li>
+</ul>
+<p>若运行使用 <code class="docutils literal notranslate"><span class="pre">analytic</span></code> 或 <code class="docutils literal notranslate"><span class="pre">config</span></code> ，稿件中勿写 &quot;rewire&quot;。</p>
+<p>生境图是 <strong>空间</strong> 的。三种 null 均不约束体素坐标或接触几何，故 lattice-like 图相对任一 null 都可能 inflate <span class="math notranslate nohighlight">\(C\)</span> 。这是成像图上经典小世界检验的已知局限 <a class="reference internal" href="#rubinov2010" id="id12"><span>[Rubinov2010]</span></a>，非用随意生成器替换这些 null 的理由。</p>
+<p>聚类、平均路径长度以及局部/全局效率使用与 NetworkX 相同的无权跳数距离。根据请求，集合是堆叠的邻接批次（如果安装了 Numba 则在 CPU 上运行；否则使用 NumPy；当满足 <code class="docutils literal notranslate"><span class="pre">graph_null_device='auto'</span></code> 且任务足够大时，使用一次 PyTorch CUDA Floyd–Warshall 启动）。</p>
+<p>需要 <span class="math notranslate nohighlight">\(sigma&gt;1\)</span> 或 <span class="math notranslate nohighlight">\(phi_{mathrm{norm}}&gt;1\)</span> 的 <em>p</em> 值的论文应调用 <a class="reference internal" href="../../api/generated/habit.kernels.compare_graph_to_degree_preserving_null.html#habit.kernels.compare_graph_to_degree_preserving_null" title="habit.kernels.compare_graph_to_degree_preserving_null"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.kernels.compare_graph_to_degree_preserving_null()</span></code></a> （通常 <strong>100–1000</strong> 张图 <a class="reference internal" href="#vandenheuvel2011" id="id13"><span>[VandenHeuvel2011]</span></a>）。</p>
+<p>Rich-club <a class="reference internal" href="#colizza2006" id="id14"><span>[Colizza2006]</span></a> <a class="reference internal" href="#mcauley2007" id="id15"><span>[McAuley2007]</span></a>：HABIT 存储 <strong>有限</strong> <span class="math notranslate nohighlight">\(phi_{mathrm{norm}}(k)\)</span> 的均值。analytic 默认下 <span class="math notranslate nohighlight">\(phi_{mathrm{rand}}(k)\)</span> 来自 <strong>一个</strong> 配置模型图（NetworkX / Milo 点估计 <a class="reference internal" href="#milo2004" id="id16"><span>[Milo2004]</span></a>）。 <code class="docutils literal notranslate"><span class="pre">config</span></code> / <code class="docutils literal notranslate"><span class="pre">rewire</span></code> 复用 sigma ensemble。</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{small\_world\_sigma}
+&amp;= \frac{C/C_{\mathrm{rand}}}{L/L_{\mathrm{rand}}} \\
+\phi(k)
+&amp;= \frac{2 E_{&gt;k}}{n_{&gt;k}(n_{&gt;k}-1)} \\
+\phi_{\mathrm{norm}}(k)
+&amp;= \phi(k)/\phi_{\mathrm{rand}}(k) \\
+\mathrm{rich\_club\_coefficient}
+&amp;= \overline{\{\phi_{\mathrm{norm}}(k):\phi_{\mathrm{norm}}(k)\text{ finite}\}}
+\end{aligned}\end{split}\]</div>
+<p><span class="math notranslate nohighlight">\(G^{star}\)</span> 上 betweenness 分布与上文相同 NetworkX 归一化 <span class="math notranslate nohighlight">\(mathrm{BC}(v)in[0,1]\)</span> 。<span class="math notranslate nohighlight">\(n^{star}ge 3\)</span> （betweenness 有定义）时 <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> 伴生量 <strong>复制</strong> 这些值； <strong>不再</strong> 除以 <span class="math notranslate nohighlight">\((n^{star}-1)(n^{star}-2)/2\)</span> ：</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{betweenness_max&amp;= max_v mathrm{BC}(v) \mathrm{betweenness_std&amp;= mathrm{sd}({mathrm{BC}(v)}) \mathrm{betweenness_max_norm&amp;   begin{cases   mathrm{betweenness_max} &amp; n^{star}ge 3 \   0 &amp; n^{star}&lt;   end{cases} \mathrm{betweenness_std_norm&amp;   begin{cases   mathrm{betweenness_std} &amp; n^{star}ge 3 \   0 &amp; n^{star}&lt;   end{casesend{aligned}\]</div>
+<p>度偏度为 <span class="math notranslate nohighlight">\(G^{star}\)</span> 上度数的无偏样本偏度（ <code class="docutils literal notranslate"><span class="pre">scipy.stats.skew(...,</span> <span class="pre">bias=False)</span></code> ）（<span class="math notranslate nohighlight">\(0\)</span> 时为 <span class="math notranslate nohighlight">\(n^{star}&lt;3\)</span> ）。成对图以各类 <code class="docutils literal notranslate"><span class="pre">degree_skewness_1</span></code> / <code class="docutils literal notranslate"><span class="pre">degree_skewness_2</span></code> 的 <strong>跨类</strong> 度（与 pair <code class="docutils literal notranslate"><span class="pre">avg_h*_per_h*</span></code> / <code class="docutils literal notranslate"><span class="pre">degree_cv</span></code> 相同邻居计数）替代单值：</p>
+<div class="math notranslate nohighlight">
+\[mathrm{degree_skewness= g_1bigl（{deg（v）：vin V（G^{star}）}bigr）\]</div>
+<p>Per-node local efficiency is <span class="math notranslate nohighlight">\(E_{mathrm{glob}}\)</span> of the neighbour-induced subgraph (same <span class="math notranslate nohighlight">\(0\)</span> rules as above):</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedE_{mathrm{loc}}(v&amp;= E_{mathrm{glob}}bigl(G^{star}[N(v)]bigr) \mathrm{node_local_efficiency_min&amp;= min_v E_{mathrm{loc}}(v) \mathrm{node_local_efficiency_std&amp;= mathrm{sd}({E_{mathrm{loc}}(v)}end{aligned}\]</div>
+<p>成对扩展指标在 <span class="math notranslate nohighlight">\(G^{star}\)</span> 上复用整图 efficiency / small-world / rich-club / betweenness 分布块，再在 <strong>完整</strong> 成对图上加 NetworkX 归一化 BC 的逐类最大值（按该图 <span class="math notranslate nohighlight">\(N\)</span> 归一化）。<span class="math notranslate nohighlight">\(Nge 3\)</span> 时 <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> 伴生值复制上述值：</p>
+<div class="math notranslate nohighlight">
+\[介数极大值（公式同英文原文）begin{alignedmathrm{betweenness_max_1&amp;= max_{vin V_a}mathrm{BC}(v) \mathrm{betweenness_max_2&amp;= max_{vin V_b}mathrm{BC}(v) \mathrm{betweenness_max_1_norm&amp;   begin{cases   mathrm{betweenness_max_1} &amp; Nge 3 \   0 &amp; N&lt;   end{casesend{aligned}\]</div>
+</section>
+</section>
+<section id="voi-normalized-companions">
+<h2>VOI 归一化伴随列<a class="headerlink" href="#voi-normalized-companions" title="Link to this heading">#</a></h2>
+<p>基础指标之后，尺寸相关键获得额外列。原始键 <strong>保留</strong> 。设 <span class="math notranslate nohighlight">\(V\)</span> 与 <span class="math notranslate nohighlight">\(delta_{mathrm{bbox}}\)</span> 同上，<span class="math notranslate nohighlight">\(V_k=#{mathbf{x}:L(mathbf{x})=k}\)</span> 。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>匹配后缀</p></th>
+<th class="head"><p>Companion</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">*_avg_edge_distance</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_std_edge_distance</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_spatial_dispersion</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x/delta_{mathrm{bbox}}\)</span> （长度 / bbox 对角线）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*_contact_voxels_sum</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= xbig/V^{(d-1)/d}\)</span> (whole-VOI interface density)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">*_contact_voxels_mean</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_contact_voxels_max</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> 用各接触边的局部面积尺度，非全局 <span class="math notranslate nohighlight">\(V\)</span> 。对边 <span class="math notranslate nohighlight">\(e=(i,j)\)</span> ，设 <span class="math notranslate nohighlight">\(s_e=min(n_i,n_j)^{(d-1)/d}\)</span> ；伴生列分别为 <span class="math notranslate nohighlight">\(operatorname{mean}_e(c_e/s_e)\)</span> 与 <span class="math notranslate nohighlight">\(max_e(c_e/s_e)\)</span> 。薄节点或对角邻接时可超过 1。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*_avg_node_voxels</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_std_node_voxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x/V\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">*_n_nodes</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_n_nodes_1</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_n_nodes_2</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_n_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">graph_num_nodes_total</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x/V\)</span> (counts as densities)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes_per_habitat_volume</span></code> <span class="math notranslate nohighlight">\(= n/V_k\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_edges</span></code> 、 <code class="docutils literal notranslate"><span class="pre">single_h{k}_connected_components</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_habitat_volume</span></code> <span class="math notranslate nohighlight">\(= x/V_k\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_node_voxels</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_std_node_voxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_fraction</span></code> <span class="math notranslate nohighlight">\(= x/V_k\)</span> （占该生境体素比例）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_edge_distance</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_std_edge_distance</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_spatial_dispersion</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_habitat_bbox_diagonal</span></code> <span class="math notranslate nohighlight">\(=x/delta_k\)</span>, where <span class="math notranslate nohighlight">\(delta_k\)</span> is 生境 <span class="math notranslate nohighlight">\(k\)</span>'s bounding-box diagonal</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_avg_edge_distance</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_std_edge_distance</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_pair_bbox_diagonal</span></code> <span class="math notranslate nohighlight">\(=x/delta_{ab}\)</span> ，<span class="math notranslate nohighlight">\(delta_{ab}\)</span> 为 <span class="math notranslate nohighlight">\(Lin{a,b}\)</span> 的包围盒对角线</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_contact_voxels_sum</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_pair_area_scale</span></code> <span class="math notranslate nohighlight">\(= x/(V_a+V_b)^{(d-1)/d}\)</span> ；与 <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> 不同，该对之外标签不稀释分母</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pair_*_n_nodes_1</span></code> / <code class="docutils literal notranslate"><span class="pre">_n_nodes_2</span></code> （成对节点计数）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_habitat_volume</span></code> 使用 <span class="math notranslate nohighlight">\(V_a\)</span> 或 <span class="math notranslate nohighlight">\(V_b\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>跳数归一化路径/度伴随量（ <code class="docutils literal notranslate"><span class="pre">*_avg_path_length_norm</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_diameter_norm</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_avg_degree_norm</span></code> 等） <strong>已</strong> 按图规模缩放， <strong>不再</strong> 除以 <span class="math notranslate nohighlight">\(V\)</span> 。</p>
+<p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> 并不总是意味着“无干扰特性”。尤其是， <code class="docutils literal notranslate"><span class="pre">avg_node_voxels_norm</span></code> 和 <code class="docutils literal notranslate"><span class="pre">*_fraction</span></code> 表示某节点在整个 VOI 或栖息地中的份额；在默认固定的 8 个体素格点下，它们仍然依赖于 <code class="docutils literal notranslate"><span class="pre">block_size</span></code> 和 <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> 。同样， <code class="docutils literal notranslate"><span class="pre">*_avg_edge_distance_norm</span></code> 是相对于整个 ROI 范围的局部边长：在默认固定的 5 个体素距离阈值下，随着其他条件相似的肿瘤变大，它可能会减小。请报告任何一个伴随项的原始构建参数。</p>
+</section>
+<section id="null-model-comparisons-for-topology">
+<h2>拓扑的零模型比较<a class="headerlink" href="#null-model-comparisons-for-topology" title="Link to this heading">#</a></h2>
+<p>Some graph quantities are dimensionless but still vary systematically with
+node count, edge count, degree sequence, or the statistical behavior of a
+maximum/minimum. Dividing them by VOI volume is not a valid correction.
+For a hypothesis about organization <strong>beyond the degree sequence</strong>, compare
+the observed value against degree-preserving random graphs instead.</p>
+<p>适用于 <code class="docutils literal notranslate"><span class="pre">avg_clustering</span></code> 、 <code class="docutils literal notranslate"><span class="pre">avg_path_length</span></code> 、 <code class="docutils literal notranslate"><span class="pre">diameter</span></code> 、 <code class="docutils literal notranslate"><span class="pre">global_efficiency</span></code> 、 <code class="docutils literal notranslate"><span class="pre">local_efficiency</span></code> 、 <code class="docutils literal notranslate"><span class="pre">modularity</span></code> 、 <code class="docutils literal notranslate"><span class="pre">degree_assortativity</span></code> 、原始 betweenness 最大/标准差、 <code class="docutils literal notranslate"><span class="pre">node_local_efficiency_min/std</span></code> 及 pairwise <code class="docutils literal notranslate"><span class="pre">habitat_assortativity</span></code> 。 <code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code> 与度摘要由保度 null 固定，需考虑样本量的估计而非此 null。默认 <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> 用解析 Erdős–Rényi null <a class="reference internal" href="#humphries2008" id="id17"><span>[Humphries2008]</span></a>。 <code class="docutils literal notranslate"><span class="pre">rich_club_coefficient</span></code> 用一张保度图（或可选 ensemble）。报告 <code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> ，勿将这些当作体积归一化量。</p>
+<p><a class="reference internal" href="../../api/generated/habit.kernels.compare_graph_to_degree_preserving_null.html#habit.kernels.compare_graph_to_degree_preserving_null" title="habit.kernels.compare_graph_to_degree_preserving_null"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.kernels.compare_graph_to_degree_preserving_null()</span></code></a> is an explicit,
+opt-in API. It preserves every node's degree, node count, and edge count,
+but intentionally does <strong>not</strong> preserve connected components, spatial
+coordinates, edge distances, contact area, or habitat labels. It must not
+be used to normalize <code class="docutils literal notranslate"><span class="pre">contact_voxels_*</span></code>, edge-distance, spatial-dispersion,
+or node-volume features. Check its <code class="docutils literal notranslate"><span class="pre">is_valid</span></code> result: a zero Z score for
+an invalid result is a sentinel, not evidence of no difference.</p>
+<p>受试者级附加项（始终写入；与 <code class="docutils literal notranslate"><span class="pre">expected_labels</span></code> 无关）：</p>
+<div class="math notranslate nohighlight">
+\[begin{alignedmathrm{graph_num_habitats&amp;= |mathcal{H}   quad  ext{(labels actually present in this map)} \mathrm{graph_num_nodes_total&amp;= sum_{kinmathcal{H}} n^{(k)end{aligned}\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(n^{(k)}\)</span> 为图中存在生境的 <code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes</span></code> 。</p>
+</section>
+<section id="construction-options">
+<h2>构建选项<a class="headerlink" href="#construction-options" title="Link to this heading">#</a></h2>
+<p>这些字段由 YAML <code class="docutils literal notranslate"><span class="pre">graph:</span></code> 块（<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code> ）、domain 构造器（<a class="reference internal" href="../../api/generated/habit.habitat_features.GraphHabitatFeatures.html#habit.habitat_features.GraphHabitatFeatures" title="habit.habitat_features.GraphHabitatFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphHabitatFeatures</span></code></a> ）与核选项（<a class="reference internal" href="../../api/generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code></a> ）共享。下列默认与 kernel dataclass 一致。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 34.0%" />
+<col style="width: 66.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>含义（默认与源码一致）</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph</span></code></p></td>
+<td><p>生境内区域图（默认 <code class="docutils literal notranslate"><span class="pre">true</span></code> ）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_pairwise_habitat_graph</span></code></p></td>
+<td><p>成对生境间图（默认 <code class="docutils literal notranslate"><span class="pre">true</span></code> ）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">min_distance</span></code> （默认）、 <code class="docutils literal notranslate"><span class="pre">adjacency</span></code> 或 <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code></p></td>
+<td><p>距离阈值， <strong>体素索引</strong> 单位（默认 <code class="docutils literal notranslate"><span class="pre">5.0</span></code> ）。用于 <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> （质心到质心）与 <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> （最近体素）。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adjacency_connectivity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">adjacency</span></code> ：默认 <code class="docutils literal notranslate"><span class="pre">corner</span></code> （2-D 8 / 3-D 26 连通）； <code class="docutils literal notranslate"><span class="pre">edge</span></code> （8/18）； <code class="docutils literal notranslate"><span class="pre">face</span></code> （4/6）仍可用</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels</span></code></p></td>
+<td><p>创建邻接边的最小相邻体素对计数（默认 <code class="docutils literal notranslate"><span class="pre">10</span></code> ）。两区域相邻且接触体素数 &gt;= 10 时有边。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_weight</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">none</span></code> （默认）、 <code class="docutils literal notranslate"><span class="pre">distance</span></code> 、 <code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code> 或 <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code></p></td>
+<td><p>丢弃小于此值的连通区域（默认 <code class="docutils literal notranslate"><span class="pre">1</span></code> ）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">connectivity</span></code></p></td>
+<td><p>连通分量规则：默认 <code class="docutils literal notranslate"><span class="pre">full</span></code> （2-D 8 / 3-D 26）； <code class="docutils literal notranslate"><span class="pre">face</span></code> （4/6）仍可用</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code></p></td>
+<td><p>标记前二值腐蚀迭代次数（默认 <code class="docutils literal notranslate"><span class="pre">0</span></code> / 关；设 <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1</span></code> 在连边前收缩生境）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">node_method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code> （默认：全局 VOI 格子；每格亚区质心一节点）或 <code class="docutils literal notranslate"><span class="pre">component</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code></p></td>
+<td><p>In <code class="docutils literal notranslate"><span class="pre">component</span></code> mode, split components larger than this (default <code class="docutils literal notranslate"><span class="pre">1000</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code></p></td>
+<td><p>立方体边长为 <strong>体素</strong> （默认 <code class="docutils literal notranslate"><span class="pre">8</span></code> ，非毫米）。面邻接 8 立方连通；一空格子（最近体素距离约 8）在 <code class="docutils literal notranslate"><span class="pre">distance_threshold=5</span></code> 仍不连通。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code></p></td>
+<td><p>保留立方体所需的最小 <strong>严格</strong> 占用比例（默认 <code class="docutils literal notranslate"><span class="pre">0.2</span></code> ）。逐立方体应用；胞内极小片段用 <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
+<td><p>在该对双标签图中添加同生境邻近边（默认 <code class="docutils literal notranslate"><span class="pre">true</span></code> ）。界面指标仍仅用类间邻居。成对 modularity / betweenness / components 为该对完整图，非全生境并图。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
+<td><p>效率、一个小世界 <span class="math notranslate nohighlight">\(sigma\)</span> 、rich-club、节点分布摘要（默认 <code class="docutils literal notranslate"><span class="pre">true</span></code> ； <code class="docutils literal notranslate"><span class="pre">false</span></code> 省略）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
+<td><p>Minimum analysis-subgraph node count for either small-world sigma (default <code class="docutils literal notranslate"><span class="pre">10</span></code>; smaller graphs return <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_world_nrand</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code> 为 <code class="docutils literal notranslate"><span class="pre">config</span></code> 或 <code class="docutils literal notranslate"><span class="pre">rewire</span></code> 时的 ensemble 大小（默认 <code class="docutils literal notranslate"><span class="pre">100</span></code> ）。解析 Humphries <em>S</em> 忽略。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_world_niter</span></code></p></td>
+<td><p>Rewires per edge when <code class="docutils literal notranslate"><span class="pre">graph_null_sampler='rewire'</span></code> (default <code class="docutils literal notranslate"><span class="pre">100</span></code>). Ignored by analytic / <code class="docutils literal notranslate"><span class="pre">config</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rich_club_q</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler='rewire'</span></code> 的混合层（默认 <code class="docutils literal notranslate"><span class="pre">100</span></code> ），而不是空图的数量。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">analytic</span></code> （默认，Humphries ER <em>S</em> ）、 <code class="docutils literal notranslate"><span class="pre">config</span></code> 或 <code class="docutils literal notranslate"><span class="pre">rewire</span></code> 。一列 <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> ；后两者替换 analytic 值。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">graph_null_device</span></code></p></td>
+<td><p>Batched C/L device: <code class="docutils literal notranslate"><span class="pre">auto</span></code> (default), <code class="docutils literal notranslate"><span class="pre">cpu</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda</span></code>, or <code class="docutils literal notranslate"><span class="pre">cuda:N</span></code>. <code class="docutils literal notranslate"><span class="pre">auto</span></code> uses CUDA only when Floyd–Warshall work is large enough.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>仅 YAML 可视化字段（配方 hook； <strong>不属于</strong> 提取器 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 指纹）：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 34.0%" />
+<col style="width: 66.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code> 时，在 <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/visualizations/graph/</span></code> 下写图（默认 <code class="docutils literal notranslate"><span class="pre">false</span></code> ）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_format</span></code></p></td>
+<td><p>2D 图为 <code class="docutils literal notranslate"><span class="pre">png</span></code> 、 <code class="docutils literal notranslate"><span class="pre">pdf</span></code> 或 <code class="docutils literal notranslate"><span class="pre">both</span></code> （默认）；3D 渲染仅 PNG</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_dpi</span></code></p></td>
+<td><p>栅格DPI（默认 <code class="docutils literal notranslate"><span class="pre">600</span></code> ）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_show_background</span></code></p></td>
+<td><p>2D 网络后绘制 faint 生境分区（默认 <code class="docutils literal notranslate"><span class="pre">true</span></code> ）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_show_grid</span></code></p></td>
+<td><p>在二维图形上绘制等体积立方晶格（默认 <code class="docutils literal notranslate"><span class="pre">true</span></code> ）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_block_size</span></code></p></td>
+<td><p>显示立方体边长（体素）（默认 <code class="docutils literal notranslate"><span class="pre">null</span></code> → 提取 <code class="docutils literal notranslate"><span class="pre">block_size</span></code> ，库默认 8）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_grid_linestyle</span></code></p></td>
+<td><p>格线线型（默认 <code class="docutils literal notranslate"><span class="pre">--</span></code> 虚线）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_save_3d</span></code></p></td>
+<td><p>依赖允许时也渲染 3D 表面 / 网络视图（默认 <code class="docutils literal notranslate"><span class="pre">true</span></code> ；需 napari）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code> / <code class="docutils literal notranslate"><span class="pre">n_workers</span></code></p></td>
+<td><p>接受旧 v0.1 键以兼容； <strong>无效果</strong> （激活为 <code class="docutils literal notranslate"><span class="pre">feature_types</span></code> ，图串行运行）</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="what-this-family-does-not-claim">
+<h2>本特征族不声称的内容<a class="headerlink" href="#what-this-family-does-not-claim" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>距离为 <strong>体素索引单位</strong> ，非物理毫米。 <code class="docutils literal notranslate"><span class="pre">avg_edge_distance</span></code> 随边方法：默认 <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> 为最近体素 <span class="math notranslate nohighlight">\(d_{min}\)</span> ， <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> / <code class="docutils literal notranslate"><span class="pre">adjacency</span></code> 为质心欧氏。除非各向同性 1 mm 间距，勿当作毫米长度。</p></li>
+<li><p>Small-world <span class="math notranslate nohighlight">\(sigma\)</span> is Humphries' ratio on a possibly tiny 生境 graph. The default <code class="docutils literal notranslate"><span class="pre">analytic</span></code> sampler is the closed-form ER approximation, not a NetworkX Monte-Carlo draw. <code class="docutils literal notranslate"><span class="pre">config</span></code> / <code class="docutils literal notranslate"><span class="pre">rewire</span></code> are degree-preserving ensembles. None of these is Watts–Strogatz inference for a brain connectome, and the value is forced to <code class="docutils literal notranslate"><span class="pre">0</span></code> below <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code>.</p></li>
+<li><p>Empty or missing 生境 emit <strong>zeros</strong>, not missing values. A 队列 mean of a <code class="docutils literal notranslate"><span class="pre">single_h3_*</span></code> column therefore mixes true structure with absent-label zeros unless you filter on <code class="docutils literal notranslate"><span class="pre">graph_num_habitats</span></code> / presence.</p></li>
+<li><p>图特征描述 <strong>划分几何</strong> 。它们不标识生物细胞类型，也不证明生境为克隆区域。</p></li>
+</ul>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Capability implementation: <code class="docutils literal notranslate"><span class="pre">habit/habitat_features/graph.py</span></code>
+(<code class="docutils literal notranslate"><span class="pre">GraphHabitatFeatures</span></code>)</p></li>
+<li><p>Kernels: <code class="docutils literal notranslate"><span class="pre">habit/kernels/habitat_graph/</span></code>
+(<code class="docutils literal notranslate"><span class="pre">nodes.py</span></code>, <code class="docutils literal notranslate"><span class="pre">edges.py</span></code>, <code class="docutils literal notranslate"><span class="pre">proximity.py</span></code>, <code class="docutils literal notranslate"><span class="pre">metrics.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">extended_metrics.py</span></code>, <code class="docutils literal notranslate"><span class="pre">features.py</span></code>, <code class="docutils literal notranslate"><span class="pre">traversal.py</span></code>).
+The kernel crops the label map to the tumour VOI (plus one voxel
+of pad) before nodes, edges, metrics, and size-normalized
+companions run, so a full-CT habitat image is not scanned as
+background. <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> builds one global edge table. Voxel-neighbour
+sweep and dual-lattice range search run only when
+<code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (<code class="docutils literal notranslate"><span class="pre">grid_origin</span></code> and
+<code class="docutils literal notranslate"><span class="pre">grid_block_size</span></code> are set). The Chebyshev radius is <code class="docutils literal notranslate"><span class="pre">0</span></code> when
+<code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&lt;</span> <span class="pre">1</span></code>, else <code class="docutils literal notranslate"><span class="pre">floor((T-1)/B)+1</span></code> for user <code class="docutils literal notranslate"><span class="pre">block_size=B</span></code>
+and <code class="docutils literal notranslate"><span class="pre">distance_threshold=T</span></code>. <code class="docutils literal notranslate"><span class="pre">component</span></code> nodes keep the
+all-pairs closest-voxel walk. One all-sources BFS per graph
+yields Brandes betweenness, closeness, mean path length, and
+diameter (NetworkX definitions). Default extract keeps edges as
+integer arrays and runs those hop / clustering / component
+columns on CSR (Compressed Sparse Row) adjacency -- no NetworkX
+object. Extended columns (default on) reuse those same arrays;
+small-world is the Humphries analytic ER <span class="math notranslate nohighlight">\(S\)</span> unless the
+user asks for <code class="docutils literal notranslate"><span class="pre">config</span></code> / <code class="docutils literal notranslate"><span class="pre">rewire</span></code>. Hop metrics use compiled
+CSR Brandes (serial sources so several graphs can run in threads).
+Louvain modularity uses a CSR Blondel sweep (the partition can
+differ from NetworkX <code class="docutils literal notranslate"><span class="pre">seed=0</span></code>). Node default stays
+<code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code>.</p></li>
+<li><p>YAML block: <code class="docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code> in <code class="docutils literal notranslate"><span class="pre">habit/schemas/workflows/habitat.py</span></code></p></li>
+<li><p>Recipe + CSV name: <code class="docutils literal notranslate"><span class="pre">habit/recipes/features.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">habit/adapters/extract_io.py</span></code> (stem <code class="docutils literal notranslate"><span class="pre">habitat_graph_features</span></code>)</p></li>
+<li><p>Figures: <code class="docutils literal notranslate"><span class="pre">habit/viz/habitat_graph.py</span></code> (matplotlib; 3D needs napari)</p></li>
+<li><p>Removed v2.0.0 shim: <code class="docutils literal notranslate"><span class="pre">habit/compat/graph_plugin.py</span></code> (use domain / API)</p></li>
+</ul>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<p>Liang J, Jiang X, Reitsam NG, et al. Spatial biomarker discovery via
+interpretable semantic learning in histopathology. <em>Cancer Cell</em> 2026
+(<a class="reference external" href="https://doi.org/10.1016/j.ccell.2026.05.014">DOI</a>).</p>
+<div role="list" class="citation-list">
+<div class="citation" id="watts1998" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Watts1998<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p>Watts DJ, Strogatz SH. Collective dynamics of
+'small-world' networks. <em>Nature</em> 1998;393:440–442.
+(<a class="reference external" href="https://doi.org/10.1038/30918">DOI</a>)</p>
+</div>
+<div class="citation" id="erdosrenyi1959" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">ErdosRenyi1959</a><span class="fn-bracket">]</span></span>
+<p>Erdős P, Rényi A. On random graphs I.
+<em>Publ Math Debrecen</em> 1959;6:290–297.</p>
+</div>
+<div class="citation" id="newman2001" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">Newman2001</a><span class="fn-bracket">]</span></span>
+<p>Newman MEJ, Strogatz SH, Watts DJ. Random graphs with
+arbitrary degree distributions and their applications.
+<em>Phys Rev E</em> 2001;64:026118.
+(<a class="reference external" href="https://doi.org/10.1103/PhysRevE.64.026118">DOI</a>)</p>
+</div>
+<div class="citation" id="latora2001" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">Latora2001</a><span class="fn-bracket">]</span></span>
+<p>Latora V, Marchiori M. Efficient behavior of
+small-world networks. <em>Phys Rev Lett</em> 2001;87:198701.
+(<a class="reference external" href="https://doi.org/10.1103/PhysRevLett.87.198701">DOI</a>)</p>
+</div>
+<div class="citation" id="humphries2006" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">Humphries2006</a><span class="fn-bracket">]</span></span>
+<p>Humphries MD, Gurney K, Prescott TJ. The brainstem
+reticular formation is a small-world, not scale-free, network.
+<em>Proc R Soc B</em> 2006;273:503–511.
+(<a class="reference external" href="https://doi.org/10.1098/rspb.2005.3354">DOI</a>)</p>
+</div>
+<div class="citation" id="humphries2008" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Humphries2008<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id5">1</a>,<a role="doc-backlink" href="#id7">2</a>,<a role="doc-backlink" href="#id17">3</a>)</span>
+<p>Humphries MD, Gurney K. Network 'small-world-ness':
+a quantitative method for determining canonical network equivalence.
+<em>PLoS One</em> 2008;3:e2051.
+(<a class="reference external" href="https://doi.org/10.1371/journal.pone.0002051">DOI</a>)</p>
+</div>
+<div class="citation" id="maslov2002" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">Maslov2002</a><span class="fn-bracket">]</span></span>
+<p>Maslov S, Sneppen K. Specificity and stability in
+topology of protein networks. <em>Science</em> 2002;296:910–913.
+(<a class="reference external" href="https://doi.org/10.1126/science.1065103">DOI</a>)</p>
+</div>
+<div class="citation" id="rubinov2010" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Rubinov2010<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id11">1</a>,<a role="doc-backlink" href="#id12">2</a>)</span>
+<p>Rubinov M, Sporns O. 脑连接的复杂网络测量：用途和解释。 <em>NeuroImage</em> 2010;52:1059–1069. (<a class="reference external" href="https://doi.org/10.1016/j.neuroimage.2009.10.003">DOI</a>)</p>
+</div>
+<div class="citation" id="colizza2006" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">Colizza2006</a><span class="fn-bracket">]</span></span>
+<p>Colizza V, Flammini A, Serrano MA, Vespignani A.
+Detecting rich-club ordering in complex networks. <em>Nat Phys</em>
+2006;2:110–115.
+(<a class="reference external" href="https://doi.org/10.1038/nphys209">DOI</a>)</p>
+</div>
+<div class="citation" id="mcauley2007" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id15">McAuley2007</a><span class="fn-bracket">]</span></span>
+<p>McAuley JJ, da Fontoura Costa L, Caetano TS. The
+rich-club phenomenon across complex network hierarchies.
+<em>Appl Phys Lett</em> 2007;91:084103.
+(<a class="reference external" href="https://doi.org/10.1063/1.2773951">DOI</a>)</p>
+</div>
+<div class="citation" id="milo2004" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Milo2004<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id9">1</a>,<a role="doc-backlink" href="#id16">2</a>)</span>
+<p>Milo R 等。任意度序列随机图均匀生成。arXiv:cond-mat/0312028, 2004. (<a class="reference external" href="https://arxiv.org/abs/cond-mat/0312028">arXiv</a>)</p>
+</div>
+<div class="citation" id="vandenheuvel2011" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id13">VandenHeuvel2011</a><span class="fn-bracket">]</span></span>
+<p>van den Heuvel MP, Sporns O. Rich-club
+organization of the human connectome. <em>J Neurosci</em>
+2011;31:15775–15786.
+(<a class="reference external" href="https://doi.org/10.1523/JNEUROSCI.3539-11.2011">DOI</a>)</p>
+</div>
+</div>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>How-to：<a class="reference internal" href="../../how_to/graph_features.html"><span class="doc">图拓扑特征</span></a></p></li>
+<li><p>Configuration: <a class="reference internal" href="../../configuration/feature_extraction.html"><span class="doc">特征提取配置</span></a></p></li>
+<li><p>示例：<a class="reference internal" href="../../auto_examples/04_quantifying_habitats/plot_04_graph_network_features.html"><span class="doc">生境 graph network 特征</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ith_score.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">ITH 分数</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="non_radiomics.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">Non-放射组学 Morphology</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output">Output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notation-and-domains">符号与域</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-construction">图构建</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nodes-connected-regions">节点（连通区域）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edges-centroid-distance">边：质心距离</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edges-minimum-voxel-distance">边：最小体素距离</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edges-voxel-adjacency-opt-in">边：体素邻接（可选）</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#single-habitat-metrics">单生境指标</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pairwise-metrics">成对指标</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extended-metrics">扩展指标</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#small-worldness-and-random-graph-nulls">小世界性与随机图零模型</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#voi-normalized-companions">VOI 归一化伴随列</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#null-model-comparisons-for-topology">拓扑的零模型比较</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#construction-options">构建选项</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-this-family-does-not-claim">本特征族不声称的内容</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See also</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

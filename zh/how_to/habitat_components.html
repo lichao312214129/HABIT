@@ -1,0 +1,2860 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Habitat Spec 组件目录 &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'how_to/habitat_components';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/how_to/habitat_components.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Habitat Spec 组件目录</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="habitat-spec-component-catalog">
+<h1>Habitat Spec 组件目录<a class="headerlink" href="#habitat-spec-component-catalog" title="Link to this heading">#</a></h1>
+<p>已注册 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 名称的 <strong>参考</strong> 选择器。演练留在生境指南（<a class="reference internal" href="../auto_examples/index.html"><span class="doc">Examples</span></a> ）。本页列出每个内置名称、构造参数及 Python / YAML 对应。</p>
+<p>Concept and embedding: <a class="reference internal" href="../auto_examples/00_introductory_tutorials/index.html"><span class="doc">入门教程</span></a> ·
+<a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_02_atomic_two_step.html"><span class="doc">由原子组件构建两步法生境</span></a>.</p>
+<p>Gallery 脚本（一步法、两步法、direct-pooling）展示 <strong>一个</strong> 完整 <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 。本页从该示例向外选择：各阶段有哪些注册名、各参数含义，以及如何在 Python 与 YAML 中写相同选择。</p>
+<p>When a recipe shows <code class="docutils literal notranslate"><span class="pre">Spec(&quot;raw&quot;)</span></code> or <code class="docutils literal notranslate"><span class="pre">Spec(&quot;kmeans&quot;)</span></code>, look up that
+stage below. Parameter tables are generated at Sphinx build time from each
+component constructor. Do not copy them into notebooks — look names and
+constructor signatures up at runtime:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">list_plugins</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_feature_expression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.voxel_features</span><span class="w"> </span><span class="kn">import</span> <span class="n">RawVoxelFeatures</span><span class="p">,</span> <span class="n">VoxelFeatureExtractorRegistry</span>
+
+<span class="nb">print</span><span class="p">([</span><span class="n">info</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">list_plugins</span><span class="p">(</span><span class="s2">&quot;voxel_feature_extractor&quot;</span><span class="p">)])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">VoxelFeatureExtractorRegistry</span><span class="o">.</span><span class="n">constructor_signature</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">))</span>
+<span class="n">voxel</span> <span class="o">=</span> <span class="n">VoxelFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span>
+<span class="n">voxel</span> <span class="o">=</span> <span class="n">RawVoxelFeatures</span><span class="p">(</span><span class="n">modality</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>完整实时目录（每个领域）：<a class="reference internal" href="../api/plugins.html"><span class="doc">插件 introspection API</span></a> 。</p>
+<section id="how-a-habitatspec-is-assembled">
+<h2><code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> 的组装方法<a class="headerlink" href="#how-a-habitatspec-is-assembled" title="Link to this heading">#</a></h2>
+<p>生境研究是 <strong>有序阶段列表</strong> 。每个 <a class="reference internal" href="../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stage</span></code></a> 为标签加 <a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> 。叶节点为单序列上单提取器（第 1A 节）。组合序列或族为由 <a class="reference internal" href="../api/generated/habit.spec.parse_feature_expression.html#habit.spec.parse_feature_expression" title="habit.spec.parse_feature_expression"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse_feature_expression()</span></code></a> 构成的树（第 1B 节）:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;&lt;label&gt;&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;&lt;registered name&gt;&quot;</span><span class="p">,</span> <span class="p">{</span><span class="o">&lt;</span><span class="n">params</span><span class="o">&gt;</span><span class="p">}))</span>
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;&lt;label&gt;&quot;</span><span class="p">,</span> <span class="n">parse_feature_expression</span><span class="p">(</span><span class="s1">&#39;concat(raw(&quot;T1&quot;), voxel_radiomics(&quot;T2&quot;))&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Stage labels (<code class="docutils literal notranslate"><span class="pre">extract_voxel_features</span></code>, <code class="docutils literal notranslate"><span class="pre">quantify2</span></code>, …) are <strong>not</strong>
+role keywords. HABIT infers the scientific role from position + the
+component's registry domain. Recommended labels:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 28.0%" />
+<col style="width: 28.0%" />
+<col style="width: 44.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>推荐标签</p></th>
+<th class="head"><p>域（ <code class="docutils literal notranslate"><span class="pre">list_plugins</span></code> ）</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extract_voxel_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">voxel_feature_extractor</span></code></p></td>
+<td><p>必需首步</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">preprocess1</span></code> / <code class="docutils literal notranslate"><span class="pre">preprocess2</span></code> / …</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">feature_preprocessing_method</span></code></p></td>
+<td><p>可选；可重复；位置决定体素 vs 池化后</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partition</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code></p></td>
+<td><p>仅两步法</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">extract_supervoxel_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">supervoxel_feature_extractor</span></code></p></td>
+<td><p>两步法可选</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pooling</span></code></p></td>
+<td><p>两步法 / 直接池化分水岭</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fit</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habitat_model_fitter</span></code></p></td>
+<td><p>Required</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">assign</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habitat_assigner</span></code></p></td>
+<td><p>Required</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">quantify</span></code> / <code class="docutils literal notranslate"><span class="pre">quantify2</span></code> / …</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habitat_feature_extractor</span></code></p></td>
+<td><p>可选；可重复</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>策略由序列推断：</p>
+<ul class="simple">
+<li><p><strong>two_step</strong> — <code class="docutils literal notranslate"><span class="pre">partition</span></code> + <code class="docutils literal notranslate"><span class="pre">pool</span></code></p></li>
+<li><p><strong>direct_pooling</strong> — 仅 <code class="docutils literal notranslate"><span class="pre">pool</span></code> （无 partition）</p></li>
+<li><p><strong>one_step</strong> — 无 partition 与 pool（逐受试者生境）</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> and <code class="docutils literal notranslate"><span class="pre">gmm</span></code> exist in <strong>two</strong> domains (超体素izer and 生境-model fitter). Place them before <code class="docutils literal notranslate"><span class="pre">pool</span></code> to partition, or immediately before <code class="docutils literal notranslate"><span class="pre">assign</span></code> to fit 生境.</p>
+</section>
+<section id="python-and-yaml-are-the-same-document">
+<h2>Python 与 YAML 为同一文档<a class="headerlink" href="#python-and-yaml-are-the-same-document" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Spec.to_dict()</span></code> 即 YAML 组件块。v1 生境文档在 <code class="docutils literal notranslate"><span class="pre">spec:</span></code> 下存相同映射。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;habitat_one_step&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;LAP&quot;</span><span class="p">]})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>等效 v1 YAML (<code class="docutils literal notranslate"><span class="pre">stages</span></code> 表单):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span><span class="p">:</span>
+  <span class="n">name</span><span class="p">:</span> <span class="n">habitat_one_step</span>
+  <span class="n">random_seed</span><span class="p">:</span> <span class="mi">42</span>
+  <span class="n">stages</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_voxel_features</span>
+      <span class="n">component</span><span class="p">:</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">raw</span>
+        <span class="n">params</span><span class="p">:</span>
+          <span class="n">modalities</span><span class="p">:</span> <span class="p">[</span><span class="n">LAP</span><span class="p">]</span>
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">fit</span>
+      <span class="n">component</span><span class="p">:</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">kmeans</span>
+        <span class="n">params</span><span class="p">:</span>
+          <span class="n">min_habitats</span><span class="p">:</span> <span class="mi">2</span>
+          <span class="n">max_habitats</span><span class="p">:</span> <span class="mi">10</span>
+          <span class="n">validation</span><span class="p">:</span> <span class="n">elbow</span>
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">assign</span>
+      <span class="n">component</span><span class="p">:</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">nearest_centroid</span>
+        <span class="n">params</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">quantify</span>
+      <span class="n">component</span><span class="p">:</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">volume</span>
+        <span class="n">params</span><span class="p">:</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>具名字段构造函数（ <code class="docutils literal notranslate"><span class="pre">voxel_feature_extractor:</span></code> 、 <code class="docutils literal notranslate"><span class="pre">habitat_model_fitter:</span></code> 、…）已弃用：仍可加载并保留历史指纹，但新 Python 与 YAML 应仅用 <code class="docutils literal notranslate"><span class="pre">stages</span></code> 。见 <a class="reference internal" href="../api/spec.html"><span class="doc">Spec、RunPolicy 和 YAML 同构</span></a> 与 <a class="reference internal" href="../configuration/habitat.html"><span class="doc">生境分割配置</span></a> 。</p>
+</section>
+<section id="voxel-feature-extraction">
+<h2>1. 体素特征提取<a class="headerlink" href="#voxel-feature-extraction" title="Link to this heading">#</a></h2>
+<p><strong>Required.</strong> Turns each 受试者's images + ROI into a per-体素 特征 field. First pick <strong>one extractor on one series</strong> (a leaf). Only then compose several series or families with a combiner. A longer <code class="docutils literal notranslate"><span class="pre">modalities</span></code> list is not a substitute for mixing families.</p>
+<section id="a-single-modality-voxel-extraction">
+<span id="chooser-voxel-leaf"></span><h3>A. 单模态体素提取<a class="headerlink" href="#a-single-modality-voxel-extraction" title="Link to this heading">#</a></h3>
+<p>一法、一序列、一列（或一块列）。无 <code class="docutils literal notranslate"><span class="pre">concat</span></code> 。表达式形式引号模态； <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 形式用 <code class="docutils literal notranslate"><span class="pre">modality=</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_feature_expression</span>
+
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modality&quot;</span><span class="p">:</span> <span class="s2">&quot;T1&quot;</span><span class="p">}))</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span><span class="s1">&#39;raw(&quot;T1&quot;)&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span><span class="s1">&#39;local_entropy(&quot;T1&quot;, kernel_size=3, bins=32)&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span><span class="s1">&#39;voxel_radiomics(&quot;T2&quot;, kernel_radius=3)&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_voxel_features</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">raw</span>
+    <span class="n">params</span><span class="p">:</span>
+      <span class="n">modality</span><span class="p">:</span> <span class="n">T1</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 需要 <code class="docutils literal notranslate"><span class="pre">pyradiomics</span></code> extra，比 <code class="docutils literal notranslate"><span class="pre">raw</span></code> / <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code> 慢得多。矩阵构建可用 HABIT GPU 路径（ <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code> ）替代 PyRadiomics C 扩展；见 <a class="reference internal" href="voxel_texture.html"><span class="doc">体素纹理特征图</span></a> 。</p>
+</section>
+<section id="b-multi-modality-voxel-composition">
+<span id="chooser-voxel-compose"></span><h3>B. 多模态体素组合<a class="headerlink" href="#b-multi-modality-voxel-composition" title="Link to this heading">#</a></h3>
+<p>组合器在相同体素（相同 ROI）上连接 <strong>已提取</strong> 的叶节点。两种写法 — 表达式字符串或嵌套 <code class="docutils literal notranslate"><span class="pre">children</span></code> — 共享同一指纹。表达式中的模态须 <strong>加引号</strong> 。</p>
+<p><strong>同族多序列。</strong> 叶节点仍接受模态列表（ <code class="docutils literal notranslate"><span class="pre">raw(&quot;T1&quot;,</span> <span class="pre">&quot;T2&quot;)</span></code> 或 <code class="docutils literal notranslate"><span class="pre">modalities:</span> <span class="pre">[T1,</span> <span class="pre">T2]</span></code> ）。两 <code class="docutils literal notranslate"><span class="pre">concat</span></code> 叶的 <code class="docutils literal notranslate"><span class="pre">raw</span></code> 是同一思想的树写法:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}))</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span><span class="s1">&#39;concat(raw(&quot;T1&quot;), raw(&quot;T2&quot;))&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_voxel_features</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">raw</span>
+    <span class="n">params</span><span class="p">:</span>
+      <span class="n">modalities</span><span class="p">:</span> <span class="p">[</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><strong>不同特征族。</strong> Texture on T2, intensity on T1 — this needs a tree, not a longer <code class="docutils literal notranslate"><span class="pre">modalities</span></code> list:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;concat(raw(&quot;T1&quot;), voxel_radiomics(&quot;T2&quot;, kernel_radius=3))&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;concat(local_entropy(&quot;T1&quot;, kernel_size=3, bins=32), raw(&quot;T2&quot;))&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>第一棵树的结构化形式（同一 Spec）:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;concat&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;modality&quot;</span><span class="p">:</span> <span class="s2">&quot;T1&quot;</span><span class="p">}},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;voxel_radiomics&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;modality&quot;</span><span class="p">:</span> <span class="s2">&quot;T2&quot;</span><span class="p">,</span> <span class="s2">&quot;kernel_radius&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>YAML（表达式 — 最短）:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_voxel_features</span>
+  <span class="n">component</span><span class="p">:</span> <span class="s1">&#39;concat(raw(&quot;T1&quot;), voxel_radiomics(&quot;T2&quot;, kernel_radius=3))&#39;</span>
+</pre></div>
+</div>
+<p>YAML（结构化）:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_voxel_features</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">concat</span>
+    <span class="n">params</span><span class="p">:</span>
+      <span class="n">children</span><span class="p">:</span>
+        <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">raw</span>
+          <span class="n">params</span><span class="p">:</span> <span class="p">{</span><span class="n">modality</span><span class="p">:</span> <span class="n">T1</span><span class="p">}</span>
+        <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">voxel_radiomics</span>
+          <span class="n">params</span><span class="p">:</span> <span class="p">{</span><span class="n">modality</span><span class="p">:</span> <span class="n">T2</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>导出通道 — 各一个 combiner。</strong> 本页勿在一个表达式中嵌套 <code class="docutils literal notranslate"><span class="pre">ratio</span></code> 、 <code class="docutils literal notranslate"><span class="pre">weighted_concat</span></code> 与纹理叶。 <code class="docutils literal notranslate"><span class="pre">as_=&quot;label&quot;</span></code> 重命名 <strong>单列</strong> 节点以免两分支冲突:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;ratio(raw(&quot;T1&quot;), raw(&quot;T2&quot;), as_=&quot;t1_over_t2&quot;)&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;weighted_concat(raw(&quot;T1&quot;, as_=&quot;t1w&quot;), raw(&quot;T2&quot;, as_=&quot;t2w&quot;), weights=[2.0, 1.0])&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>内置： <code class="docutils literal notranslate"><span class="pre">concat</span></code> 、 <code class="docutils literal notranslate"><span class="pre">weighted_concat</span></code> （ <code class="docutils literal notranslate"><span class="pre">weights=[...]</span></code> ）、 <code class="docutils literal notranslate"><span class="pre">average</span></code> 、 <code class="docutils literal notranslate"><span class="pre">ratio</span></code> 、 <code class="docutils literal notranslate"><span class="pre">difference</span></code> 、 <code class="docutils literal notranslate"><span class="pre">kinetic</span></code> 、 <code class="docutils literal notranslate"><span class="pre">expression</span></code> 。语法（严格；坏输入拒绝不猜）：模态加引号（ <code class="docutils literal notranslate"><span class="pre">raw(&quot;T1&quot;)</span></code> ）；参数 <code class="docutils literal notranslate"><span class="pre">key=value</span></code> ；子项中引号字符串为隐式 <code class="docutils literal notranslate"><span class="pre">raw</span></code> 。裸 <code class="docutils literal notranslate"><span class="pre">raw(T1)</span></code> 仅 v0.1。</p>
+<p>嵌套树与列名：<a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html"><span class="doc">将自定义特征提取器作为插件</span></a> 。combiner 之外运算：<a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html"><span class="doc">将自定义特征提取器作为插件</span></a> （ <code class="docutils literal notranslate"><span class="pre">expression</span></code> 或自定义插件）。</p>
+</section>
+<section id="voxel-feature-extractor">
+<h3>voxel_feature_extractor<a class="headerlink" href="#voxel-feature-extractor" title="Link to this heading">#</a></h3>
+<dl>
+<dt><strong>concat</strong></dt><dd><p>将多种体素特征族并排合并到同一体素。必需： <code class="docutils literal notranslate"><span class="pre">extractors</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">roi,</span> <span class="pre">modalities,</span> <span class="pre">expression</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;concat&quot;,</span> <span class="pre">{&quot;extractors&quot;:</span> <span class="pre">...})</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;concat&quot;,</span> <span class="pre">extractors=...)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extractors</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(required)</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>子规格为 <code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;params&quot;:</span> <span class="pre">{...}}</span></code> 映射，按给定顺序经体素特征 registry 解析。本算子会覆盖子项自身的 <code class="docutils literal notranslate"><span class="pre">roi</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>为每个子节点定义 ROI 的掩膜键； <code class="docutils literal notranslate"><span class="pre">None</span></code> 使用该受试者的单一掩膜。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>为配置兼容而接受并忽略；每个子节点自行声明读取的模态。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">expression</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>原始的 v0 方法表达式，在通过配置转换到达此提取器时，为来源保留。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>expression</strong></dt><dd><p>由受限算术表达式定义的逐体素特征。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">features,</span> <span class="pre">expressions,</span> <span class="pre">feature_names,</span> <span class="pre">modalities,</span> <span class="pre">roi,</span> <span class="pre">eps</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;expression&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;expression&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Mapping | None</p></td>
+<td><p>特征名到公式的映射。与 <code class="docutils literal notranslate"><span class="pre">expressions</span></code> 互斥。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">expressions</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Sequence | None</p></td>
+<td><p>在没有提前提供名称的情况下排序的公式。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">feature_names</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Sequence | None</p></td>
+<td><p>与 <code class="docutils literal notranslate"><span class="pre">expressions</span></code> 对齐的名称；默认为 <code class="docutils literal notranslate"><span class="pre">expr_0</span></code> 、 <code class="docutils literal notranslate"><span class="pre">expr_1</span></code> 、…</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>可选显式模态列表。为空时从公式所用标识符推断模态名（排除内建名与函数名）。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>掩膜键； <code class="docutils literal notranslate"><span class="pre">None</span></code> 使用受试者的单一掩膜。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eps</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-08</span></code></p></td>
+<td><p>float</p></td>
+<td><p>每个公式内绑定到名称 <code class="docutils literal notranslate"><span class="pre">eps</span></code> 的值。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>kinetic</strong></dt><dd><p>动态对比序列上每个体素的增强斜率。必需： <code class="docutils literal notranslate"><span class="pre">timestamps</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">phases,</span> <span class="pre">roi,</span> <span class="pre">time_format,</span> <span class="pre">modalities,</span> <span class="pre">expression</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;kinetic&quot;,</span> <span class="pre">{&quot;timestamps&quot;:</span> <span class="pre">...})</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;kinetic&quot;,</span> <span class="pre">timestamps=...)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">timestamps</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(required)</span></code></p></td>
+<td><p>字符串 | 映射</p></td>
+<td><p>每个受试者的采集时间，API 调用方可用映射 <code class="docutils literal notranslate"><span class="pre">{subject_id:</span> <span class="pre">{phase:</span> <span class="pre">&quot;HH-MM-SS&quot;}}</span></code> ，或 v0.1 时间戳表路径。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">phases</span></code></p></td>
+<td><p>DCE 相位序列： <code class="docutils literal notranslate"><span class="pre">('pre_contrast',</span> <span class="pre">'LAP',</span> <span class="pre">'PVP',</span> <span class="pre">'delay_3min')</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>序列按采集顺序的模态键：未增强、动脉期、门静脉期、延迟期。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>定义 ROI 的掩膜键； <code class="docutils literal notranslate"><span class="pre">None</span></code> 使用受试者的单一掩膜。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">time_format</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'%H-%M-%S'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>时间戳值的 <code class="docutils literal notranslate"><span class="pre">strptime</span></code> 格式。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>已接受以兼容配置并被忽略； <code class="docutils literal notranslate"><span class="pre">phases</span></code> 定义了要读取的图像，因为四个阶段具有固定的角色，而一个平面列表无法表达。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">expression</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>原始的 v0 方法表达式，在通过配置转换到达此提取器时，为来源保留。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>local_entropy</strong></dt><dd><p>每个体素强度邻域的 Shannon 熵。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">modalities,</span> <span class="pre">roi,</span> <span class="pre">kernel_size,</span> <span class="pre">bins,</span> <span class="pre">modality,</span> <span class="pre">as_</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;local_entropy&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;local_entropy&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>按特征顺序描述的模态键；空则选择受试者携带的全部图像。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>定义 ROI 的掩膜键； <code class="docutils literal notranslate"><span class="pre">None</span></code> 使用受试者的单一掩膜。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kernel_size</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">3</span></code></p></td>
+<td><p>int</p></td>
+<td><p>邻域边长（体素）。为保持邻域居中，偶数值会加 1，与 v0.1 相同。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bins</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">32</span></code></p></td>
+<td><p>int</p></td>
+<td><p>用于离散化强度的直方图 bin。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>单模态键——特征树内使用的显式形式。与 <code class="docutils literal notranslate"><span class="pre">modalities</span></code> 互斥。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">as_</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>可选的输出列别名。仅当恰好解析出一个模态时有效；列后缀将使用该别名。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>raw</strong></dt><dd><p>ROI 内各请求模态的逐体素原始强度。必填： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">modalities,</span> <span class="pre">roi,</span> <span class="pre">modality,</span> <span class="pre">as_</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;raw&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;raw&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>从受试者读取的模态键，按特征顺序 — 历史便利写法，在不使用 <code class="docutils literal notranslate"><span class="pre">concat</span></code> 组合器的情况下将多种模态堆叠到同一节点。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>定义 ROI 的掩膜键； <code class="docutils literal notranslate"><span class="pre">None</span></code> 使用受试者的单一掩膜。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>单一模态键——特征树内显式形式（ <code class="docutils literal notranslate"><span class="pre">raw(&quot;T1&quot;)</span></code> ）。与 <code class="docutils literal notranslate"><span class="pre">modalities</span></code> 互斥。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">as_</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>可选输出列别名。仅当恰好解析出一个模态时有效；列名以别名而非模态命名。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>voxel_radiomics</strong></dt><dd><p>Describe every ROI 体素 by a Py放射组学 特征 vector. Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modalities,</span> <span class="pre">roi,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">kernel_radius,</span> <span class="pre">voxel_batch,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">use_gpu_matrices,</span> <span class="pre">output_float32,</span> <span class="pre">class_progress,</span> <span class="pre">crop_to_roi,</span> <span class="pre">cache_dir,</span> <span class="pre">modality,</span> <span class="pre">as_</span></code>. <code class="docutils literal notranslate"><span class="pre">Spec(&quot;voxel_radiomics&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;voxel_radiomics&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>按特征顺序从中提取的模态键；空则选择受试者携带的全部图像。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>定义 ROI 的掩膜键； <code class="docutils literal notranslate"><span class="pre">None</span></code> 使用受试者的单一掩膜。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">params_file</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>PyRadiomics 参数 YAML 路径； <code class="docutils literal notranslate"><span class="pre">None</span></code> 选用捆绑的体素预设。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">params</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>dict | None</p></td>
+<td><p>内存内 PyRadiomics 设置，供在内存中持有设置的 API 调用方使用。与 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 互斥。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">3</span></code></p></td>
+<td><p>int</p></td>
+<td><p>体素邻域半径；半径 1 为 3×3×3 立方，半径 3 为 7×7×7 立方。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">voxel_batch</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1000</span></code></p></td>
+<td><p>int | str</p></td>
+<td><p>每批 ROI 体素数。默认 1000。12–24 GB GPU 可传更大整数，或 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 按 VRAM 选择。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str | bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">True</span></code> 或 <code class="docutils literal notranslate"><span class="pre">False</span></code> ——当存在 torch 与 CUDA 时是否使用 TorchRadiomics 路径。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch_device</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Torch 设备字符串，或 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 自动选择。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>torch 路径使用 <code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code> （默认）或 <code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str | bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">True</span></code> 或 <code class="docutils literal notranslate"><span class="pre">False</span></code> —— TorchRadiomics 纹理矩阵（GLCM 等）是否由 <code class="docutils literal notranslate"><span class="pre">habit.kernels.radiomics.gpumatrices</span></code> 在 GPU 上构建，而非单线程 PyRadiomics C 扩展。 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 跟随 torch 设备。两种方式计数比特一致。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">output_float32</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>将特征列下转为 float32，这是 v0.1 默认，便于管理大型体素表。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">class_progress</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>为 True 时，对每个 PyRadiomics 类（firstorder、glcm 等）打印并 tqdm；默认 False：一次 <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 无逐类输出； <code class="docutils literal notranslate"><span class="pre">Cohort.map</span></code> 仍显示受试者进度。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">crop_to_roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>为 True（默认）时，在调用 <code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> 前将图像与掩膜裁剪到 ROI 包围盒并加 <code class="docutils literal notranslate"><span class="pre">execute</span></code>  padding。PyRadiomics 内部会再次相同裁剪，特征值逐位一致；预裁剪只是避免在全容积上运行诊断（ <code class="docutils literal notranslate"><span class="pre">sitk.Hash</span></code> 、全图统计）与掩膜检查，在全身体扫描上每个模态可节省数秒。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cache_dir</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>提取场的可选目录。命中则跳过 PyRadiomics。缓存键忽略 <code class="docutils literal notranslate"><span class="pre">voxel_batch</span></code> 与设备参数，以便更大 batch 的后续运行复用文件。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>单模态键——特征树内使用的显式形式。与 <code class="docutils literal notranslate"><span class="pre">modalities</span></code> 互斥。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">as_</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>可选的输出列别名。仅当恰好解析出一个模态时有效；列后缀将使用该别名。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+<section id="feature-preprocessing">
+<h2>2. 特征预处理<a class="headerlink" href="#feature-preprocessing" title="Link to this heading">#</a></h2>
+<p><strong>可选、可重复。</strong> Same method names before and after <code class="docutils literal notranslate"><span class="pre">pool</span></code>. Before <code class="docutils literal notranslate"><span class="pre">partition</span></code> / <code class="docutils literal notranslate"><span class="pre">fit</span></code> they scale the units that 聚类 sees; after <code class="docutils literal notranslate"><span class="pre">pool</span></code> they are 队列-level and travel with <a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a>.</p>
+<p>典型体素级链： <code class="docutils literal notranslate"><span class="pre">winsorize</span></code> 然后 <code class="docutils literal notranslate"><span class="pre">minmax</span></code> 。两步法 / 直接池化运行勿跳过缩放 — 见 <a class="reference internal" href="../auto_examples/07_advanced/plot_02_subject_preprocess.html"><span class="doc">受试者级预处理</span></a> 。</p>
+<p>Python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;winsorize&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}))</span>
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}))</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">preprocess1</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">winsorize</span>
+    <span class="n">params</span><span class="p">:</span>
+      <span class="n">winsor_limits</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span>
+      <span class="n">across_features</span><span class="p">:</span> <span class="n">false</span>
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">preprocess2</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">minmax</span>
+    <span class="n">params</span><span class="p">:</span>
+      <span class="n">across_features</span><span class="p">:</span> <span class="n">false</span>
+</pre></div>
+</div>
+<section id="feature-preprocessing-method">
+<h3>feature_preprocessing_method<a class="headerlink" href="#feature-preprocessing-method" title="Link to this heading">#</a></h3>
+<dl>
+<dt><strong>binning</strong></dt><dd><p>Discretise 特征 into ordinal bin indices. Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_bins,</span> <span class="pre">bin_strategy,</span> <span class="pre">across_features</span></code>. <code class="docutils literal notranslate"><span class="pre">Spec(&quot;binning&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;binning&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_bins</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>bin 数量。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bin_strategy</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'uniform'</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uniform</span></code> 、 <code class="docutils literal notranslate"><span class="pre">quantile</span></code> 或 <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>从池化值学习一组分箱边界。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>correlation_filter</strong></dt><dd><p>贪婪丢弃冗余且高度相关的特征列。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">corr_threshold,</span> <span class="pre">corr_method</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;correlation_filter&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;correlation_filter&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">corr_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.95</span></code></p></td>
+<td><p>float</p></td>
+<td><p>绝对相关系数截断，超过则丢弃后续列。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">corr_method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'spearman'</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pearson</span></code> 、 <code class="docutils literal notranslate"><span class="pre">spearman</span></code> 或 <code class="docutils literal notranslate"><span class="pre">kendall</span></code> 。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>feature_whitelist</strong></dt><dd><p>Restrict the 特征 matrix to an explicit, externally derived list. Required: <code class="docutils literal notranslate"><span class="pre">features</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. <code class="docutils literal notranslate"><span class="pre">Spec(&quot;feature_whitelist&quot;,</span> <span class="pre">{&quot;features&quot;:</span> <span class="pre">...})</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;feature_whitelist&quot;,</span> <span class="pre">features=...)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(required)</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>按输出顺序保留的特征名。至少需要一个，且每个名称必须出现在矩阵中 — 缺失特征会破坏“相同特征”契约并抛出异常，而非静默丢弃。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>impute</strong></dt><dd><p>用学到的逐列统计量替换非有限特征值。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">strategy</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;impute&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;impute&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">strategy</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'mean'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>各列有限值的 <code class="docutils literal notranslate"><span class="pre">mean</span></code> 或 <code class="docutils literal notranslate"><span class="pre">median</span></code> ，或 <code class="docutils literal notranslate"><span class="pre">zero</span></code> 。完全没有有限值的列一律 impute 为 0.0，因此单个不可用模态不会使整个受试者失效。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>l2</strong></dt><dd><p>将每行（体素/超体素）缩放为单位欧氏长度。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;l2&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;l2&quot;)</span></code></p>
+</dd>
+<dt><strong>log</strong></dt><dd><p>用 <code class="docutils literal notranslate"><span class="pre">log(x</span> <span class="pre">-</span> <span class="pre">min</span> <span class="pre">+</span> <span class="pre">1)</span></code> 压缩右偏特征。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">across_features</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;log&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;log&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>maxabs</strong></dt><dd><p>按最大绝对值缩放特征。必填： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">across_features</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;maxabs&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;maxabs&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>minmax</strong></dt><dd><p>将特征缩放到 [0, 1]。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">across_features</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;minmax&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;minmax&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>precise_correlation_filter</strong></dt><dd><p>2024 年前 Spearman 筛选：带符号 r、p 值，保留后一列。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">corr_threshold,</span> <span class="pre">p_threshold</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;precise_correlation_filter&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;precise_correlation_filter&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">corr_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.7</span></code></p></td>
+<td><p>float</p></td>
+<td><p>有符号 Spearman 截断；当 r 更大时丢弃。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">p_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.001</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Spearman p 值截断；仅当 p 更小时丢弃。默认 <code class="docutils literal notranslate"><span class="pre">0.001</span></code> （Prior 2024 论文 P &lt; .001）。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>quantile</strong></dt><dd><p>按百分位秩将各特征映射到均匀或正态分布。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">across_features,</span> <span class="pre">n_quantiles,</span> <span class="pre">output_distribution</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;quantile&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;quantile&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_quantiles</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1000</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">output_distribution</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'uniform'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>robust</strong></dt><dd><p>Centre 特征 on the median and scale by the interquartile range. Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>. <code class="docutils literal notranslate"><span class="pre">Spec(&quot;robust&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;robust&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>variance_filter</strong></dt><dd><p>删除方差低于或等于阈值的特征列。必填： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">variance_threshold</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;variance_filter&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;variance_filter&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">variance_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code></p></td>
+<td><p>float</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">var</span> <span class="pre">&lt;=</span> <span class="pre">threshold</span></code> 的列被丢弃； <code class="docutils literal notranslate"><span class="pre">0.0</span></code> 仅移除常数列。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>winsorize</strong></dt><dd><p>在尾部分位数处截断极值而非丢弃。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">winsor_limits,</span> <span class="pre">across_features</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;winsorize&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;winsorize&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">winsor_limits</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(0.05,</span> <span class="pre">0.05)</span></code></p></td>
+<td><p>tuple[float, float]</p></td>
+<td><p>裁剪的上下尾分数，各在 <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0.5)</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>跨特征列池化统计量。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>zscore</strong></dt><dd><p>Standardise 特征 to zero mean and unit variance. Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>. <code class="docutils literal notranslate"><span class="pre">Spec(&quot;zscore&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;zscore&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">across_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+<section id="supervoxel-partition">
+<h2>3. 超体素划分<a class="headerlink" href="#supervoxel-partition" title="Link to this heading">#</a></h2>
+<p><strong>两步法 only.</strong> All built-in names use <code class="docutils literal notranslate"><span class="pre">n_supervoxels</span></code> (not sklearn's <code class="docutils literal notranslate"><span class="pre">n_clusters</span></code> / <code class="docutils literal notranslate"><span class="pre">n_components</span></code>).</p>
+<p>Python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;slic&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}))</span>
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}))</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">partition</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">kmeans</span>
+    <span class="n">params</span><span class="p">:</span>
+      <span class="n">n_supervoxels</span><span class="p">:</span> <span class="mi">50</span>
+      <span class="n">n_init</span><span class="p">:</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<section id="supervoxelizer">
+<h3>supervoxelizer<a class="headerlink" href="#supervoxelizer" title="Link to this heading">#</a></h3>
+<dl>
+<dt><strong>gmm</strong></dt><dd><p>Partition the ROI by a Gaussian mixture over 体素 特征. Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_supervoxels,</span> <span class="pre">max_iter,</span> <span class="pre">n_init,</span> <span class="pre">covariance_type</span></code>. <code class="docutils literal notranslate"><span class="pre">Spec(&quot;gmm&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;gmm&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_supervoxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">50</span></code></p></td>
+<td><p>int</p></td>
+<td><p>请求的超体素数，上限为 ROI 体素数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
+<td><p>int</p></td>
+<td><p>EM 最大迭代次数。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>EM 重启次数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">covariance_type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'full'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>scikit-learn 协方差参数化（ <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;tied&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;diag&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">&quot;spherical&quot;</span></code> ）。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>kmeans</strong></dt><dd><p>在体素特征上对 ROI 做 k-means 划分。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">n_supervoxels,</span> <span class="pre">max_iter,</span> <span class="pre">n_init</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;kmeans&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;kmeans&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_supervoxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">50</span></code></p></td>
+<td><p>int</p></td>
+<td><p>请求的超体素数，上限为 ROI 体素数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
+<td><p>int</p></td>
+<td><p>每次重启的 k-means 最大迭代次数。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>k-means 重启次数。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>slic</strong></dt><dd><p>将 ROI 划分为 SLIC 超体素并在每个内平均特征。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">n_supervoxels,</span> <span class="pre">compactness,</span> <span class="pre">enforce_connectivity,</span> <span class="pre">estimator_params</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;slic&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;slic&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_supervoxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>int</p></td>
+<td><p>请求的超体素数。 clamp 到 ROI 体素数（划分不能有比体素更多的非空区域）。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">compactness</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code></p></td>
+<td><p>float</p></td>
+<td><p>颜色相似性与空间邻近性的平衡（ <code class="docutils literal notranslate"><span class="pre">skimage.segmentation.slic</span></code> 语义）。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enforce_connectivity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>当 <code class="docutils literal notranslate"><span class="pre">True</span></code> 时，断开的段会被重新标记，以便每个超级体素都是连通的。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">estimator_params</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Mapping | None</p></td>
+<td><p>额外关键字原样转发至 <code class="docutils literal notranslate"><span class="pre">skimage.segmentation.slic</span></code> （如 <code class="docutils literal notranslate"><span class="pre">{&quot;sigma&quot;:</span> <span class="pre">1.0}</span></code> ），用于 HABIT 未声明的厂商参数。与已声明参数或 HABIT 控制的调用参数（ <code class="docutils literal notranslate"><span class="pre">n_segments</span></code> 、 <code class="docutils literal notranslate"><span class="pre">mask</span></code> 、 <code class="docutils literal notranslate"><span class="pre">channel_axis</span></code> 、 <code class="docutils literal notranslate"><span class="pre">start_label</span></code> ）冲突的键会被拒绝；调用时每个键均对照厂商签名校验：写入 spec 指纹的键必须到达厂商函数，不得静默丢弃。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+<section id="supervoxel-features">
+<h2>4. 超体素特征<a class="headerlink" href="#supervoxel-features" title="Link to this heading">#</a></h2>
+<p><strong>两步法可选。</strong> 本阶段在 <code class="docutils literal notranslate"><span class="pre">partition</span></code> 后描述 <strong>每个超体素</strong> 。它 <strong>不</strong> 替代体素提取：混合 T1/T2 科学通常在第 1 节构建，再在此聚合。</p>
+<p>默认对已构建体素场取平均（ <code class="docutils literal notranslate"><span class="pre">mean_voxel_features</span></code> ）。除非需要不同描述否则省略本阶段；许多两步法 recipe 依赖 partition 附带均值:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;mean_voxel_features&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_supervoxel_features</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">mean_voxel_features</span>
+    <span class="n">params</span><span class="p">:</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<section id="a-single-modality-supervoxel-extraction">
+<span id="chooser-supervoxel-leaf"></span><h3>A. Single-模态 超体素 extraction<a class="headerlink" href="#a-single-modality-supervoxel-extraction" title="Link to this heading">#</a></h3>
+<p>一法一期。 <code class="docutils literal notranslate"><span class="pre">mean</span></code> / <code class="docutils literal notranslate"><span class="pre">std</span></code> / <code class="docutils literal notranslate"><span class="pre">percentile</span></code> 聚合该序列每超体素的体素信号。 <code class="docutils literal notranslate"><span class="pre">source=&quot;working&quot;</span></code> （默认）用预处理后体素场； <code class="docutils literal notranslate"><span class="pre">source=&quot;original&quot;</span></code> 用 partition 看到的原始序列。 <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 为 <strong>整区域</strong> 纹理（每超体素标签，非滑动体素核）:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span><span class="s1">&#39;mean(&quot;T1&quot;)&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span><span class="s1">&#39;std(&quot;T1&quot;, as_=&quot;t1_spread&quot;)&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span><span class="s1">&#39;percentile(&quot;T2&quot;, q=90)&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span><span class="s1">&#39;supervoxel_radiomics(&quot;T2&quot;)&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> needs <code class="docutils literal notranslate"><span class="pre">pyradiomics</span></code>. Values differ from
+<code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> (different spatial support).</p>
+</section>
+<section id="b-multi-modality-supervoxel-composition">
+<span id="chooser-supervoxel-compose"></span><h3>B. 多模态超体素组合<a class="headerlink" href="#b-multi-modality-supervoxel-composition" title="Link to this heading">#</a></h3>
+<p>Compose the leaves the same way as 体素 combiners. Keep each combiner to one job — statistics together, or a statistic plus 放射组学 — and leave nested trees to <a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html"><span class="doc">将自定义特征提取器作为插件</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;concat(mean(&quot;T1&quot;), std(&quot;T1&quot;, as_=&quot;t1_spread&quot;), percentile(&quot;T2&quot;, q=90))&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;concat(mean(&quot;T1&quot;), supervoxel_radiomics(&quot;T2&quot;))&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_supervoxel_features</span>
+  <span class="n">component</span><span class="p">:</span> <span class="s1">&#39;concat(mean(&quot;T1&quot;), std(&quot;T1&quot;, as_=&quot;t1_spread&quot;), percentile(&quot;T2&quot;, q=90))&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="supervoxel-feature-extractor">
+<h3>supervoxel_feature_extractor<a class="headerlink" href="#supervoxel-feature-extractor" title="Link to this heading">#</a></h3>
+<dl>
+<dt><strong>mean</strong></dt><dd><p>在每个超体素内对单模态体素信号求平均。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">source,</span> <span class="pre">as_</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;mean&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;mean&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">source</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'working'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">as_</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>mean_voxel_features</strong></dt><dd><p>用其内部体素特征的均值描述每个超体素。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">field</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;mean_voxel_features&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;mean_voxel_features&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">field</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>VoxelFeatureField | None</p></td>
+<td><p>体素 特征 to aggregate. Optional; see above.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>percentile</strong></dt><dd><p>各超体素内体素信号的百分位数。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">source,</span> <span class="pre">q,</span> <span class="pre">as_</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;percentile&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;percentile&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">source</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'working'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">q</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">90.0</span></code></p></td>
+<td><p>float</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">as_</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>std</strong></dt><dd><p>各超体素内体素信号的标准差。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">source,</span> <span class="pre">as_</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;std&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;std&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">source</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'working'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">as_</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>supervoxel_radiomics</strong></dt><dd><p>Describe each 超体素 by Py放射组学 特征 of the original images. Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">supervoxel_batch,</span> <span class="pre">supervoxel_union_bbox_crop,</span> <span class="pre">supervoxel_pad_distance,</span> <span class="pre">use_supervoxel_cext,</span> <span class="pre">union_bin,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">output_float32</span></code>. <code class="docutils literal notranslate"><span class="pre">Spec(&quot;supervoxel_radiomics&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;supervoxel_radiomics&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>单个模态名；与 <code class="docutils literal notranslate"><span class="pre">modalities</span></code> 互斥。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span></code></p></td>
+<td><p>Sequence</p></td>
+<td><p>要提取的模态名；空则选择受试者携带的全部。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">as_</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>用作列后缀而非模态名的别名；需要 <code class="docutils literal notranslate"><span class="pre">modality</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">params_file</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>PyRadiomics 参数 YAML 路径，或 <code class="docutils literal notranslate"><span class="pre">None</span></code> 使用 PyRadiomics 默认。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">params</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>dict | None</p></td>
+<td><p>内存中持有设置的 API 用户使用的内联 PyRadiomics 设置映射。与 <code class="docutils literal notranslate"><span class="pre">params_file</span></code> 互斥。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">supervoxel_batch</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">64</span></code></p></td>
+<td><p>int</p></td>
+<td><p>每批处理的标签数。更大批次以内存换速度，不改变数值。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">supervoxel_union_bbox_crop</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>提取前将图像与掩膜裁剪到所有超体素并集的包围盒。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">supervoxel_pad_distance</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>int | None</p></td>
+<td><p>该包围盒周围的 padding； <code class="docutils literal notranslate"><span class="pre">None</span></code> 保留 PyRadiomics <code class="docutils literal notranslate"><span class="pre">padDistance</span></code> 设置。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_supervoxel_cext</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>str | bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code> （默认）、 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">False</span></code> — 是否使用 HABIT 原生 C 扩展计算纹理矩阵。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">union_bin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>False（默认）时每个超体素用各自的 <code class="docutils literal notranslate"><span class="pre">binWidth</span></code> 边界离散化，匹配 PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 。True 时所有标签共享一个 union-mask bin。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str | bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 、 <code class="docutils literal notranslate"><span class="pre">True</span></code> 或 <code class="docutils literal notranslate"><span class="pre">False</span></code> — 当存在 torch 与 CUDA 时是否使用 TorchRadiomics GPU 路径。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch_device</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Torch 设备字符串，或 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 自动选择。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>torch 路径使用 <code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code> （默认）或 <code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">output_float32</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>将结果特征列降为 float32，v0.1 默认以便管理大型超体素表。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+<section id="pool">
+<h2>5. Pool<a class="headerlink" href="#pool" title="Link to this heading">#</a></h2>
+<p><strong>两步法与 direct-pooling。</strong> 标记受试者 → 队列分水岭。仅一个内置名。</p>
+<p>Python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">pool</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">pool</span>
+    <span class="n">params</span><span class="p">:</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<section id="pooling">
+<h3>pooling<a class="headerlink" href="#pooling" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt><strong>pool</strong></dt><dd><p>声明受试者→队列 fan-in 分水岭的标记组件。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;pool&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;pool&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="fit-habitats">
+<h2>6. 适合的栖息地<a class="headerlink" href="#fit-habitats" title="Link to this heading">#</a></h2>
+<p><strong>Required.</strong> 内置名： <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> 、 <code class="docutils literal notranslate"><span class="pre">consensus</span></code> 。学习质心（有 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 为队列级；否则逐受试者）。</p>
+<p><code class="docutils literal notranslate"><span class="pre">consensus</span></code> 运行销售的 InMoose / Sajovic 共识聚类 (<strong>GPL-3.0 或更高版本</strong> ，而非 Apache-2.0；参见 <code class="docutils literal notranslate"><span class="pre">NOTICE</span></code> 和 <code class="docutils literal notranslate"><span class="pre">habit/third_party/inmoose/LICENSE</span></code>) 对合并的条目进行处理，然后将每个共识组的特征向量均值存储为质心。它适用于超级体素或受试者，而非体素级矩阵。已验证的图形：<a class="reference internal" href="../auto_examples/03_clustering/plot_04_consensus_clustering.html"><span class="doc">生境共识聚类</span></a> 。参数： <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">min_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">n_resamples</span></code> （默认 50）、 <code class="docutils literal notranslate"><span class="pre">resample_proportion</span></code> （默认 0.5）、 <code class="docutils literal notranslate"><span class="pre">inner</span></code> （ <code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 或 <code class="docutils literal notranslate"><span class="pre">agglomerative</span></code> ）、 <code class="docutils literal notranslate"><span class="pre">n_init</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_items</span></code> 。 <code class="docutils literal notranslate"><span class="pre">bestK</span></code> 遵循销售的 CDF 面积规则，从不自行成为 <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> 。</p>
+<p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> 与 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> 共享参数： <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">min_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> 、 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 、 <code class="docutils literal notranslate"><span class="pre">n_init</span></code> 、 <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> 。 <code class="docutils literal notranslate"><span class="pre">gmm</span></code> 另有 <code class="docutils literal notranslate"><span class="pre">covariance_type</span></code> （ <code class="docutils literal notranslate"><span class="pre">full</span></code> / <code class="docutils literal notranslate"><span class="pre">tied</span></code> / <code class="docutils literal notranslate"><span class="pre">diag</span></code> / <code class="docutils literal notranslate"><span class="pre">spherical</span></code> ）。 <code class="docutils literal notranslate"><span class="pre">consensus</span></code> 无 <code class="docutils literal notranslate"><span class="pre">validation</span></code> ；用 vendored delta(k) 规则选 K。</p>
+<p>省略 <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> （或传 <code class="docutils literal notranslate"><span class="pre">None</span></code> ）以在 <code class="docutils literal notranslate"><span class="pre">min_habitats..max_habitats</span></code> 上由 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 选 K。无 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> 字符串。</p>
+<p>允许的 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 值：</p>
+<ul class="simple">
+<li><p><strong>kmeans</strong> — <code class="docutils literal notranslate"><span class="pre">elbow</span></code> （默认； <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> 别名）、 <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> 、 <code class="docutils literal notranslate"><span class="pre">inertia</span></code> 、 <code class="docutils literal notranslate"><span class="pre">silhouette</span></code> 、 <code class="docutils literal notranslate"><span class="pre">calinski_harabasz</span></code> 、 <code class="docutils literal notranslate"><span class="pre">davies_bouldin</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gap</span></code> 。列表中每项投一票。HABIT <code class="docutils literal notranslate"><span class="pre">elbow</span></code> / <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> 为 inertia 上 Kneedle（Satopaa 等，2011），非文献非正式 elbow（Thorndike，1953）亦非 pre-v1.0 离散曲率二阶差规则 — 见 <a class="reference internal" href="../user_guide/building_habitat_maps.html"><span class="doc">构建生境图</span></a> 。</p></li>
+<li><p><strong>gmm</strong> — <code class="docutils literal notranslate"><span class="pre">bic</span></code> （默认）、 <code class="docutils literal notranslate"><span class="pre">aic</span></code> 、 <code class="docutils literal notranslate"><span class="pre">davies_bouldin</span></code> （最小化）； <code class="docutils literal notranslate"><span class="pre">silhouette</span></code> 、 <code class="docutils literal notranslate"><span class="pre">calinski_harabasz</span></code> 、 <code class="docutils literal notranslate"><span class="pre">gap</span></code> （最大化）； <code class="docutils literal notranslate"><span class="pre">bic_elbow</span></code> （Prior 2024 BIC 斜率规则）。</p></li>
+</ul>
+<p>复制粘贴 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 阶段:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+    <span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;gmm&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;covariance_type&quot;</span><span class="p">:</span> <span class="s2">&quot;full&quot;</span><span class="p">}))</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">fit</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">kmeans</span>
+    <span class="n">params</span><span class="p">:</span>
+      <span class="n">min_habitats</span><span class="p">:</span> <span class="mi">2</span>
+      <span class="n">max_habitats</span><span class="p">:</span> <span class="mi">10</span>
+      <span class="n">validation</span><span class="p">:</span> <span class="n">elbow</span>
+      <span class="n">n_init</span><span class="p">:</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<section id="habitat-model-fitter">
+<h3>habitat_model_fitter<a class="headerlink" href="#habitat-model-fitter" title="Link to this heading">#</a></h3>
+<dl>
+<dt><strong>consensus</strong></dt><dd><p>对池化项做 Monti 共识聚类以学习群体生境。必填： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">n_resamples,</span> <span class="pre">resample_proportion,</span> <span class="pre">inner,</span> <span class="pre">n_init,</span> <span class="pre">max_iter,</span> <span class="pre">max_items</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;consensus&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;consensus&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>int | None</p></td>
+<td><p>固定聚类数。 <code class="docutils literal notranslate"><span class="pre">None</span></code> 在 <code class="docutils literal notranslate"><span class="pre">bestK</span></code> 与 <code class="docutils literal notranslate"><span class="pre">min_habitats</span></code> 间选择 <code class="docutils literal notranslate"><span class="pre">max_habitats</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>int</p></td>
+<td><p>最小候选数。至少为 2，与 vendored 实现一致。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>最大候选数。 <code class="docutils literal notranslate"><span class="pre">bestK</span></code> 不可选；见类 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_resamples</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">50</span></code></p></td>
+<td><p>int</p></td>
+<td><p>按候选数量重采样。内嵌默认 50。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resample_proportion</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.5</span></code></p></td>
+<td><p>float</p></td>
+<td><p>每次重采样无放回抽取比例。vendored 默认 0.5。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inner</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'kmeans'</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> （默认）或 <code class="docutils literal notranslate"><span class="pre">&quot;agglomerative&quot;</span></code> （scikit-learn ward）。重采样与 <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">consensus_matrix</span></code> 最终切割均传入该 vendored 算法。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>当 <code class="docutils literal notranslate"><span class="pre">inner</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> 时的 k-means 重启次数。层次聚类忽略此项。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">inner</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;kmeans&quot;</span></code> 时的 K-means 迭代上限。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_items</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2000</span></code></p></td>
+<td><p>int</p></td>
+<td><p>当池化矩阵行数超过此值时拒绝运行。每个候选 <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">x</span> <span class="pre">n</span></code> 的共识矩阵为 <code class="docutils literal notranslate"><span class="pre">k</span></code> 。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>gmm</strong></dt><dd><p>在池化特征上用高斯混合学习群体生境。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">validation,</span> <span class="pre">covariance_type,</span> <span class="pre">n_init,</span> <span class="pre">max_iter</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;gmm&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;gmm&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>int | None</p></td>
+<td><p>固定栖息地数量，或使用 <code class="docutils literal notranslate"><span class="pre">None</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 选择它。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>int</p></td>
+<td><p>选择期间的最小候选数。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>选择过程中最大的候选数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">validation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'bic'</span></code></p></td>
+<td><p>str | Sequence</p></td>
+<td><p>选择标准，或每个标准投一票的标准列表： <code class="docutils literal notranslate"><span class="pre">&quot;bic&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;aic&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;davies_bouldin&quot;</span></code> （最小化）， <code class="docutils literal notranslate"><span class="pre">&quot;bic_elbow&quot;</span></code> （2024年前 BIC-斜率肘部，而非最小 BIC），或 <code class="docutils literal notranslate"><span class="pre">&quot;silhouette&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;calinski_harabasz&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;gap&quot;</span></code> （最大化）。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">covariance_type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'full'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>GaussianMixture 协方差结构。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">50</span></code></p></td>
+<td><p>int</p></td>
+<td><p>每个候选数的混合初始化次数；保留似然最佳的一次（sklearn <code class="docutils literal notranslate"><span class="pre">n_init</span></code> ）。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>int</p></td>
+<td><p>每个候选数的 EM 迭代上限。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>kmeans</strong></dt><dd><p>在池化超体素特征上用 k-means 学习群体生境。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">validation,</span> <span class="pre">n_init,</span> <span class="pre">max_iter</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;kmeans&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;kmeans&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>int | None</p></td>
+<td><p>固定栖息地数量，或使用 <code class="docutils literal notranslate"><span class="pre">None</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">validation</span></code> 选择它。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>int</p></td>
+<td><p>选择期间的最小候选数。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_habitats</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>选择过程中最大的候选数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">validation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'elbow'</span></code></p></td>
+<td><p>str | Sequence</p></td>
+<td><p>选择准则，或各投一票的准则列表： <code class="docutils literal notranslate"><span class="pre">&quot;elbow&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;kneedle&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;inertia&quot;</span></code> （惯性曲线 Kneedle 膝；默认 <code class="docutils literal notranslate"><span class="pre">&quot;elbow&quot;</span></code> ）、 <code class="docutils literal notranslate"><span class="pre">&quot;silhouette&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;calinski_harabasz&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;gap&quot;</span></code> （最大化）或 <code class="docutils literal notranslate"><span class="pre">&quot;davies_bouldin&quot;</span></code> （最小化）。自 v1.0 起 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 为 <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> 别名；见 <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.kernels.cluster_selection</span></code> 。默认为社区常用的 <code class="docutils literal notranslate"><span class="pre">min_habitats=2</span></code> .. <code class="docutils literal notranslate"><span class="pre">max_habitats=10</span></code> 惯性肘部。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_init</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">50</span></code></p></td>
+<td><p>int</p></td>
+<td><p>每个候选数的 k-means 重启次数。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
+<td><p>int</p></td>
+<td><p>每次拟合的最大 k-means 迭代次数。默认为 scikit-learn 默认（300），也是 v0.1 配置 schema 记录的值。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+<section id="assign">
+<h2>7. Assign<a class="headerlink" href="#assign" title="Link to this heading">#</a></h2>
+<p><strong>Required.</strong> 将每个单元映射到最近生境质心。内置名为 <code class="docutils literal notranslate"><span class="pre">nearest_centroid</span></code> 。 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 后 <code class="docutils literal notranslate"><span class="pre">model.assigner()</span></code> 为同一对象。</p>
+<p>Python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">assign</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">nearest_centroid</span>
+    <span class="n">params</span><span class="p">:</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<section id="habitat-assigner">
+<h3>habitat_assigner<a class="headerlink" href="#habitat-assigner" title="Link to this heading">#</a></h3>
+<dl>
+<dt><strong>nearest_centroid</strong></dt><dd><p>将每个超体素分配到最近质心的生境。必需： <code class="docutils literal notranslate"><span class="pre">model</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;nearest_centroid&quot;,</span> <span class="pre">{&quot;model&quot;:</span> <span class="pre">...})</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;nearest_centroid&quot;,</span> <span class="pre">model=...)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">model</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(required)</span></code></p></td>
+<td><p>HabitatModel</p></td>
+<td><p>要投影的已拟合生境定义。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+<section id="quantify">
+<h2>8. 量化<a class="headerlink" href="#quantify" title="Link to this heading">#</a></h2>
+<p><strong>可选、可重复。</strong> Does not change the 生境图. Light families (<code class="docutils literal notranslate"><span class="pre">volume</span></code>, <code class="docutils literal notranslate"><span class="pre">msi</span></code>, <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>, <code class="docutils literal notranslate"><span class="pre">non_radiomics</span></code>, <code class="docutils literal notranslate"><span class="pre">graph</span></code>) need no extra extra. <code class="docutils literal notranslate"><span class="pre">traditional</span></code> / <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> need <code class="docutils literal notranslate"><span class="pre">pyradiomics</span></code>.</p>
+<p>Python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">))</span>
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">))</span>
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify3&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">))</span>
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify4&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;non_radiomics&quot;</span><span class="p">))</span>
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;quantify5&quot;</span><span class="p">,</span>
+    <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;edge_method&quot;</span><span class="p">:</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;node_method&quot;</span><span class="p">:</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">}),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>一步法流式图（非阶段——不进入指纹）。将相同 <a class="reference internal" href="../api/generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code></a> 传给 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;graph&quot;)</span></code> 与图原子。目录：<a class="reference internal" href="../auto_examples/04_quantifying_habitats/plot_01_volume_fractions.html"><span class="doc">体积与分数</span></a> 。</p>
+<p>Python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectoryResultWriter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatGraphFeatureOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.report</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ClusterValidation</span><span class="p">,</span>
+    <span class="n">GraphNetwork2D</span><span class="p">,</span>
+    <span class="n">GraphSlice</span><span class="p">,</span>
+    <span class="n">ITH</span><span class="p">,</span>
+    <span class="n">MSI</span><span class="p">,</span>
+    <span class="n">Overlay</span><span class="p">,</span>
+    <span class="n">Report</span><span class="p">,</span>
+    <span class="n">VolumeFractions</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">graph</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">edge_method</span><span class="o">=</span><span class="s2">&quot;min_distance&quot;</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">writer</span> <span class="o">=</span> <span class="n">DirectoryResultWriter</span><span class="p">(</span><span class="s2">&quot;out/study&quot;</span><span class="p">)</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span>
+    <span class="n">figures</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Overlay</span><span class="p">(</span><span class="n">modality</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
+        <span class="n">VolumeFractions</span><span class="p">(),</span>
+        <span class="n">MSI</span><span class="p">(),</span>
+        <span class="n">ITH</span><span class="p">(),</span>
+        <span class="n">ClusterValidation</span><span class="p">(),</span>
+        <span class="n">GraphSlice</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">graph</span><span class="p">),</span>
+        <span class="n">GraphNetwork2D</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">graph</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">figure_layout</span><span class="o">=</span><span class="s2">&quot;by_subject&quot;</span><span class="p">,</span>
+    <span class="n">writer</span><span class="o">=</span><span class="n">writer</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">quantify</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">volume</span>
+    <span class="n">params</span><span class="p">:</span> <span class="p">{}</span>
+<span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">quantify2</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">msi</span>
+    <span class="n">params</span><span class="p">:</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<section id="habitat-feature-extractor">
+<h3>habitat_feature_extractor<a class="headerlink" href="#habitat-feature-extractor" title="Link to this heading">#</a></h3>
+<dl>
+<dt><strong>each_habitat</strong></dt><dd><p>各生境标签内原始图像的 PyRadiomics 特征。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">modalities,</span> <span class="pre">modality,</span> <span class="pre">as_,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;each_habitat&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;each_habitat&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">params_file</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">params</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>dict | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Sequence | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">as_</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>str | bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_device</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>graph</strong></dt><dd><p>单个受试者生境图的图拓扑特征。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph,</span> <span class="pre">include_pairwise_habitat_graph,</span> <span class="pre">edge_method,</span> <span class="pre">distance_threshold,</span> <span class="pre">adjacency_connectivity,</span> <span class="pre">adjacency_min_voxels,</span> <span class="pre">edge_weight,</span> <span class="pre">min_region_voxels,</span> <span class="pre">connectivity,</span> <span class="pre">erosion_radius,</span> <span class="pre">node_method,</span> <span class="pre">subdivide_region_voxels,</span> <span class="pre">block_size,</span> <span class="pre">block_min_coverage,</span> <span class="pre">pairwise_include_intra_edges,</span> <span class="pre">include_extended_metrics,</span> <span class="pre">extended_min_nodes,</span> <span class="pre">small_world_nrand,</span> <span class="pre">small_world_niter,</span> <span class="pre">rich_club_q,</span> <span class="pre">graph_null_sampler,</span> <span class="pre">graph_null_device</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;graph&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;graph&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_pairwise_habitat_graph</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'min_distance'</span></code></p></td>
+<td><p>'centroid_distance' | 'adjacency' | 'min_distance'</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">5.0</span></code></p></td>
+<td><p>float</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adjacency_connectivity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'corner'</span></code></p></td>
+<td><p>'face' | 'edge' | 'corner'</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_weight</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'none'</span></code></p></td>
+<td><p>'none' | 'distance' | 'inverse_distance' | 'contact_voxels'</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">connectivity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'full'</span></code></p></td>
+<td><p>'face' | 'full'</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">node_method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'uniform_grid'</span></code></p></td>
+<td><p>'uniform_grid' | 'component'</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1000</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">8</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.2</span></code></p></td>
+<td><p>float</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_world_nrand</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_world_niter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rich_club_q</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>int</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'analytic'</span></code></p></td>
+<td><p>'analytic' | 'config' | 'rewire'</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">graph_null_device</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>ith_score</strong></dt><dd><p>单个受试者生境图的 ITH 分数。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">include_auxiliary</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;ith_score&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;ith_score&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">include_auxiliary</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>msi</strong></dt><dd><p>单个受试者生境图的多区域空间相互作用特征。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;msi&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;msi&quot;)</span></code></p>
+</dd>
+<dt><strong>non_radiomics</strong></dt><dd><p>Basic spatial 特征 of one 受试者's 生境图. Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. <code class="docutils literal notranslate"><span class="pre">Spec(&quot;non_radiomics&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;non_radiomics&quot;)</span></code></p>
+</dd>
+<dt><strong>traditional</strong></dt><dd><p>整个 ROI 内原始图像的 PyRadiomics 特征。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">modalities,</span> <span class="pre">modality,</span> <span class="pre">as_,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;traditional&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;traditional&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">params_file</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">params</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>dict | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modalities</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Sequence | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">as_</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>str | bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_device</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+<dt><strong>volume</strong></dt><dd><p>单受试者各生境体素计数与体积分数。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;volume&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;volume&quot;)</span></code></p>
+</dd>
+<dt><strong>whole_habitat</strong></dt><dd><p>将生境图本身作为图像的 PyRadiomics 特征。必需： <code class="docutils literal notranslate"><span class="pre">(none)</span></code> 。可选： <code class="docutils literal notranslate"><span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype</span></code> 。 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;whole_habitat&quot;)</span></code> <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;whole_habitat&quot;)</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>允许值 / 类型</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">params_file</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">params</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>dict | None</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_torch_radiomics</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>str | bool</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch_device</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'auto'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">torch_dtype</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'float64'</span></code></p></td>
+<td><p>str</p></td>
+<td><p>见组件 docstring。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+<section id="what-to-read-next">
+<h2>下一步阅读<a class="headerlink" href="#what-to-read-next" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../auto_examples/01_building_habitat_maps/plot_01_two_step_spec.html"><span class="doc">用 Spec 的两步法生境</span></a> — typical paper pipeline</p></li>
+<li><p><a class="reference internal" href="../auto_examples/00_introductory_tutorials/plot_02_inside_each_subject.html"><span class="doc">生境 inside each 受试者</span></a> — 逐受试者生境</p></li>
+<li><p><a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html"><span class="doc">将自定义特征提取器作为插件</span></a> — worked concat / ratio / <code class="docutils literal notranslate"><span class="pre">as_</span></code> trees</p></li>
+<li><p><a class="reference internal" href="../api/spec.html"><span class="doc">Spec、RunPolicy 和 YAML 同构</span></a> — 指纹、sugar、 <code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></p></li>
+<li><p><a class="reference internal" href="../api/plugins.html"><span class="doc">插件 introspection API</span></a> — 各域含表格 ML</p></li>
+<li><p><a class="reference internal" href="segment_habitat.html"><span class="doc">生境分割（CLI / YAML）</span></a> —— 仅 CLI / YAML 书签</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-a-habitatspec-is-assembled"><code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> 的组装方法</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-and-yaml-are-the-same-document">Python 与 YAML 为同一文档</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#voxel-feature-extraction">1. 体素特征提取</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-single-modality-voxel-extraction">A. 单模态体素提取</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#b-multi-modality-voxel-composition">B. 多模态体素组合</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#voxel-feature-extractor">voxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-preprocessing">2. 特征预处理</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-preprocessing-method">feature_preprocessing_method</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supervoxel-partition">3. 超体素划分</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supervoxelizer">supervoxelizer</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supervoxel-features">4. 超体素特征</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-single-modality-supervoxel-extraction">A. Single-模态 超体素 extraction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#b-multi-modality-supervoxel-composition">B. 多模态超体素组合</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pool">5. Pool</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pooling">pooling</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fit-habitats">6. 适合的栖息地</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#habitat-model-fitter">habitat_model_fitter</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assign">7. Assign</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#habitat-assigner">habitat_assigner</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quantify">8. 量化</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#habitat-feature-extractor">habitat_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-to-read-next">下一步阅读</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

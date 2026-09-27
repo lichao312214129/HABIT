@@ -1,0 +1,1213 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>体素纹理特征图 &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'how_to/voxel_texture';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/how_to/voxel_texture.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">体素纹理特征图</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="voxel-texture-feature-maps">
+<h1>体素纹理特征图<a class="headerlink" href="#voxel-texture-feature-maps" title="Link to this heading">#</a></h1>
+<p>目标：计算并显示 <strong>体素级纹理</strong> 图 —  densified <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 列（此处 GLCM Contrast）— 作为发表级 2D 切片。</p>
+<p><code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> uses Py放射组学 / Torch放射组学 for per-体素 maps; keep the enabled <code class="docutils literal notranslate"><span class="pre">featureClass</span></code> list small for interactive demos. Neighbourhood entropy (<code class="docutils literal notranslate"><span class="pre">local_entropy</span></code>) is a separate statistic, not this texture.</p>
+<p>Walk-through (Guide): <a class="reference internal" href="../auto_examples/02_features/plot_02_texture_feature_maps.html"><span class="doc">纹理特征图：单独与联合强度</span></a>. For multi-GPU 队列 timings, see <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a>. Scheduling (serial, skip, resume, process pool) is <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a>. This page keeps runtime / backend notes that the gallery does not repeat.</p>
+<section id="who-builds-the-texture-matrices">
+<h2>谁构建纹理矩阵<a class="headerlink" href="#who-builds-the-texture-matrices" title="Link to this heading">#</a></h2>
+<p>体素纹理类两阶段： <strong>构建矩阵</strong> （GLCM、GLDM、GLRLM、GLSZM、NGTDM），再 <strong>求值特征公式</strong> 。一阶无共现矩阵：收集核窗口并归约。HABIT 暴露三运行时：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 40.0%" />
+<col style="width: 38.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Runtime</p></th>
+<th class="head"><p>纹理矩阵</p></th>
+<th class="head"><p>特征公式</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>PyRadiomics（CPU）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">radiomics.cMatrices</span></code> C 扩展</p></td>
+<td><p>NumPy</p></td>
+</tr>
+<tr class="row-odd"><td><p>C 矩阵 + TorchRadiomics</p></td>
+<td><p>同一 C 扩展</p></td>
+<td><p>PyTorch（GPU）</p></td>
+</tr>
+<tr class="row-even"><td><p>HABIT CUD</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habit.kernels.radiomics.gpumatrices</span></code> （GPU）</p></td>
+<td><p>相同 TorchRadiomics 公式（GPU）</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>上游 <a class="reference external" href="https://github.com/lyhyl/pytorchradiomics">pytorchradiomics</a> 为中间行：每个 <code class="docutils literal notranslate"><span class="pre">_calculateMatrix</span></code> 仍调用 <code class="docutils literal notranslate"><span class="pre">cMatrices.calculate_glcm</span></code> （及 GLDM / GLRLM / GLSZM / NGTDM 同类）再 <code class="docutils literal notranslate"><span class="pre">self.tensor(...)</span></code> 。HABIT 在 <code class="docutils literal notranslate"><span class="pre">habit.kernels.radiomics.torchradiomics</span></code> vendoring 该代码，并在 <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices</span></code> 后加 GPU 矩阵构建（默认 <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> ：torch 设备为 CUDA 时开启）。其 README 在 <span class="math notranslate nohighlight">\(16^3\)</span> 任务上 GLCM 636 s → 23.8 s 是中间行对 PyRadiomics（CPU）， <strong>非</strong> HABIT CUDA。</p>
+<p><strong>在同一</strong> <code class="docutils literal notranslate"><span class="pre">habit</span></code> <strong>环境中安装。</strong> 上表三行的 IBSI <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 需要 <strong>PyRadiomics</strong> （<a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> 步骤 6）。两行 GPU 还需该环境中的 <strong>PyTorch</strong> ： <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> ，打开 <a class="reference external" href="https://pytorch.org/">pytorch.org</a> → <strong>Get Started</strong> / <a class="reference external" href="https://pytorch.org/get-started/locally/">Start Locally</a>，选择 OS / Pip / Python / Compute Platform 并运行打印的命令。见 <a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> 步骤 5。</p>
+<p>HABIT 中一阶特征收集核窗口并在 CUDA 上归约。非 C 纹理矩阵，故中间列不适用。</p>
+<section id="simulated-three-way-comparison">
+<h3>模拟三方对比<a class="headerlink" href="#simulated-three-way-comparison" title="Link to this heading">#</a></h3>
+<p>端到端基于体素的 <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 、 <code class="docutils literal notranslate"><span class="pre">dtype=torch.float64</span></code> 、固定体积上 <strong>n = 5</strong> 次重复（均值 ± 样本标准差）：</p>
+<ul class="simple">
+<li><p>高斯 <code class="docutils literal notranslate"><span class="pre">N(300,</span> <span class="pre">80)</span></code> ，形状 <code class="docutils literal notranslate"><span class="pre">(20,</span> <span class="pre">48,</span> <span class="pre">48)</span></code> ，种子 <code class="docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p>4096 ROI 体素, <code class="docutils literal notranslate"><span class="pre">kernelRadius=3</span></code>, <code class="docutils literal notranslate"><span class="pre">binWidth=25</span></code>, <code class="docutils literal notranslate"><span class="pre">voxelBatch=512</span></code></p></li>
+<li><p>first-order: Energy, Entropy, Mean, 90Percentile, Uniformity;
+GLCM: JointEntropy, Idm, Contrast; GLDM: DependenceEntropy,
+LargeDependenceEmphasis, SmallDependenceEmphasis; GLRLM:
+ShortRunEmphasis, RunPercentage, GrayLevelNonUniformity; GLSZM:
+ZonePercentage, LargeAreaEmphasis, ZoneVariance; NGTDM: Coarseness,
+Contrast, Busyness</p></li>
+<li><p>hardware: NVIDIA GeForce RTX 3070 Laptop GPU</p></li>
+</ul>
+<p>列名：</p>
+<ul class="simple">
+<li><p><strong>Py放射组学 (CPU)</strong> — C-extension matrices and NumPy formulas (first-order: CPU neighbourhood stats)</p></li>
+<li><p><strong>C matrices + TorchRadiomics</strong> — C 扩展矩阵、GPU 公式（ <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices=false</span></code> ）</p></li>
+<li><p><strong>HABIT CUDA</strong> — GPU 矩阵与 GPU 公式（ <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices=true</span></code> ；CUDA 上一阶 gather + 公式）</p></li>
+</ul>
+<p><strong>Time (s), mean ± s.d.</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 28.0%" />
+<col style="width: 32.0%" />
+<col style="width: 24.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Class</p></th>
+<th class="head"><p>PyRadiomics（CPU）</p></th>
+<th class="head"><p>C 矩阵 + TorchRadiomics</p></th>
+<th class="head"><p>HABIT CUD</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>First-order</p></td>
+<td><p>0.760 ± 0.030</p></td>
+<td><p>n/a</p></td>
+<td><p>0.037 ± 0.023</p></td>
+</tr>
+<tr class="row-odd"><td><p>GLCM</p></td>
+<td><p>2.556 ± 0.042</p></td>
+<td><p>0.331 ± 0.033</p></td>
+<td><p>0.197 ± 0.087</p></td>
+</tr>
+<tr class="row-even"><td><p>GLDM</p></td>
+<td><p>0.189 ± 0.007</p></td>
+<td><p>0.182 ± 0.014</p></td>
+<td><p>0.154 ± 0.040</p></td>
+</tr>
+<tr class="row-odd"><td><p>GLRLM</p></td>
+<td><p>1.567 ± 0.074</p></td>
+<td><p>1.060 ± 0.014</p></td>
+<td><p>0.530 ± 0.070</p></td>
+</tr>
+<tr class="row-even"><td><p>GLSZM</p></td>
+<td><p>0.138 ± 0.004</p></td>
+<td><p>0.152 ± 0.008</p></td>
+<td><p>0.168 ± 0.006</p></td>
+</tr>
+<tr class="row-odd"><td><p>NGTDM</p></td>
+<td><p>0.175 ± 0.007</p></td>
+<td><p>0.150 ± 0.003</p></td>
+<td><p>0.131 ± 0.005</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>GLCM 与 GLRLM 为 C 扩展瓶颈，GPU 公式与 GPU 矩阵均有帮助。一阶无纹理矩阵；HABIT CUDA 为设备上核 gather 加归约。本 4096 体素玩具上 GLSZM 在 CPU 已便宜（启动开销）。</p>
+<p><strong>Accuracy</strong>, max abs. error of the 特征 maps (worst 特征 in the class), mean ± s.d. over the same 5 repeats:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 28.0%" />
+<col style="width: 28.0%" />
+<col style="width: 28.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Class</p></th>
+<th class="head"><p>C+Torch 对 PyRadiomics</p></th>
+<th class="head"><p>HABIT CUDA 与 PyRadiomics</p></th>
+<th class="head"><p>HABIT CUDA 对 C+Torch</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>First-order</p></td>
+<td><p>n/a</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.49     imes 10^{-8} pm 0\)</span></p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-odd"><td><p>GLCM</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.42     imes 10^{-14} pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.42     imes 10^{-14} pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(7.77     imes 10^{-17} pm 3.0    imes 10^{-17}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>GLDM</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.78     imes 10^{-15} pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.78     imes 10^{-15} pm 0\)</span></p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>GLRLM</p></td>
+<td><p><span class="math notranslate nohighlight">\(3.55     imes 10^{-15} pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(3.55     imes 10^{-15} pm 0\)</span></p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>GLSZM</p></td>
+<td><p><span class="math notranslate nohighlight">\(8.88     imes 10^{-16} pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(8.88     imes 10^{-16} pm 0\)</span></p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>NGTDM</p></td>
+<td><p><span class="math notranslate nohighlight">\(5.55     imes 10^{-16} pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(5.55     imes 10^{-16} pm 0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.67     imes 10^{-16} pm 0\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Texture C+Torch / HABIT CUDA vs PyRadiomics is NumPy vs torch formula
+order, not a matrix mismatch. HABIT CUDA vs C+Torch sits at machine
+epsilon because integer count matrices are bit-identical
+(<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_*_gpu_parity.py</span></code>, 81 cases). First-order is
+looser (<span class="math notranslate nohighlight">\(10^{-8}\)</span>) because percentiles use different quantile
+algorithms. Force the matrix backend with <code class="docutils literal notranslate"><span class="pre">use_gpu_matrices:</span> <span class="pre">true</span></code> /
+<code class="docutils literal notranslate"><span class="pre">false</span></code> on the <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> Spec.</p>
+</section>
+<section id="clinical-large-tumor-three-way-benchmark">
+<h3>临床大肿瘤三方基准<a class="headerlink" href="#clinical-large-tumor-three-way-benchmark" title="Link to this heading">#</a></h3>
+<p>在小合成玩具（如上 4,096 体素）上，核 launch 开销与 CUDA 驱动延迟稀释 GPU 加速全力。真实临床成像中肿瘤常含数万体素。大负载下性能瓶颈完全转移：</p>
+<ol class="arabic simple">
+<li><p><strong>纯 PyRadiomics (CPU)</strong> ：单线程 C 扩展（ <code class="docutils literal notranslate"><span class="pre">cMatrices</span></code> ）须对数百万潜在邻对逐体素迭代。大体上每受试者需数分钟。</p></li>
+<li><p><strong>C matrices + TorchRadiomics (GPU)</strong> ：将特征公式卸载到 PyTorch 有帮助，但纹理矩阵构造仍钉在单线程 CPU 循环。大矩阵还须代价高的主机到设备（H2D）传输。</p></li>
+<li><p><strong>HABIT 内置 GPU</strong> ： Both matrix construction (<code class="docutils literal notranslate"><span class="pre">gpumatrices</span></code>) and 特征 evaluations execute entirely within GPU VRAM with zero host-to-device intermediate copy, yielding dramatic speedups on large clinical lesions.</p></li>
+</ol>
+<p>下面的基准测试评估了这三种运行时在来自 HABIT 演示队列的临床肝脏病变病例上的表现（硬件：NVIDIA GeForce RTX 3070 笔记本 GPU， <code class="docutils literal notranslate"><span class="pre">binWidth=25</span></code> ， <code class="docutils literal notranslate"><span class="pre">kernelRadius=1</span></code> ）：</p>
+<p><strong>Subj001（34,694 ROI 体素）</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 20.0%" />
+<col style="width: 22.0%" />
+<col style="width: 20.0%" />
+<col style="width: 16.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>特征任务</p></th>
+<th class="head"><p>纯 PyRadiomics（CPU）</p></th>
+<th class="head"><p>C + TorchRadiomics（GPU）</p></th>
+<th class="head"><p>HABIT 内置 GPU</p></th>
+<th class="head"><p>加速（相对 CPU / 相对 C+Torch）</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>GLCM Contrast</p></td>
+<td><p>68.71 s</p></td>
+<td><p>7.54 s</p></td>
+<td><p><strong>2.68 s</strong></p></td>
+<td><p><strong>25.6×</strong> / <strong>2.8×</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>GLCM 4 个特征</p></td>
+<td><p>85.33 s</p></td>
+<td><p>7.04 s</p></td>
+<td><p><strong>3.02 s</strong></p></td>
+<td><p><strong>28.3×</strong> / <strong>2.3×</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>GLRLM（2 个特征）</p></td>
+<td><p>13.25 s</p></td>
+<td><p>8.02 s</p></td>
+<td><p><strong>2.61 s</strong></p></td>
+<td><p><strong>5.1×</strong> / <strong>3.1×</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>一阶（4 特征）</p></td>
+<td><p>5.30 s</p></td>
+<td><p>n/a</p></td>
+<td><p><strong>1.99 s</strong></p></td>
+<td><p><strong>2.7×</strong> / n/a</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Subj005（80,084 ROI 体素——大肿瘤基准）</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 22.0%" />
+<col style="width: 22.0%" />
+<col style="width: 18.0%" />
+<col style="width: 14.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>运行时架构</p></th>
+<th class="head"><p>矩阵构建</p></th>
+<th class="head"><p>特征公式</p></th>
+<th class="head"><p>Time (s)</p></th>
+<th class="head"><p>Speedup</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>纯 PyRadiomics（CPU）</strong></p></td>
+<td><p>单线程 C (CPU)</p></td>
+<td><p>NumPy（CPU）</p></td>
+<td><p>414.58 s (~7 min)</p></td>
+<td><p>1.0×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>C + Torch放射组学 (GPU)</strong></p></td>
+<td><p>单线程 C (CPU)</p></td>
+<td><p>PyTorch（GPU）</p></td>
+<td><p>39.62 s</p></td>
+<td><p>10.5×</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>HABIT 内置 GPU</strong></p></td>
+<td><p>并行 CUDA（GPU）</p></td>
+<td><p>PyTorch（GPU）</p></td>
+<td><p><strong>7.59 s</strong></p></td>
+<td><p><strong>54.6×</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><em>在约 8 万体素体积上，HABIT 将 7 分钟 CPU 瓶颈压到 7.6 秒，并通过消除 CPU 矩阵构建比上游 TorchRadiomics 快 5.2×。</em></p>
+<p><strong>云端 RTX 4080 SUPER 基准（54,913 ROI 体素——完整 90 特征提取）</strong></p>
+<p>在 NVIDIA GeForce RTX 4080 SUPER（32 GiB）与 Intel Xeon Platinum 8352V CPU 上测量：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 22.0%" />
+<col style="width: 22.0%" />
+<col style="width: 18.0%" />
+<col style="width: 14.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>运行时架构</p></th>
+<th class="head"><p>矩阵构建</p></th>
+<th class="head"><p>特征公式</p></th>
+<th class="head"><p>Time (s)</p></th>
+<th class="head"><p>Speedup</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>纯 PyRadiomics（CPU）</strong></p></td>
+<td><p>单线程 C (CPU)</p></td>
+<td><p>NumPy（CPU）</p></td>
+<td><p>19.48 s</p></td>
+<td><p>1.0×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>C + Torch放射组学 (GPU)</strong></p></td>
+<td><p>单线程 C (CPU)</p></td>
+<td><p>PyTorch（GPU）</p></td>
+<td><p>1.64 s</p></td>
+<td><p>11.9×</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>HABIT 内置 GPU</strong></p></td>
+<td><p>并行 CUDA（GPU）</p></td>
+<td><p>PyTorch（GPU）</p></td>
+<td><p><strong>0.70 s</strong></p></td>
+<td><p><strong>27.7×</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Numerical parity across all 54,913 体素 × 90 特征 (~4.94M values):</p>
+<ul class="simple">
+<li><p><strong>C + Torch放射组学 vs HABIT Built-in GPU</strong>: Max absolute difference = <strong>0.0</strong> (100% bit-identical matrix construction).</p></li>
+<li><p><strong>纯 CPU 与 HABIT 内置 GPU</strong> ：全部值平均绝对差 = <strong>0.00137</strong> （Energy/TotalEnergy 最大差 0.5，值约 2.45M，相对误差约 2e-7，因 float32 与 float64 求和）。数学定义仍相同。</p></li>
+</ul>
+<p><strong>多 GPU 队列扩展基准（16 受试者——878,608 ROI 体素，90 特征）</strong></p>
+<p>在 AutoDL 云主机多 GPU 上扩展稠密 3D 纹理特征提取（5× NVIDIA GeForce RTX 4080 SUPER 各 32 GiB，2× Intel Xeon Platinum 8352V 144 逻辑 CPU，503 GiB RAM）。每受试者 54,913 ROI 肿瘤体素（队列共 878,608 ROI 体素），提取完整 90 个放射组学特征：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 18.0%" />
+<col style="width: 12.0%" />
+<col style="width: 16.0%" />
+<col style="width: 16.0%" />
+<col style="width: 16.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Scenario</p></th>
+<th class="head"><p>执行设备</p></th>
+<th class="head"><p>Workers</p></th>
+<th class="head"><p>墙钟时间（秒）</p></th>
+<th class="head"><p>吞吐量（subj/min）</p></th>
+<th class="head"><p>相对 CPU 串行加速</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>0 GPU（CPU 串行）</strong></p></td>
+<td><p>CUDA=-1 (CPU)</p></td>
+<td><p>1</p></td>
+<td><p>263.49 s</p></td>
+<td><p>3.64</p></td>
+<td><p>1.0×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>0 GPU（CPU 并行）</strong></p></td>
+<td><p>CUDA=-1 (CPU)</p></td>
+<td><p>2</p></td>
+<td><p>138.03 s</p></td>
+<td><p>6.96</p></td>
+<td><p>1.9×</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>0 GPU（CPU 并行）</strong></p></td>
+<td><p>CUDA=-1 (CPU)</p></td>
+<td><p>4</p></td>
+<td><p>79.23 s</p></td>
+<td><p>12.12</p></td>
+<td><p>3.3×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>0 GPU（CPU 并行）</strong></p></td>
+<td><p>CUDA=-1 (CPU)</p></td>
+<td><p>8</p></td>
+<td><p>49.16 s</p></td>
+<td><p>19.53</p></td>
+<td><p>5.4×</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>1 GPU (Cold Pool)</strong></p></td>
+<td><p>CUDA=0 (GPU)</p></td>
+<td><p>1</p></td>
+<td><p>19.30 s</p></td>
+<td><p>49.73</p></td>
+<td><p>13.7×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>1 GPU (Cold Pool)</strong></p></td>
+<td><p>CUDA=0 (GPU)</p></td>
+<td><p>2</p></td>
+<td><p>17.44 s</p></td>
+<td><p>55.04</p></td>
+<td><p>15.1×</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>1 个 GPU（预热池）</strong></p></td>
+<td><p>CUDA=0 (GPU)</p></td>
+<td><p>1</p></td>
+<td><p>12.41 s</p></td>
+<td><p>77.33</p></td>
+<td><p>21.2×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>5 GPU（冷池）</strong></p></td>
+<td><p>CUDA=0,1,2,3,4</p></td>
+<td><p>2</p></td>
+<td><p>11.61 s</p></td>
+<td><p>82.68</p></td>
+<td><p>22.7×</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>5 GPU（冷池）</strong></p></td>
+<td><p>CUDA=0,1,2,3,4</p></td>
+<td><p>4</p></td>
+<td><p>14.05 s</p></td>
+<td><p>68.32</p></td>
+<td><p>18.8×</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>5 GPU（冷池）</strong></p></td>
+<td><p>CUDA=0,1,2,3,4</p></td>
+<td><p>5</p></td>
+<td><p>14.78 s</p></td>
+<td><p>64.97</p></td>
+<td><p>17.8×</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>5 GPU（温池）</strong></p></td>
+<td><p>CUDA=0,1,2,3,4</p></td>
+<td><p>5</p></td>
+<td><p><strong>4.16 s</strong></p></td>
+<td><p><strong>231.03</strong></p></td>
+<td><p><strong>63.4×</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>架构要点：</p>
+<ul class="simple">
+<li><p><strong>GPU 为何加速体素放射组学：</strong> 纯 CPU 生境负载（如 <code class="docutils literal notranslate"><span class="pre">raw</span></code> + sklearn k-means）受单核限制，多 GPU 不优于多 CPU。 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 做稠密邻域张量运算；HABIT 并行 CUDA 矩阵生成与 TorchRadiomics 卸载到 GPU，显著加速（ <strong>相对 CPU 串行 63.4×</strong> ， <strong>相对 8 CPU 核 11.8×</strong> ）。</p></li>
+<li><p><strong>每 Worker GPU 隔离：</strong> 在 <a class="reference internal" href="../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> 上配置 <code class="docutils literal notranslate"><span class="pre">cap_workers_to_gpu_pool=True</span></code> 时，HABIT 在每个子 worker 初始化器中调用 <code class="xref py py-func docutils literal notranslate"><span class="pre">pin_worker_visible_cuda_device()</span></code> 。每个 worker 进程暴露一张专用 GPU（槽 0 见卡 0，槽 1 见卡 1 等），消除进程间 CUDA 内存冲突与上下文切换开销。</p></li>
+<li><p><strong>冷池 vs 热池 开销：</strong> 在冷启动一次性执行中，工作进程必须新建，导入 PyTorch 和 CUDA 运行时库（约 4 秒），在处理第一个受试者时初始化 GPU 上下文（约 2.4 秒），并在终止时优雅地退出（约 3 秒）。使用持久工作池（例如在 <a class="reference internal" href="../api/generated/habit.recipes.Study.html#habit.recipes.Study.fit_predict" title="habit.recipes.Study.fit_predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_predict()</span></code></a> 内部或通过 <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">backend.reuse_workers():</span></code> ）时，工作进程和 CUDA 上下文保持驻留在内存中。这消除了进程启动/拆卸的摩擦，并允许 5-GPU 集群在 <strong>4.16 秒</strong> 内处理整个 16 个受试者的队列（超过 <strong>每分钟 230 个受试者</strong> ）。</p></li>
+<li><p><strong>小队列 worker 数甜点（为何冷池 2 worker 优于 5）：</strong> 单受试者 GPU 计算极快（~0.71 s），16 受试者总 raw 计算仅 ~11.4 s。2 worker（8 case/worker）raw 约 5.7 s 加进程 spawn 与 CUDA 主上下文初始化 ~5.9 s。冷池 5 worker（3–4 case/worker）raw 降至 ~2.8 s，但 spawn 5 子进程、初始化 5 CUDA 上下文与管理 5 IPC 队列引入 ~11.9 s 固定开销（16 不可被 5 整除带来轻微负载不均）。~2.9 s 计算节省被启动开销抵消。冷池小队列（&lt;50 受试者） <strong>2–4 worker</strong> 为最优吞吐甜点。池预热后或大队列（100–1000+ 受试者）计算远超启动时，5 GPU 线性多 worker 扩展（ <strong>4.16 s</strong> ， <strong>231 subjects/min</strong> ）。</p></li>
+</ul>
+</section>
+</section>
+<section id="python-api-sklearn-short">
+<h2>Python API（sklearn 简写）<a class="headerlink" href="#python-api-sklearn-short" title="Link to this heading">#</a></h2>
+<p>The figure below is written by <code class="docutils literal notranslate"><span class="pre">docs/source/examples/scripts/voxel_texture_demo.py</span></code>.
+Reproduce it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">voxel_texture_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>或粘贴相同 load + plot：:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_demo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_voxel_texture_slice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.voxel_features</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_voxel_texture</span>
+
+<span class="c1"># Change DATA / MODALITY / ROI to your preprocessed layout</span>
+<span class="n">DATA</span> <span class="o">=</span> <span class="n">fetch_demo</span><span class="p">()</span>  <span class="c1"># or &quot;demo_data/preprocessed&quot;</span>
+<span class="n">MODALITY</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+<span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="n">MODALITY</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">image_vol</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITY</span><span class="p">)</span>
+<span class="n">mask_vol</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span>
+<span class="n">field</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span>
+    <span class="n">image_vol</span><span class="p">,</span>
+    <span class="n">mask_vol</span><span class="p">,</span>
+    <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">bin_width</span><span class="o">=</span><span class="mf">25.0</span><span class="p">,</span>
+    <span class="n">feature_classes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;glcm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Contrast&quot;</span><span class="p">]},</span>
+<span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
+    <span class="n">field</span><span class="p">,</span> <span class="n">feature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">anatomy</span><span class="o">=</span><span class="n">image_vol</span><span class="p">,</span> <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask_vol</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">feature=0</span></code> is the first column (GLCM Contrast). A column name works too. Default <code class="docutils literal notranslate"><span class="pre">mode=&quot;overlay&quot;</span></code> paints <strong>opaque</strong> 特征 colours inside the ROI on greyscale anatomy (optional cyan contour). <code class="docutils literal notranslate"><span class="pre">alpha&lt;1</span></code> is the explicit translucent option. <code class="docutils literal notranslate"><span class="pre">mode=&quot;side_by_side&quot;</span></code> adds a sibling anatomy panel when you also want the raw image.</p>
+</section>
+<section id="layouts">
+<h2>Layouts<a class="headerlink" href="#layouts" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a> <strong>仅 2D 切片</strong> （需要 matplotlib）:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>* ``mode=&quot;overlay&quot;`` — greyscale anatomy + opaque feature in ROI (default)
+* ``mode=&quot;side_by_side&quot;`` — anatomy + ROI contour | feature (sibling panel)
+* ``mode=&quot;feature_only&quot;`` — feature map alone
+</pre></div>
+</div>
+<p>3D 体上省略 <code class="docutils literal notranslate"><span class="pre">axis</span></code> 得三正交面板行。面板用 <code class="docutils literal notranslate"><span class="pre">display_convention=&quot;radiological&quot;</span></code> （以 <code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code> 传解剖以免丢失 direction）。纹理图无内置 3D 体渲染；全 volumetric 浏览用 ITK-SNAP / 3D Slicer / napari。</p>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/voxel_texture_overlay.png"><img alt="解剖上的不透明 GLCM Contrast 叠加" src="../_images/voxel_texture_overlay.png" style="width: 520px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">默认 <code class="docutils literal notranslate"><span class="pre">overlay</span></code> 布局（<a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a> ）。</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="also-see">
+<h2>Also see<a class="headerlink" href="#also-see" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>示例图库：<a class="reference internal" href="../auto_examples/02_features/plot_02_texture_feature_maps.html"><span class="doc">纹理特征图：单独与联合强度</span></a></p></li>
+<li><p>提取器：<a class="reference internal" href="../api/generated/habit.voxel_features.extract_voxel_texture.html#habit.voxel_features.extract_voxel_texture" title="habit.voxel_features.extract_voxel_texture"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_voxel_texture()</span></code></a></p></li>
+<li><p>生境图图网络图：<a class="reference internal" href="graph_features.html"><span class="doc">图拓扑特征</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#who-builds-the-texture-matrices">谁构建纹理矩阵</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simulated-three-way-comparison">模拟三方对比</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clinical-large-tumor-three-way-benchmark">临床大肿瘤三方基准</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-api-sklearn-short">Python API（sklearn 简写）</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#layouts">Layouts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#also-see">Also see</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

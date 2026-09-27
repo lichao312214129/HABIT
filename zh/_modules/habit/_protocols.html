@@ -1,0 +1,1720 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>habit._protocols &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/habit/_protocols';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/_modules/habit/_protocols.html" />
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">模块代码</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">habit._protocols</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>habit._protocols 源代码</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;The domain protocols (L3).</span>
+
+<span class="sd">The core habitat pipeline rests on exactly EIGHT domain protocols, and each</span>
+<span class="sd">one is a term that already exists in habitat imaging research (voxel feature,</span>
+<span class="sd">feature preprocessing, supervoxel, supervoxel feature, habitat model, habitat</span>
+<span class="sd">map, habitat feature). A generic ``Operator.transform(x)`` would be more</span>
+<span class="sd">flexible and strictly less useful: a radiologist reading</span>
+<span class="sd">``HabitatModelFitter.fit(units)`` understands it immediately, whereas a</span>
+<span class="sd">generic name teaches them nothing and gives an extension author no hint about</span>
+<span class="sd">which slot to implement. A ninth protocol, ``ImagePerturbation``, serves the</span>
+<span class="sd">precision-analysis domain (simulated test-retest) and follows the same</span>
+<span class="sd">one-call-per-subject convention.</span>
+
+<span class="sd">``SupervoxelFeatureExtractor`` was added after the initial five: growing a</span>
+<span class="sd">partition and describing its regions are two independent scientific choices</span>
+<span class="sd">(v0.1 configured them in two separate YAML blocks, ``habitat_segmentation.</span>
+<span class="sd">supervoxel`` and ``feature_construction.supervoxel_level``), and fusing them</span>
+<span class="sd">into ``Supervoxelizer`` made per-supervoxel radiomics inexpressible -- that</span>
+<span class="sd">family needs the ORIGINAL IMAGES, which a ``VoxelFeatureField`` does not</span>
+<span class="sd">carry. A tenth protocol, ``Combiner``, factors multi-modality composition</span>
+<span class="sd">out of the extractors: extractor leaves each describe ONE modality&#39;s signal,</span>
+<span class="sd">combiner nodes merge the sibling blocks, and the composition itself becomes</span>
+<span class="sd">an extensible plugin domain rather than a fixed set of extractor flags.</span>
+
+<span class="sd">The last two, ``SubjectFeaturePreprocessor`` and</span>
+<span class="sd">``CohortFeaturePreprocessor``, split feature preprocessing along the axis that</span>
+<span class="sd">actually matters: whether the fitted statistics cross subject boundaries.</span>
+<span class="sd">Individual-level preprocessing is stateless BY NATURE -- its statistics come</span>
+<span class="sd">from the single matrix in front of it, so training and prediction are the same</span>
+<span class="sd">computation -- while cohort-level preprocessing is stateful by nature and is</span>
+<span class="sd">the one leakage-sensitive step in habitat definition. Neither protocol</span>
+<span class="sd">mentions granularity, which is the point: the stateless one applies equally to</span>
+<span class="sd">voxel features and to supervoxel features. v0.1&#39;s</span>
+<span class="sd">``preprocessing_for_subject_level`` / ``preprocessing_for_group_level``</span>
+<span class="sd">conflated state ownership with granularity, and consequently offered no</span>
+<span class="sd">stateless normalisation for per-supervoxel features at all.</span>
+
+<span class="sd">Call convention: single ``__call__`` per subject-level protocol, with NO</span>
+<span class="sd">class-body verb aliases (``extract = __call__`` etc. would bind the function</span>
+<span class="sd">object at class-definition time, so a subclass overriding ``__call__`` would</span>
+<span class="sd">leave the alias pointing at the parent&#39;s implementation -- a silent</span>
+<span class="sd">divergence). Readability at the call site comes from the variable name</span>
+<span class="sd">(``voxel_features(subject)``), not from a second method name.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">runtime_checkable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HabitatMap</span><span class="p">,</span>
+    <span class="n">HabitatModel</span><span class="p">,</span>
+    <span class="n">Supervoxelization</span><span class="p">,</span>
+    <span class="n">VoxelFeatureField</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.subject</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cohort</span><span class="p">,</span> <span class="n">Subject</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spec</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;VoxelFeatureExtractor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SubjectFeaturePreprocessor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CohortFeaturePreprocessor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Supervoxelizer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SupervoxelFeatureExtractor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HabitatModelFitter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HabitatAssigner&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HabitatFeatureExtractor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ImagePerturbation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Preprocessor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Combiner&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PoolingMarker&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Seedable&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="VoxelFeatureExtractor">
+<a class="viewcode-back" href="../../api/generated/habit.voxel_features.VoxelFeatureExtractor.html#habit.combiners.VoxelFeatureExtractor">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VoxelFeatureExtractor</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn a subject&#39;s images into per-voxel feature vectors inside the ROI.</span>
+
+<span class="sd">    Implementations in HABIT cover raw intensity, kinetic curves, local</span>
+<span class="sd">    entropy, and voxel-wise radiomics. Because this is a protocol rather than</span>
+<span class="sd">    a hard-coded branch, an external group can plug in voxel embeddings from</span>
+<span class="sd">    a self-supervised or foundation model without modifying HABIT.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification, used for provenance and caching.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="VoxelFeatureExtractor.__call__">
+<a class="viewcode-back" href="../../api/generated/habit.voxel_features.VoxelFeatureExtractor.html#habit.combiners.VoxelFeatureExtractor.__call__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VoxelFeatureField</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute per-voxel features for one subject.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject providing images and the ROI mask.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Feature vectors for every voxel inside the ROI.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            GeometryError: If the required modalities and the mask do not</span>
+<span class="sd">                share a compatible voxel grid.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SubjectFeaturePreprocessor">
+<a class="viewcode-back" href="../../api/generated/habit.feature_preprocessing.SubjectFeaturePreprocessor.html#habit.combiners.SubjectFeaturePreprocessor">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubjectFeaturePreprocessor</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Preprocess one subject&#39;s feature matrix using only that subject&#39;s data.</span>
+
+<span class="sd">    Stateless by construction: every statistic comes from the matrix passed</span>
+<span class="sd">    in, so there is nothing to fit, nothing to persist, and no way to leak</span>
+<span class="sd">    training information into a validation subject. This is what makes the</span>
+<span class="sd">    protocol a plain callable rather than a fit/transform pair.</span>
+
+<span class="sd">    Deliberately says nothing about granularity. The matrix rows may be</span>
+<span class="sd">    voxels or supervoxels, and the SAME implementation serves both -- which</span>
+<span class="sd">    is the whole reason this is separate from</span>
+<span class="sd">    :class:`CohortFeaturePreprocessor` rather than being one protocol per</span>
+<span class="sd">    pipeline position. Scientifically the purpose is to remove BETWEEN-subject</span>
+<span class="sd">    variation (scanner, sequence, intensity scale), and that only works when</span>
+<span class="sd">    each subject is normalised by its own distribution.</span>
+
+<span class="sd">    A plain ``DataFrame`` is the input and output type because the</span>
+<span class="sd">    computation is genuinely type-agnostic; the typed contracts bridge to it</span>
+<span class="sd">    through their ``feature_frame()`` / ``with_feature_frame()`` pair.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SubjectFeaturePreprocessor.__call__">
+<a class="viewcode-back" href="../../api/generated/habit.feature_preprocessing.SubjectFeaturePreprocessor.html#habit.combiners.SubjectFeaturePreprocessor.__call__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Preprocess one unit-by-feature matrix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Rows are clustering units (voxels or supervoxels) of ONE</span>
+<span class="sd">                subject, columns are features.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The preprocessed matrix with the same rows in the same order.</span>
+<span class="sd">            Columns may be a subset when the chain filters features.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CohortFeaturePreprocessor">
+<a class="viewcode-back" href="../../api/generated/habit.feature_preprocessing.CohortFeaturePreprocessor.html#habit.combiners.CohortFeaturePreprocessor">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CohortFeaturePreprocessor</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Preprocess the pooled cohort feature matrix with fitted statistics.</span>
+
+<span class="sd">    Stateful by construction, and the mirror image of</span>
+<span class="sd">    :class:`SubjectFeaturePreprocessor`: its purpose is to place units from</span>
+<span class="sd">    DIFFERENT subjects in one comparable feature space, so the clusters that</span>
+<span class="sd">    define habitats mean the same thing for everyone. That requires shared</span>
+<span class="sd">    statistics, which requires fitting, which makes this the single</span>
+<span class="sd">    leakage-sensitive step of habitat definition -- ``fit`` must see training</span>
+<span class="sd">    data only.</span>
+
+<span class="sd">    The fitted state therefore belongs in the published</span>
+<span class="sd">    :class:`~habit.contracts.habitat.HabitatModel`: a habitat definition</span>
+<span class="sd">    applied to a new cohort without its cohort-level preprocessing would put</span>
+<span class="sd">    that cohort in a different feature space while appearing to work.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CohortFeaturePreprocessor.fit">
+<a class="viewcode-back" href="../../api/generated/habit.feature_preprocessing.CohortFeaturePreprocessor.html#habit.combiners.CohortFeaturePreprocessor.fit">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;CohortFeaturePreprocessor&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Learn the transformation from the pooled TRAINING matrix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Rows are clustering units from every training subject.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``self``, fitted.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="CohortFeaturePreprocessor.transform">
+<a class="viewcode-back" href="../../api/generated/habit.feature_preprocessing.CohortFeaturePreprocessor.html#habit.combiners.CohortFeaturePreprocessor.transform">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the fitted transformation to a pooled matrix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            block: Matrix carrying the feature columns seen at fit time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The preprocessed matrix, rows preserved.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Supervoxelizer">
+<a class="viewcode-back" href="../../api/generated/habit.supervoxel.Supervoxelizer.html#habit.combiners.Supervoxelizer">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Supervoxelizer</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Partition one subject&#39;s ROI into supervoxels.</span>
+
+<span class="sd">    Scientific motivation: voxel-level features are noisy, and clustering</span>
+<span class="sd">    voxels directly across subjects tends to recover scanner scale</span>
+<span class="sd">    differences rather than intratumoral heterogeneity. Aggregating within</span>
+<span class="sd">    spatially coherent supervoxels, after per-subject normalisation, is what</span>
+<span class="sd">    makes the subsequent population-level clustering biologically meaningful.</span>
+
+<span class="sd">    Implementations describe each region with the mean of the voxel features</span>
+<span class="sd">    they partitioned, which is free once the partition exists and is what</span>
+<span class="sd">    v0.1 always computed. That default is a summary, not a commitment: pass a</span>
+<span class="sd">    :class:`SupervoxelFeatureExtractor` to describe the same regions</span>
+<span class="sd">    differently (per-supervoxel radiomics, for instance).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Supervoxelizer.__call__">
+<a class="viewcode-back" href="../../api/generated/habit.supervoxel.Supervoxelizer.html#habit.combiners.Supervoxelizer.__call__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">VoxelFeatureField</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Supervoxelization</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Group voxels into supervoxels and summarise them by feature mean.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            field: Per-voxel features for one subject.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The supervoxel partition together with per-supervoxel means.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SupervoxelFeatureExtractor">
+<a class="viewcode-back" href="../../api/generated/habit.supervoxel.SupervoxelFeatureExtractor.html#habit.combiners.SupervoxelFeatureExtractor">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SupervoxelFeatureExtractor</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Describe each supervoxel of one subject, replacing the default summary.</span>
+
+<span class="sd">    Structurally the twin of :class:`HabitatFeatureExtractor`: both answer</span>
+<span class="sd">    &quot;given a partition of this subject plus the original images, what</span>
+<span class="sd">    describes each region?&quot;. They differ only in granularity and in who</span>
+<span class="sd">    consumes the answer -- supervoxel features feed the cohort-level</span>
+<span class="sd">    clustering that DEFINES habitats, habitat features feed outcome</span>
+<span class="sd">    modelling.</span>
+
+<span class="sd">    Separating this from :class:`Supervoxelizer` is what keeps two</span>
+<span class="sd">    independent scientific choices independent. It is also what makes</span>
+<span class="sd">    per-supervoxel radiomics expressible at all: those families need the</span>
+<span class="sd">    subject&#39;s original intensities, which a</span>
+<span class="sd">    :class:`~habit.contracts.habitat.VoxelFeatureField` deliberately does</span>
+<span class="sd">    not carry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SupervoxelFeatureExtractor.__call__">
+<a class="viewcode-back" href="../../api/generated/habit.supervoxel.SupervoxelFeatureExtractor.html#habit.combiners.SupervoxelFeatureExtractor.__call__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span>
+        <span class="n">partition</span><span class="p">:</span> <span class="n">Supervoxelization</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Supervoxelization</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recompute one subject&#39;s per-supervoxel features.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject supplying original images when the family needs</span>
+<span class="sd">                intensity information.</span>
+<span class="sd">            partition: The subject&#39;s supervoxel partition, whose</span>
+<span class="sd">                ``label_array`` defines the regions to describe.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The SAME partition carrying the newly computed features. Returning</span>
+<span class="sd">            a ``Supervoxelization`` rather than a bare table keeps the</span>
+<span class="sd">            downstream contract single-typed: the fitter and the assigner</span>
+<span class="sd">            consume partitions, and never need to know which extractor</span>
+<span class="sd">            described them.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HabitatModelFitter">
+<a class="viewcode-back" href="../../api/generated/habit.habitat_model.HabitatModelFitter.html#habit.combiners.HabitatModelFitter">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HabitatModelFitter</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit the population-level habitat definition. THIS IS THE COHORT-LEVEL STEP.</span>
+
+<span class="sd">    This is the only place in HABIT where information crosses subject</span>
+<span class="sd">    boundaries, and it is what makes habitat labels comparable between</span>
+<span class="sd">    patients and between cohorts. Its output, :class:`HabitatModel`, is the</span>
+<span class="sd">    artefact a study should publish so that other groups can reproduce the</span>
+<span class="sd">    same habitat definition on their own data.</span>
+
+<span class="sd">    Named ``*Fitter`` (lifelines / statsmodels convention), NOT</span>
+<span class="sd">    ``*Estimator``: sklearn reserves &quot;estimator&quot; for objects whose ``fit``</span>
+<span class="sd">    returns ``self`` and that are ``clone()``-able, whereas this ``fit``</span>
+<span class="sd">    returns a NEW :class:`HabitatModel` artefact.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HabitatModelFitter.fit">
+<a class="viewcode-back" href="../../api/generated/habit.habitat_model.HabitatModelFitter.html#habit.combiners.HabitatModelFitter.fit">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">units</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Supervoxelization</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">cohort</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Cohort</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatModel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Learn the shared habitat definition from all subjects.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            units: Supervoxelizations in a defined, reproducible order.</span>
+<span class="sd">                Order is part of the contract because clustering can be</span>
+<span class="sd">                order-sensitive.</span>
+<span class="sd">            cohort: Cohort the units came from, used only to record a</span>
+<span class="sd">                non-identifiable fingerprint inside the model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A self-contained habitat model applicable to unseen subjects.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HabitatAssigner">
+<a class="viewcode-back" href="../../api/generated/habit.habitat_model.HabitatAssigner.html#habit.combiners.HabitatAssigner">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HabitatAssigner</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assign habitat labels to one subject using a fitted model.</span>
+
+<span class="sd">    Keeping this separate from the fitter is what enforces train/predict</span>
+<span class="sd">    consistency structurally rather than by convention: prediction has no</span>
+<span class="sd">    way to re-learn anything, because everything it needs is inside the</span>
+<span class="sd">    model.</span>
+
+<span class="sd">    The model is supplied to the CONSTRUCTOR, not to the call. Two</span>
+<span class="sd">    consequences follow: the assigner becomes an ordinary one-argument</span>
+<span class="sd">    callable (a subject-level operator like every other step), and an</span>
+<span class="sd">    assigner cannot be constructed without a fitted model, so &quot;predicting</span>
+<span class="sd">    before fitting&quot; becomes unrepresentable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatModel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the fitted habitat definition this assigner projects.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HabitatAssigner.__call__">
+<a class="viewcode-back" href="../../api/generated/habit.habitat_model.HabitatAssigner.html#habit.combiners.HabitatAssigner.__call__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supervoxel_map</span><span class="p">:</span> <span class="n">Supervoxelization</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatMap</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Project the fitted habitat definition onto one subject.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            supervoxel_map: Supervoxelization of the subject to label.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The subject&#39;s habitat label image, tagged with the model&#39;s id.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            CompatibilityError: If the supervoxel features do not provide</span>
+<span class="sd">                the feature names the model requires.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HabitatFeatureExtractor">
+<a class="viewcode-back" href="../../api/generated/habit.habitat_features.HabitatFeatureExtractor.html#habit.combiners.HabitatFeatureExtractor">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HabitatFeatureExtractor</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute habitat-level features for one subject.</span>
+
+<span class="sd">    HABIT&#39;s differentiating feature families live here: MSI (multiregional</span>
+<span class="sd">    spatial interaction), ITH score (topological fragmentation), volume and</span>
+<span class="sd">    connectivity descriptors, and per-habitat or whole-habitat radiomics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HabitatFeatureExtractor.__call__">
+<a class="viewcode-back" href="../../api/generated/habit.habitat_features.HabitatFeatureExtractor.html#habit.combiners.HabitatFeatureExtractor.__call__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute one family of habitat-level features for one subject.</span>
+
+<span class="sd">        This is the only binary subject-level operator, because habitat</span>
+<span class="sd">        features genuinely need both the labels and the original intensities.</span>
+<span class="sd">        Both arguments are subject-scoped, so it is still subject-level.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject supplying original images when the family needs</span>
+<span class="sd">                intensity information.</span>
+<span class="sd">            habitat_map: Habitat labels for that subject.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A single-row-per-subject feature table with explicit column</span>
+<span class="sd">            roles.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Combiner">
+<a class="viewcode-back" href="../../api/generated/habit.combiners.Combiner.html#habit.combiners.Combiner">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Combiner</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge the feature blocks produced by sibling nodes of a feature tree.</span>
+
+<span class="sd">    A combiner is the internal node of a feature composition tree: it never</span>
+<span class="sd">    touches images, subjects, or the filesystem -- only the column blocks its</span>
+<span class="sd">    child nodes already produced. This is what keeps the multi-modality</span>
+<span class="sd">    matrix open-ended: extractors answer &quot;how do I describe ONE modality&#39;s</span>
+<span class="sd">    signal&quot;, combiners answer &quot;how do I merge SIBLING descriptions&quot;, and new</span>
+<span class="sd">    combination strategies (weighting, ratios, kinetic slopes, formulas) plug</span>
+<span class="sd">    in through the ``habit.combiner`` entry point without changing any</span>
+<span class="sd">    extractor.</span>
+
+<span class="sd">    The same protocol serves every granularity: at voxel level the blocks are</span>
+<span class="sd">    the children ``VoxelFeatureField.feature_frame()`` matrices (rows are ROI</span>
+<span class="sd">    voxels in C order); at supervoxel level they are the children</span>
+<span class="sd">    ``Supervoxelization.feature_frame()`` matrices (rows are supervoxels); at</span>
+<span class="sd">    habitat level they are one-row-per-subject frames. Rows are always</span>
+<span class="sd">    aligned positionally across siblings, because the tree wrapper guarantees</span>
+<span class="sd">    every child describes the same units.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification, used for provenance.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Combiner.__call__">
+<a class="viewcode-back" href="../../api/generated/habit.combiners.Combiner.html#habit.combiners.Combiner.__call__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">blocks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Combine sibling feature blocks into one block.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            blocks: Child blocks in child order, one per sibling node. All</span>
+<span class="sd">                blocks share the same row count (enforced by the tree</span>
+<span class="sd">                wrapper).</span>
+<span class="sd">            context: Optional evaluation context supplied by the tree</span>
+<span class="sd">                wrapper. Recognised keys:</span>
+
+<span class="sd">                - ``&quot;sources&quot;``: source label of each child, in child order</span>
+<span class="sd">                  (a leaf&#39;s ``as_`` alias when set, else its ``modality``,</span>
+<span class="sd">                  else the node name). Combiners whose parameters are keyed</span>
+<span class="sd">                  by child (e.g. ``weights``) resolve them against these</span>
+<span class="sd">                  labels.</span>
+<span class="sd">                - ``&quot;subject_id&quot;``: id of the subject being processed, for</span>
+<span class="sd">                  combiners whose parameters are subject-keyed (``kinetic``</span>
+<span class="sd">                  acquisition times).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The merged block, with the same row count as the inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ImagePerturbation">
+<a class="viewcode-back" href="../../api/generated/habit.precision.ImagePerturbation.html#habit.combiners.ImagePerturbation">[文档]</a>
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImagePerturbation</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn one subject into a perturbed copy of itself: a simulated re-acquisition.</span>
+
+<span class="sd">    Scientific role: voxel-wise features are only worth clustering if they</span>
+<span class="sd">    survive the small acquisition variations a scanner inevitably introduces</span>
+<span class="sd">    (noise, sub-voxel patient shifts, slight angulation). An image</span>
+<span class="sd">    perturbation replays those variations in silico so feature repeatability</span>
+<span class="sd">    can be measured BEFORE any habitat is computed (Prior et al., Radiol</span>
+<span class="sd">    Artif Intell 2024;6(2):e230118).</span>
+
+<span class="sd">    The contract is deliberately the narrowest possible: one subject in, one</span>
+<span class="sd">    perturbed subject out, same grid, same keys. Chaining several</span>
+<span class="sd">    perturbations composes a full simulated retest, and implementing this</span>
+<span class="sd">    protocol is all a new perturbation family (bias fields, motion ghosts,</span>
+<span class="sd">    resampling artefacts) has to do.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ImagePerturbation.__call__">
+<a class="viewcode-back" href="../../api/generated/habit.precision.ImagePerturbation.html#habit.combiners.ImagePerturbation.__call__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a perturbed copy of ``subject``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject providing images (and masks, for geometric</span>
+<span class="sd">                perturbations).</span>
+<span class="sd">            rng: Random generator for the stochastic steps; supplied by the</span>
+<span class="sd">                caller so one seed drives an entire perturbation chain.</span>
+<span class="sd">                Deterministic perturbations accept and ignore it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new subject on the SAME voxel grid with perturbed images (and</span>
+<span class="sd">            perturbed masks for geometric perturbations); the original is</span>
+<span class="sd">            left untouched.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Preprocessor</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Image-volume preprocessor: one subject in, one processed subject out.</span>
+
+<span class="sd">    Scientific role: the steps that prepare raw MR/CT volumes for habitat</span>
+<span class="sd">    analysis (resample, reorient, N4, z-score, histogram, CLAHE,</span>
+<span class="sd">    registration). Each implementation is one named step in the</span>
+<span class="sd">    ``preprocessor`` plugin domain. The recipe / atomic API chains them;</span>
+<span class="sd">    a third party can call ``op(subject)`` on a single case.</span>
+
+<span class="sd">    ``images`` and ``mask_roi`` are call-site assembly, not scientific</span>
+<span class="sd">    parameters: omit them to process every modality on the subject.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification used for provenance.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">images</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mask_roi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a processed copy of ``subject``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: One imaging subject.</span>
+<span class="sd">            images: Optional modality keys to process. ``None`` means every</span>
+<span class="sd">                image on the subject.</span>
+<span class="sd">            mask_roi: Optional ROI key for mask-aware steps (z-score in</span>
+<span class="sd">                mask, N4 mask, histogram landmarks). Unused steps ignore it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new subject; the input is not mutated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PoolingMarker</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Marker for the subject→cohort fan-in watershed in a stage list.</span>
+
+<span class="sd">    The built-in ``pool`` component performs no numeric work; the stage</span>
+<span class="sd">    executor recognises the marker and calls</span>
+<span class="sd">    :func:`~habit.pipeline.pooling.fan_in`. Third-party packages may register</span>
+<span class="sd">    alternate markers in the ``pooling`` domain (entry point group</span>
+<span class="sd">    ``habit.pooling``) when they need a discoverable watershed slot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the marker specification (provenance / fingerprint).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a small descriptor confirming the watershed (optional).&quot;&quot;&quot;</span>
+
+
+<span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Seedable</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Explicit control of the random state of a stochastic component.</span>
+
+<span class="sd">    Habitat analysis is unusually seed-sensitive: k-means initialisation,</span>
+<span class="sd">    GMM initialisation and SLIC seeding all shift the resulting habitat</span>
+<span class="sd">    definition, and cohort-level clustering is additionally order-sensitive.</span>
+<span class="sd">    MONAI reached the same conclusion with ``Randomizable``; HABIT uses the</span>
+<span class="sd">    adjective name ``Seedable`` with a deliberately simpler signature.</span>
+
+<span class="sd">    Components that are deterministic simply do not implement this protocol,</span>
+<span class="sd">    which is itself useful information for the provenance record.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_random_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the component&#39;s random state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            seed: Seed applied to every stochastic decision the component</span>
+<span class="sd">                makes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,91 @@
+
+
+.. _sphx_glr_auto_examples_00_introductory_tutorials:
+
+Introductory tutorials
+======================
+
+Complete first-success lessons. Each page saves habitat maps and
+feature tables. Subject-level winsorize 1% + z-score; serial backend.
+
+* Two-step habitats
+* Habitats inside each subject
+* Habitats from pooled voxels
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Including new-patient prediction.">
+
+.. only:: html
+
+  .. image:: /auto_examples/00_introductory_tutorials/images/thumb/sphx_glr_plot_01_two_step_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/00_introductory_tutorials/plot_01_two_step`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Two-step habitats</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="A per-patient heterogeneity score.">
+
+.. only:: html
+
+  .. image:: /auto_examples/00_introductory_tutorials/images/thumb/sphx_glr_plot_02_inside_each_subject_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/00_introductory_tutorials/plot_02_inside_each_subject`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitats inside each subject</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The two-step design first cuts every tumour into supervoxels and clusters those. The pooled-voxel design (also called direct pooling) skips that step: every ROI voxel of every training patient goes into one matrix, and one cohort model is fitted on it. Habitat ids are still shared across patients.">
+
+.. only:: html
+
+  .. image:: /auto_examples/00_introductory_tutorials/images/thumb/sphx_glr_plot_03_pooled_voxels_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/00_introductory_tutorials/plot_03_pooled_voxels`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitats from pooled voxels</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/00_introductory_tutorials/plot_01_two_step
+   /auto_examples/00_introductory_tutorials/plot_02_inside_each_subject
+   /auto_examples/00_introductory_tutorials/plot_03_pooled_voxels
+

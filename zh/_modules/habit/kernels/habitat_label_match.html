@@ -1,0 +1,2119 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../../../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>habit.kernels.habitat_label_match &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/translations.js?v=beaddf03"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/habit/kernels/habitat_label_match';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/_modules/habit/kernels/habitat_label_match.html" />
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">模块代码</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">habit.kernels.habitat_label_match</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>habit.kernels.habitat_label_match 源代码</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Match and remap habitat label ids across independently clustered maps.</span>
+
+<span class="sd">Two habitat analyses typically emit permuted integer ids: cluster 1 of</span>
+<span class="sd">the second fit may be cluster 3 of the first. HABIT recovers the</span>
+<span class="sd">correspondence in exactly one of two ways, chosen by what the two sides</span>
+<span class="sd">share:</span>
+
+<span class="sd">* **overlap** (:func:`match_labels_by_overlap`) -- the maps label the</span>
+<span class="sd">  same voxels (retest, perturbation, another preprocessing chain,</span>
+<span class="sd">  another reader). Hungarian assignment on voxel-overlap counts (the</span>
+<span class="sd">  Prior 2024 ``munkres`` step used by habitat Dice).</span>
+<span class="sd">* **prototypes** (:func:`match_rows_to_prototypes`) -- the maps label</span>
+<span class="sd">  different voxels (different patients), so only habitat descriptions</span>
+<span class="sd">  can be compared. Every subject is matched one-to-one onto shared</span>
+<span class="sd">  prototypes (Stephens 2000 relabelling; k-means with a cannot-link</span>
+<span class="sd">  constraint inside each subject). Two subjects are the special case</span>
+<span class="sd">  of pairwise Hungarian on squared Euclidean distance. Prototypes can</span>
+<span class="sd">  also be frozen to name new subjects with a trained definition.</span>
+
+<span class="sd">Arrays in, arrays / dicts out. No HABIT types, no IO.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Literal</span><span class="p">,</span>
+    <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">NamedTuple</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Sequence</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">linear_sum_assignment</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;PROTOTYPE_METRICS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;adjusted_rand_index&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fit_feature_match_scale&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;habitat_dice_from_mapping&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;habitat_intensity_centroids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;match_labels_by_overlap&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;match_rows_to_prototypes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;overlap_count_table&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PrototypeMatch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;present_habitat_ids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remap_label_array&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">FeatureMatchScale</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;zscore&quot;</span><span class="p">]</span>
+
+<span class="c1">#: Distances accepted by :func:`match_rows_to_prototypes`. Each one is</span>
+<span class="c1">#: paired with the prototype update that minimises it, so the alternating</span>
+<span class="c1">#: search never increases its objective:</span>
+<span class="c1">#:</span>
+<span class="c1">#: * ``&quot;sqeuclidean&quot;`` -- squared Euclidean; prototype = mean (k-means).</span>
+<span class="c1">#: * ``&quot;manhattan&quot;`` -- L1; prototype = per-feature median (k-medians).</span>
+<span class="c1">#: * ``&quot;cosine&quot;`` -- ``1 - cos``; rows scaled to unit length, prototype =</span>
+<span class="c1">#:   renormalised mean direction (spherical k-means). Ignores magnitude.</span>
+<span class="c1">#: * ``&quot;correlation&quot;`` -- ``1 - Pearson r`` across features; rows centred</span>
+<span class="c1">#:   on their own mean then treated as ``&quot;cosine&quot;``. Ignores offset and</span>
+<span class="c1">#:   magnitude.</span>
+<span class="n">PROTOTYPE_METRICS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;sqeuclidean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;manhattan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cosine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;correlation&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">PrototypeMetric</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;sqeuclidean&quot;</span><span class="p">,</span> <span class="s2">&quot;manhattan&quot;</span><span class="p">,</span> <span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="s2">&quot;correlation&quot;</span><span class="p">]</span>
+
+<span class="c1">#: Degenerate column / row scale replaced by 1 so a constant feature</span>
+<span class="c1">#: becomes 0 after z-score instead of NaN. Also the zero-norm threshold</span>
+<span class="c1">#: for cosine / correlation rows.</span>
+<span class="n">_SCALE_FLOOR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">present_habitat_ids</span><span class="p">(</span><span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the sorted non-background habitat ids of a label image.</span>
+
+<span class="sd">    Background (``0``) is dropped before ``unique`` so a full-CT lattice</span>
+<span class="sd">    with a small ROI does not pay for sorting tens of millions of zeros.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        label_array: Integer habitat labels; ``0`` is background.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Sorted 1-D int64 array of ids strictly greater than zero.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">labels</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">positive</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">labels</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">positive</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">positive</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">habitat_intensity_centroids</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">reduction</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Per-habitat summary of every non-background habitat.</span>
+
+<span class="sd">    A scalar volume yields a centroid of shape ``(n_habitats, 1)``. A</span>
+<span class="sd">    volume with a trailing feature axis ``(..., n_features)`` yields</span>
+<span class="sd">    ``(n_habitats, n_features)`` — multimodal intensities, constructed</span>
+<span class="sd">    maps, or texture channels are all valid as long as the spatial grid</span>
+<span class="sd">    matches ``label_array``. Default reduction is the **mean** of voxels</span>
+<span class="sd">    in that habitat (same quantity k-means stores as a centre).</span>
+<span class="sd">    ``reduction=&quot;median&quot;`` is the test-retest table convention.</span>
+
+<span class="sd">    For cross-patient naming pass a feature volume whose values mean the</span>
+<span class="sd">    same thing in every patient, then feed the rows to</span>
+<span class="sd">    :func:`match_rows_to_prototypes`. Do not pass a per-tumour MinMax /</span>
+<span class="sd">    z-score copy: those axes are not comparable across subjects.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: Feature volume aligned with ``label_array``, or the same</span>
+<span class="sd">            shape plus a trailing feature axis.</span>
+<span class="sd">        label_array: Integer habitat labels; ``0`` is background.</span>
+<span class="sd">        reduction: ``&quot;mean&quot;`` (default) or ``&quot;median&quot;``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(ids, centroids)`` where ``ids`` is sorted and ``centroids[i]``</span>
+<span class="sd">        is the summary vector of habitat ``ids[i]``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the spatial shapes differ or ``reduction`` is unknown.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span> <span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">]</span> <span class="o">!=</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;habitat_intensity_centroids: image spatial shape &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="w"> </span><span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">]</span><span class="si">}</span><span class="s2"> does not match labels </span><span class="si">{</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">values</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="n">labels</span><span class="o">.</span><span class="n">ndim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;habitat_intensity_centroids: image must match labels or have &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;one trailing feature axis; got </span><span class="si">{</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">reduction</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">resolved</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;habitat_intensity_centroids: reduction must be &#39;mean&#39; or &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;median&#39;; got </span><span class="si">{</span><span class="n">reduction</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">present_habitat_ids</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ids</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">flat_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">flat_values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
+    <span class="n">reducer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span> <span class="k">if</span> <span class="n">resolved</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span>
+    <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+        <span class="n">selector</span> <span class="o">=</span> <span class="n">flat_labels</span> <span class="o">==</span> <span class="n">habitat_id</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">selector</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">centroids</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">reducer</span><span class="p">(</span><span class="n">flat_values</span><span class="p">[</span><span class="n">selector</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">centroids</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_feature_match_scale</span><span class="p">(</span>
+    <span class="n">feature_blocks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">FeatureMatchScale</span> <span class="o">=</span> <span class="s2">&quot;zscore&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit a locked cohort scaler on stacked unscaled habitat rows.</span>
+
+<span class="sd">    Call this once on every patient&#39;s unscaled habitat summaries and</span>
+<span class="sd">    apply ``(rows - location) / scale`` to every block before</span>
+<span class="sd">    :func:`match_rows_to_prototypes`, so every subject uses the same</span>
+<span class="sd">    ruler. Keep the pair to rescale new subjects that are named with</span>
+<span class="sd">    frozen prototypes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        feature_blocks: One ``(n_habitats, n_features)`` block per</span>
+<span class="sd">            subject (or any other grouping). Empty blocks are skipped.</span>
+<span class="sd">        method: ``&quot;zscore&quot;`` (mean / population std). ``&quot;none&quot;`` returns</span>
+<span class="sd">            zeros and ones of the feature width.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(location, scale)`` each shaped ``(n_features,)``. Degenerate</span>
+<span class="sd">        columns get ``scale = 1``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If no finite row remains or feature widths differ.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">resolved</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;zscore&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;fit_feature_match_scale: method must be &#39;none&#39; or &#39;zscore&#39;; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">stacked</span> <span class="o">=</span> <span class="n">_stack_feature_blocks</span><span class="p">(</span><span class="n">feature_blocks</span><span class="p">,</span> <span class="n">caller</span><span class="o">=</span><span class="s2">&quot;fit_feature_match_scale&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resolved</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stacked</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">stacked</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">stacked</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_SCALE_FLOOR</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">location</span><span class="p">,</span> <span class="n">scale</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PrototypeMatch</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Result of :func:`match_rows_to_prototypes`.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        assignments: One int64 vector per input block. Entry ``i`` is the</span>
+<span class="sd">            prototype index (``0 .. K-1``) of row ``i``, or ``-1`` when the</span>
+<span class="sd">            row stayed unmatched.</span>
+<span class="sd">        distances: One float64 vector per block. Distance from each row to</span>
+<span class="sd">            its prototype (``NaN`` for unmatched rows): Euclidean for</span>
+<span class="sd">            ``&quot;sqeuclidean&quot;``, L1 for ``&quot;manhattan&quot;``, ``1 - cos`` for</span>
+<span class="sd">            ``&quot;cosine&quot;``, ``1 - r`` for ``&quot;correlation&quot;``.</span>
+<span class="sd">        prototypes: Prototypes in the metric&#39;s working space, shape</span>
+<span class="sd">            ``(K, n_features)``: means (``&quot;sqeuclidean&quot;``), medians</span>
+<span class="sd">            (``&quot;manhattan&quot;``), or unit vectors (``&quot;cosine&quot;``,</span>
+<span class="sd">            ``&quot;correlation&quot;``). Fitted prototypes are sorted</span>
+<span class="sd">            lexicographically so the numbering does not depend on which</span>
+<span class="sd">            block seeded the search; frozen prototypes keep their order.</span>
+<span class="sd">        objective: Sum of matched costs (squared distance for</span>
+<span class="sd">            ``&quot;sqeuclidean&quot;``, the distance itself otherwise) plus the</span>
+<span class="sd">            unmatched cost per unmatched row when ``max_distance`` is set.</span>
+<span class="sd">            Lower is a tighter cohort grouping.</span>
+<span class="sd">        n_iter: Assignment / update rounds run by the winning start</span>
+<span class="sd">            (``1`` for frozen prototypes).</span>
+<span class="sd">        converged: True when the winning start stopped because the</span>
+<span class="sd">            assignments no longer changed (always True when frozen).</span>
+<span class="sd">        init_block: Index of the block whose rows seeded the winning start,</span>
+<span class="sd">            ``-1`` for frozen prototypes.</span>
+<span class="sd">        metric: The metric used, one of :data:`PROTOTYPE_METRICS`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">assignments</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">distances</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">prototypes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">objective</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">n_iter</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">converged</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">init_block</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_metric_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">what</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Move rows into the working space of ``metric``.</span>
+
+<span class="sd">    ``&quot;cosine&quot;`` compares directions, so every row is scaled to unit</span>
+<span class="sd">    length; ``&quot;correlation&quot;`` first subtracts each row&#39;s own mean across</span>
+<span class="sd">    features (Pearson r is the cosine of centred rows). The other metrics</span>
+<span class="sd">    use the rows as given. A zero-length row has no direction, so it is</span>
+<span class="sd">    rejected instead of being given an arbitrary cost.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rows: Matrix ``(n_rows, n_features)``.</span>
+<span class="sd">        metric: One of :data:`PROTOTYPE_METRICS`.</span>
+<span class="sd">        what: Name used in the error message (for example ``&quot;block 2&quot;``).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Float64 matrix of the same shape in the working space.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If a cosine / correlation row has zero length.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">metric</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="s2">&quot;correlation&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">matrix</span>
+    <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;correlation&quot;</span><span class="p">:</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span> <span class="o">-</span> <span class="n">matrix</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">norms</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">_SCALE_FLOOR</span><span class="p">):</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;is constant across features (Pearson r undefined; with one &quot;</span>
+            <span class="s2">&quot;feature every row is constant)&quot;</span>
+            <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;correlation&quot;</span>
+            <span class="k">else</span> <span class="s2">&quot;is all zeros (no direction)&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;match_rows_to_prototypes: a row of </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;metric=</span><span class="si">{</span><span class="n">metric</span><span class="si">!r}</span><span class="s2"> cannot compare it.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span> <span class="o">/</span> <span class="n">norms</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_metric_cost</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">prototypes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assignment cost ``(n_rows, K)`` in the working space.</span>
+
+<span class="sd">    ``&quot;sqeuclidean&quot;`` returns the squared distance (the quantity a mean</span>
+<span class="sd">    minimises); ``&quot;manhattan&quot;`` the L1 distance (minimised by a median);</span>
+<span class="sd">    ``&quot;cosine&quot;`` / ``&quot;correlation&quot;`` return ``1 - u . p`` for unit rows</span>
+<span class="sd">    and unit prototypes (maximised agreement of directions).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="s2">&quot;correlation&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">rows</span> <span class="o">@</span> <span class="n">prototypes</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">prototypes</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;manhattan&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">delta</span> <span class="o">*</span> <span class="n">delta</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_assign_block_to_prototypes</span><span class="p">(</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">prototypes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">unmatched_cost</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    One-to-one assignment of a block&#39;s rows onto prototypes.</span>
+
+<span class="sd">    The cost is the metric cost that the prototype update minimises, so</span>
+<span class="sd">    the alternating search never increases the objective. A block</span>
+<span class="sd">    contributes at most one row per prototype: two habitats of one</span>
+<span class="sd">    tumour can never be given the same name. With more rows than</span>
+<span class="sd">    prototypes (frozen prototypes only) the rows that lose stay</span>
+<span class="sd">    unmatched.</span>
+
+<span class="sd">    When ``unmatched_cost`` is set, every row also gets a private &quot;leave</span>
+<span class="sd">    unmatched&quot; column at that cost. Hungarian then leaves a row unmatched</span>
+<span class="sd">    exactly when every free prototype costs more; this is a partial</span>
+<span class="sd">    assignment, not a post-hoc threshold.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rows: Block rows in the working space, shape ``(n_rows, n_features)``.</span>
+<span class="sd">        prototypes: Current prototypes, shape ``(K, n_features)``.</span>
+<span class="sd">        metric: One of :data:`PROTOTYPE_METRICS`.</span>
+<span class="sd">        unmatched_cost: Cost charged for leaving a row unmatched, or</span>
+<span class="sd">            ``None`` to match as many rows as possible.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Int64 vector of prototype indices, ``-1`` for unmatched rows.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">assignment</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_rows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">assignment</span>
+    <span class="n">cost</span> <span class="o">=</span> <span class="n">_metric_cost</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">prototypes</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+    <span class="n">n_prototypes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">prototypes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">unmatched_cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Diagonal dummy block: row i may only use its own dummy column.</span>
+        <span class="n">dummy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">n_rows</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">unmatched_cost</span><span class="p">))</span>
+        <span class="n">cost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">cost</span><span class="p">,</span> <span class="n">dummy</span><span class="p">))</span>
+    <span class="n">row_index</span><span class="p">,</span> <span class="n">column_index</span> <span class="o">=</span> <span class="n">linear_sum_assignment</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">row_index</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">column_index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="o">&lt;</span> <span class="n">n_prototypes</span><span class="p">:</span>
+            <span class="n">assignment</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">column</span>
+    <span class="k">return</span> <span class="n">assignment</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_prototypes</span><span class="p">(</span>
+    <span class="n">blocks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">assignments</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">previous</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Move every prototype to the centre that minimises its metric cost.</span>
+
+<span class="sd">    Mean for ``&quot;sqeuclidean&quot;``, per-feature median for ``&quot;manhattan&quot;``,</span>
+<span class="sd">    renormalised mean for ``&quot;cosine&quot;`` / ``&quot;correlation&quot;``. A prototype</span>
+<span class="sd">    with no assigned row (or whose unit rows cancel out exactly) keeps</span>
+<span class="sd">    its previous value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_prototypes</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">previous</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">updated</span> <span class="o">=</span> <span class="n">previous</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;manhattan&quot;</span><span class="p">:</span>
+        <span class="n">members</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_prototypes</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">rows</span><span class="p">,</span> <span class="n">assignment</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">assignments</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">prototype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">assignment</span><span class="o">.</span><span class="n">tolist</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">prototype</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">members</span><span class="p">[</span><span class="n">prototype</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">prototype</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">members</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">rows</span><span class="p">:</span>
+                <span class="n">updated</span><span class="p">[</span><span class="n">prototype</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">updated</span>
+    <span class="n">sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_prototypes</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_prototypes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rows</span><span class="p">,</span> <span class="n">assignment</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">assignments</span><span class="p">):</span>
+        <span class="n">matched</span> <span class="o">=</span> <span class="n">assignment</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">matched</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">sums</span><span class="p">,</span> <span class="n">assignment</span><span class="p">[</span><span class="n">matched</span><span class="p">],</span> <span class="n">rows</span><span class="p">[</span><span class="n">matched</span><span class="p">])</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">assignment</span><span class="p">[</span><span class="n">matched</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">filled</span> <span class="o">=</span> <span class="n">counts</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;cosine&quot;</span><span class="p">,</span> <span class="s2">&quot;correlation&quot;</span><span class="p">):</span>
+        <span class="n">norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sums</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">filled</span> <span class="o">&amp;=</span> <span class="n">norms</span> <span class="o">&gt;=</span> <span class="n">_SCALE_FLOOR</span>
+        <span class="n">updated</span><span class="p">[</span><span class="n">filled</span><span class="p">]</span> <span class="o">=</span> <span class="n">sums</span><span class="p">[</span><span class="n">filled</span><span class="p">]</span> <span class="o">/</span> <span class="n">norms</span><span class="p">[</span><span class="n">filled</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">updated</span>
+    <span class="n">updated</span><span class="p">[</span><span class="n">filled</span><span class="p">]</span> <span class="o">=</span> <span class="n">sums</span><span class="p">[</span><span class="n">filled</span><span class="p">]</span> <span class="o">/</span> <span class="n">counts</span><span class="p">[</span><span class="n">filled</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">updated</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_prototype_objective</span><span class="p">(</span>
+    <span class="n">blocks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">assignments</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">prototypes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">unmatched_cost</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sum of matched metric costs plus the unmatched penalty.&quot;&quot;&quot;</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">rows</span><span class="p">,</span> <span class="n">assignment</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">assignments</span><span class="p">):</span>
+        <span class="n">matched</span> <span class="o">=</span> <span class="n">assignment</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">matched</span><span class="p">):</span>
+            <span class="n">cost</span> <span class="o">=</span> <span class="n">_metric_cost</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="n">matched</span><span class="p">],</span> <span class="n">prototypes</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">cost</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">cost</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">assignment</span><span class="p">[</span><span class="n">matched</span><span class="p">]]))</span>
+        <span class="k">if</span> <span class="n">unmatched_cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">unmatched_cost</span><span class="p">)</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="o">~</span><span class="n">matched</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">total</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">match_rows_to_prototypes</span><span class="p">(</span>
+    <span class="n">blocks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">metric</span><span class="p">:</span> <span class="n">PrototypeMetric</span> <span class="o">=</span> <span class="s2">&quot;sqeuclidean&quot;</span><span class="p">,</span>
+    <span class="n">max_distance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">prototypes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrototypeMatch</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Name habitats across a cohort by matching them to shared prototypes.</span>
+
+<span class="sd">    Pairwise matching to one reference subject biases the names toward</span>
+<span class="sd">    that subject and is not transitive (A→B→C can disagree with A→C).</span>
+<span class="sd">    This operator instead alternates two steps until the assignments stop</span>
+<span class="sd">    changing (Stephens 2000 relabelling; equivalently k-means with a</span>
+<span class="sd">    cannot-link constraint between rows of the same block, Wagstaff 2001):</span>
+
+<span class="sd">    1. **Assign** -- every block is matched one-to-one onto the current</span>
+<span class="sd">       prototypes by Hungarian assignment on the metric cost.</span>
+<span class="sd">    2. **Update** -- every prototype moves to the centre that minimises</span>
+<span class="sd">       that cost (see :data:`PROTOTYPE_METRICS`).</span>
+
+<span class="sd">    Both steps can only lower the objective, so the loop terminates. The</span>
+<span class="sd">    search is started once from every block that has exactly ``K`` rows</span>
+<span class="sd">    and the lowest-objective result wins, so no single subject decides</span>
+<span class="sd">    the outcome. Final prototypes are sorted lexicographically so the</span>
+<span class="sd">    numbering is reproducible regardless of block order.</span>
+
+<span class="sd">    ``K`` is the largest block row count. Every row of every block</span>
+<span class="sd">    therefore finds a distinct prototype: no subject loses or merges a</span>
+<span class="sd">    habitat, and a block with fewer rows simply leaves some prototypes</span>
+<span class="sd">    empty. With two blocks and ``&quot;sqeuclidean&quot;`` the result is exactly</span>
+<span class="sd">    pairwise Hungarian on squared Euclidean distance (a matched pair&#39;s</span>
+<span class="sd">    within-group sum of squares is half its squared distance), found at</span>
+<span class="sd">    the global optimum.</span>
+
+<span class="sd">    Metric notes. ``&quot;sqeuclidean&quot;`` (default) and ``&quot;manhattan&quot;`` compare</span>
+<span class="sd">    values, so a strongly and a weakly enhancing habitat differ.</span>
+<span class="sd">    ``&quot;cosine&quot;`` compares only the direction of the feature vector:</span>
+<span class="sd">    rows ``(0.5, 0.6)`` and ``(2.0, 2.4)`` are identical to it, and with</span>
+<span class="sd">    one feature of constant sign every row looks the same.</span>
+<span class="sd">    ``&quot;correlation&quot;`` compares only the profile shape across features:</span>
+<span class="sd">    with two features every centred row is one of two directions, and</span>
+<span class="sd">    with one feature it is undefined (rejected). Use cosine /</span>
+<span class="sd">    correlation only when many features describe a habitat and their</span>
+<span class="sd">    shape, not their level, is what defines it.</span>
+
+<span class="sd">    ``prototypes`` freezes the definition: rows are assigned once to the</span>
+<span class="sd">    given prototypes (in the order given), nothing is updated, and ``K``</span>
+<span class="sd">    is ``prototypes.shape[0]``. Use it to name a validation cohort or a</span>
+<span class="sd">    new patient with prototypes fitted elsewhere; refitting would let the</span>
+<span class="sd">    new subjects change the definition. A block with more rows than</span>
+<span class="sd">    ``K`` leaves the extra rows unmatched.</span>
+
+<span class="sd">    Rows must already live in one comparable space; this kernel does not</span>
+<span class="sd">    rescale columns. Arrays in, arrays out.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        blocks: One ``(n_habitats, n_features)`` matrix per subject.</span>
+<span class="sd">            Empty blocks (a subject without habitats) are allowed.</span>
+<span class="sd">        metric: One of :data:`PROTOTYPE_METRICS`. Default</span>
+<span class="sd">            ``&quot;sqeuclidean&quot;``.</span>
+<span class="sd">        max_distance: Optional distance (in the units reported by</span>
+<span class="sd">            ``distances``) above which a row is left unmatched instead of</span>
+<span class="sd">            being forced onto a prototype. ``None`` (default) names every</span>
+<span class="sd">            row that has a free prototype.</span>
+<span class="sd">        max_iter: Upper bound on assignment / update rounds per start.</span>
+<span class="sd">        prototypes: Optional frozen prototypes ``(K, n_features)`` in the</span>
+<span class="sd">            same units as ``blocks`` (for cosine / correlation any</span>
+<span class="sd">            positive scaling is fine; rows are normalised here).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`PrototypeMatch`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If blocks are not 2-D / finite / equal width, a</span>
+<span class="sd">            cosine / correlation row has zero length, or a parameter is</span>
+<span class="sd">            out of range.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resolved_metric</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">resolved_metric</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PROTOTYPE_METRICS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;match_rows_to_prototypes: metric must be one of &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PROTOTYPE_METRICS</span><span class="si">}</span><span class="s2">; got </span><span class="si">{</span><span class="n">metric</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">matrices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">n_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">blocks</span><span class="p">):</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Width is fixed below once a non-empty block reveals it.</span>
+            <span class="n">matrices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;match_rows_to_prototypes: block &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> must be 2-D; got </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">!=</span> <span class="n">n_features</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;match_rows_to_prototypes: feature width mismatch at block &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">; got </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">n_features</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">matrix</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;match_rows_to_prototypes: block </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> must be finite.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">matrices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_metric_rows</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">resolved_metric</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;block </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">n_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;match_rows_to_prototypes: no habitat rows to match.&quot;</span><span class="p">)</span>
+    <span class="n">matrices</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">matrix</span> <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="n">matrices</span>
+    <span class="p">]</span>
+    <span class="n">row_counts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="n">matrices</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_iter</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;match_rows_to_prototypes: max_iter must be &gt;= 1; got </span><span class="si">{</span><span class="n">max_iter</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">unmatched_cost</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">max_distance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">max_distance</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_distance</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;match_rows_to_prototypes: max_distance must be a positive &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;finite number; got </span><span class="si">{</span><span class="n">max_distance</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># Only sqeuclidean reports a distance that is not its own cost.</span>
+        <span class="n">unmatched_cost</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">max_distance</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">resolved_metric</span> <span class="o">==</span> <span class="s2">&quot;sqeuclidean&quot;</span>
+            <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_distance</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">prototypes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">frozen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prototypes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">frozen</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">frozen</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">frozen</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">n_features</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;match_rows_to_prototypes: prototypes must have shape &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(K, </span><span class="si">{</span><span class="n">n_features</span><span class="si">}</span><span class="s2">); got </span><span class="si">{</span><span class="n">frozen</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">frozen</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;match_rows_to_prototypes: prototypes must be finite.&quot;</span><span class="p">)</span>
+        <span class="c1"># Cosine / correlation prototypes must be unit rows in the working</span>
+        <span class="c1"># space; means and medians are used as given.</span>
+        <span class="n">frozen</span> <span class="o">=</span> <span class="n">_metric_rows</span><span class="p">(</span><span class="n">frozen</span><span class="p">,</span> <span class="n">resolved_metric</span><span class="p">,</span> <span class="s2">&quot;prototypes&quot;</span><span class="p">)</span>
+        <span class="n">assignments</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_assign_block_to_prototypes</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">frozen</span><span class="p">,</span> <span class="n">resolved_metric</span><span class="p">,</span> <span class="n">unmatched_cost</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">matrices</span>
+        <span class="p">]</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="n">PrototypeMatch</span><span class="p">(</span>
+            <span class="n">assignments</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">assignments</span><span class="p">),</span>
+            <span class="n">distances</span><span class="o">=</span><span class="p">(),</span>
+            <span class="n">prototypes</span><span class="o">=</span><span class="n">frozen</span><span class="p">,</span>
+            <span class="n">objective</span><span class="o">=</span><span class="n">_prototype_objective</span><span class="p">(</span>
+                <span class="n">matrices</span><span class="p">,</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">frozen</span><span class="p">,</span> <span class="n">resolved_metric</span><span class="p">,</span> <span class="n">unmatched_cost</span>
+            <span class="p">),</span>
+            <span class="n">n_iter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">converged</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">init_block</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">=</span><span class="n">resolved_metric</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">frozen</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># K = largest habitat count, so every habitat can get its own prototype.</span>
+        <span class="n">n_proto</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">row_counts</span><span class="p">)</span>
+        <span class="c1"># Every subject with the largest habitat count seeds one start.</span>
+        <span class="n">seeds</span> <span class="o">=</span> <span class="p">[</span><span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row_counts</span><span class="p">)</span> <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="n">n_proto</span><span class="p">]</span>
+        <span class="n">best_fit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PrototypeMatch</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seeds</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">matrices</span><span class="p">[</span><span class="n">seed</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">previous</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">n_iter</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">assignments</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">n_iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_iter</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">assignments</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">_assign_block_to_prototypes</span><span class="p">(</span>
+                        <span class="n">rows</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">resolved_metric</span><span class="p">,</span> <span class="n">unmatched_cost</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">matrices</span>
+                <span class="p">]</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">_update_prototypes</span><span class="p">(</span>
+                    <span class="n">matrices</span><span class="p">,</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">resolved_metric</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">previous</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span> <span class="k">for</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">previous</span><span class="p">,</span> <span class="n">assignments</span><span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+                <span class="n">previous</span> <span class="o">=</span> <span class="n">assignments</span>
+            <span class="n">objective</span> <span class="o">=</span> <span class="n">_prototype_objective</span><span class="p">(</span>
+                <span class="n">matrices</span><span class="p">,</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">resolved_metric</span><span class="p">,</span> <span class="n">unmatched_cost</span>
+            <span class="p">)</span>
+            <span class="c1"># Strict &quot;&lt;&quot; keeps the earliest seed on ties, so results are</span>
+            <span class="c1"># deterministic for a given block order.</span>
+            <span class="k">if</span> <span class="n">best_fit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">objective</span> <span class="o">&lt;</span> <span class="n">best_fit</span><span class="o">.</span><span class="n">objective</span> <span class="o">-</span> <span class="mf">1e-12</span><span class="p">:</span>
+                <span class="n">best_fit</span> <span class="o">=</span> <span class="n">PrototypeMatch</span><span class="p">(</span>
+                    <span class="n">assignments</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">assignments</span><span class="p">),</span>
+                    <span class="n">distances</span><span class="o">=</span><span class="p">(),</span>
+                    <span class="n">prototypes</span><span class="o">=</span><span class="n">current</span><span class="p">,</span>
+                    <span class="n">objective</span><span class="o">=</span><span class="n">objective</span><span class="p">,</span>
+                    <span class="n">n_iter</span><span class="o">=</span><span class="n">n_iter</span><span class="p">,</span>
+                    <span class="n">converged</span><span class="o">=</span><span class="n">converged</span><span class="p">,</span>
+                    <span class="n">init_block</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+                    <span class="n">metric</span><span class="o">=</span><span class="n">resolved_metric</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">best_fit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="n">best_fit</span>
+        <span class="c1"># Canonical numbering: lexicographic on feature columns, first</span>
+        <span class="c1"># column most significant. np.lexsort treats the LAST key as primary.</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lexsort</span><span class="p">(</span><span class="n">best</span><span class="o">.</span><span class="n">prototypes</span><span class="o">.</span><span class="n">T</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">n_out</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">best</span><span class="o">.</span><span class="n">prototypes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">new_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_out</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">new_index</span><span class="p">[</span><span class="n">order</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_out</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">final</span> <span class="o">=</span> <span class="n">best</span><span class="o">.</span><span class="n">prototypes</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+    <span class="n">assignments_out</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">distances_out</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">rows</span><span class="p">,</span> <span class="n">assignment</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">matrices</span><span class="p">,</span> <span class="n">best</span><span class="o">.</span><span class="n">assignments</span><span class="p">):</span>
+        <span class="n">renamed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">assignment</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">new_index</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">assignment</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">renamed</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">matched</span> <span class="o">=</span> <span class="n">renamed</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">matched</span><span class="p">):</span>
+            <span class="n">cost</span> <span class="o">=</span> <span class="n">_metric_cost</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="n">matched</span><span class="p">],</span> <span class="n">final</span><span class="p">,</span> <span class="n">resolved_metric</span><span class="p">)</span>
+            <span class="n">picked</span> <span class="o">=</span> <span class="n">cost</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">cost</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">renamed</span><span class="p">[</span><span class="n">matched</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="n">resolved_metric</span> <span class="o">==</span> <span class="s2">&quot;sqeuclidean&quot;</span><span class="p">:</span>
+                <span class="n">picked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">picked</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+            <span class="n">distance</span><span class="p">[</span><span class="n">matched</span><span class="p">]</span> <span class="o">=</span> <span class="n">picked</span>
+        <span class="n">assignments_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">renamed</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
+        <span class="n">distances_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">distance</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">best</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+        <span class="n">assignments</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">assignments_out</span><span class="p">),</span>
+        <span class="n">distances</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">distances_out</span><span class="p">),</span>
+        <span class="n">prototypes</span><span class="o">=</span><span class="n">final</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stack_feature_blocks</span><span class="p">(</span>
+    <span class="n">feature_blocks</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">caller</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stack habitat-row blocks after checking a shared feature width.&quot;&quot;&quot;</span>
+    <span class="n">matrices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">n_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">feature_blocks</span><span class="p">):</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: feature block </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> must be 2-D; got </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">int</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">!=</span> <span class="n">n_features</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: feature width mismatch at block </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">n_features</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">matrix</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: feature block </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> must be finite.&quot;</span><span class="p">)</span>
+        <span class="n">matrices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">matrices</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">caller</span><span class="si">}</span><span class="s2">: no finite habitat rows to fit.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">matrices</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_nonzero_union_labels</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">moving</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;1-D int64 labels on the union of non-background voxels.</span>
+
+<span class="sd">    Background-only voxels never change present ids or the overlap table,</span>
+<span class="sd">    so they are dropped before ``unique`` / ``bincount``. The compact</span>
+<span class="sd">    vectors are equivalent to a full-volume scan for those quantities.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reference: Reference integer label image.</span>
+<span class="sd">        moving: Moving integer label image, same number of elements.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(ref_nz, mov_nz)`` 1-D int64 arrays, possibly empty.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref_flat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">mov_flat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_flat</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">mov_flat</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">keep</span><span class="p">):</span>
+        <span class="n">empty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">empty</span><span class="p">,</span> <span class="n">empty</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_flat</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mov_flat</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">overlap_count_table</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">moving</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Voxel-overlap contingency used by Hungarian habitat matching.</span>
+
+<span class="sd">    One linearised ``bincount`` replaces a nested ``(ref==id) &amp; (mov==id)``</span>
+<span class="sd">    scan of the full lattice. Counts are identical to that nested loop:</span>
+<span class="sd">    only voxels where both sides are non-background contribute.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reference: Reference integer label image.</span>
+<span class="sd">        moving: Moving integer label image, same shape as ``reference``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(ref_ids, mov_ids, overlap)`` where ``overlap`` is int64 with</span>
+<span class="sd">        shape ``(n_moving, n_reference)`` and ``overlap[i, j]`` is the</span>
+<span class="sd">        number of voxels labelled ``mov_ids[i]`` and ``ref_ids[j]``.</span>
+<span class="sd">        Ids are sorted, matching :func:`present_habitat_ids`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the arrays have different shapes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="p">)</span>
+    <span class="n">mov_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ref_labels</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">mov_labels</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;match_labels_by_overlap: label shapes must match; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">ref_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">mov_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">ref_nz</span><span class="p">,</span> <span class="n">mov_nz</span> <span class="o">=</span> <span class="n">_nonzero_union_labels</span><span class="p">(</span><span class="n">ref_labels</span><span class="p">,</span> <span class="n">mov_labels</span><span class="p">)</span>
+    <span class="n">ref_ids</span> <span class="o">=</span> <span class="n">present_habitat_ids</span><span class="p">(</span><span class="n">ref_nz</span><span class="p">)</span>
+    <span class="n">mov_ids</span> <span class="o">=</span> <span class="n">present_habitat_ids</span><span class="p">(</span><span class="n">mov_nz</span><span class="p">)</span>
+    <span class="n">n_ref</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ref_ids</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">n_mov</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mov_ids</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_ref</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">n_mov</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ref_ids</span><span class="p">,</span> <span class="n">mov_ids</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_mov</span><span class="p">,</span> <span class="n">n_ref</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">both</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_nz</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">mov_nz</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">both</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ref_ids</span><span class="p">,</span> <span class="n">mov_ids</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_mov</span><span class="p">,</span> <span class="n">n_ref</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="c1"># Compact ids so the table size is n_mov * n_ref, not max(id)^2.</span>
+    <span class="n">ref_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">ref_ids</span><span class="p">,</span> <span class="n">ref_nz</span><span class="p">[</span><span class="n">both</span><span class="p">])</span>
+    <span class="n">mov_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">mov_ids</span><span class="p">,</span> <span class="n">mov_nz</span><span class="p">[</span><span class="n">both</span><span class="p">])</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">mov_idx</span> <span class="o">*</span> <span class="n">n_ref</span> <span class="o">+</span> <span class="n">ref_idx</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">n_mov</span> <span class="o">*</span> <span class="n">n_ref</span><span class="p">)</span>
+    <span class="n">overlap</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_mov</span><span class="p">,</span> <span class="n">n_ref</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ref_ids</span><span class="p">,</span> <span class="n">mov_ids</span><span class="p">,</span> <span class="n">overlap</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_adjusted_rand_from_contingency</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hubert–Arabie ARI from a non-negative contingency table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    table : np.ndarray</span>
+<span class="sd">        Counts, shape ``(n_moving, n_reference)``. Only jointly labelled</span>
+<span class="sd">        voxels should be in the table (background already dropped).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        ARI in ``[-1, 1]``. ``NaN`` when fewer than two voxels remain.</span>
+<span class="sd">        Degenerate partitions (every pair agrees) return ``1.0``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mf">2.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+    <span class="n">sum_comb</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span> <span class="o">*</span> <span class="p">(</span><span class="n">counts</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sum_comb_row</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">row</span> <span class="o">*</span> <span class="p">(</span><span class="n">row</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">sum_comb_col</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">col</span> <span class="o">*</span> <span class="p">(</span><span class="n">col</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">comb_n</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">sum_comb_row</span> <span class="o">*</span> <span class="n">sum_comb_col</span> <span class="o">/</span> <span class="n">comb_n</span>
+    <span class="n">maximum</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sum_comb_row</span> <span class="o">+</span> <span class="n">sum_comb_col</span><span class="p">)</span>
+    <span class="n">numer</span> <span class="o">=</span> <span class="n">sum_comb</span> <span class="o">-</span> <span class="n">expected</span>
+    <span class="n">denom</span> <span class="o">=</span> <span class="n">maximum</span> <span class="o">-</span> <span class="n">expected</span>
+    <span class="k">if</span> <span class="n">denom</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">numer</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">numer</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="adjusted_rand_index">
+<a class="viewcode-back" href="../../../api/generated/habit.kernels.adjusted_rand_index.html#habit.kernels.adjusted_rand_index">[文档]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">adjusted_rand_index</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">moving</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chance-corrected partition agreement (Hubert–Arabie ARI).</span>
+
+<span class="sd">    Compares two integer label maps on the same grid. Background ``0`` is</span>
+<span class="sd">    ignored: only voxels labelled on **both** sides (and inside ``mask``,</span>
+<span class="sd">    when given) enter the contingency table. The score does not need a</span>
+<span class="sd">    Hungarian remapping; permuting habitat ids leaves ARI unchanged.</span>
+
+<span class="sd">    The work is one ``bincount`` over those voxels plus an ``O(K^2)``</span>
+<span class="sd">    reduction of the contingency table, so typical ROI sizes (10⁴–10⁶</span>
+<span class="sd">    voxels, K ≤ 10) finish in milliseconds.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference : np.ndarray</span>
+<span class="sd">        Reference integer labels. ``0`` is background.</span>
+<span class="sd">    moving : np.ndarray</span>
+<span class="sd">        Moving integer labels, same shape as ``reference``.</span>
+<span class="sd">    mask : Optional[np.ndarray]</span>
+<span class="sd">        Optional boolean ROI. When set, voxels outside it are dropped</span>
+<span class="sd">        before the contingency is built.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        ARI in ``[-1, 1]``. Random agreement is near ``0``; identical</span>
+<span class="sd">        partitions (up to id permutation) are ``1``. ``NaN`` when fewer</span>
+<span class="sd">        than two jointly labelled voxels remain.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the arrays (or ``mask``) have different shapes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="p">)</span>
+    <span class="n">mov_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ref_labels</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">mov_labels</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;adjusted_rand_index: label shapes must match; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">ref_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">mov_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">keep</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">ref_labels</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;adjusted_rand_index: mask shape must match labels; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">keep</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">ref_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">ref_use</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">keep</span><span class="p">,</span> <span class="n">ref_labels</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">mov_use</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">keep</span><span class="p">,</span> <span class="n">mov_labels</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ref_use</span> <span class="o">=</span> <span class="n">ref_labels</span>
+        <span class="n">mov_use</span> <span class="o">=</span> <span class="n">mov_labels</span>
+    <span class="n">_ref_ids</span><span class="p">,</span> <span class="n">_mov_ids</span><span class="p">,</span> <span class="n">overlap</span> <span class="o">=</span> <span class="n">overlap_count_table</span><span class="p">(</span><span class="n">ref_use</span><span class="p">,</span> <span class="n">mov_use</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_adjusted_rand_from_contingency</span><span class="p">(</span><span class="n">overlap</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">habitat_dice_from_mapping</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">moving</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Per-reference-habitat Dice for a ``{moving_id: reference_id}`` pairing.</span>
+
+<span class="sd">    Formula matches :func:`~habit.precision.stability.habitat_stability`:</span>
+<span class="sd">    ``2 * intersection / (n_reference + n_matched)``. Unmatched reference</span>
+<span class="sd">    habitats score Dice 0 with ``matched_id`` set to ``None``. Counts are</span>
+<span class="sd">    taken on the union of non-background voxels (equivalent to a full</span>
+<span class="sd">    volume scan because habitat voxels are never 0).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reference: Reference integer label image.</span>
+<span class="sd">        moving: Moving integer label image, same shape as ``reference``.</span>
+<span class="sd">        mapping: Assignment ``{moving_id: reference_id}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Rows ``(habitat_id, matched_id, dice, n_reference, n_matched)``</span>
+<span class="sd">        in sorted reference-id order.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the arrays have different shapes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="p">)</span>
+    <span class="n">mov_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ref_labels</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">mov_labels</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;habitat_dice_from_mapping: label shapes must match; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">ref_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">mov_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">ref_nz</span><span class="p">,</span> <span class="n">mov_nz</span> <span class="o">=</span> <span class="n">_nonzero_union_labels</span><span class="p">(</span><span class="n">ref_labels</span><span class="p">,</span> <span class="n">mov_labels</span><span class="p">)</span>
+    <span class="n">ref_ids</span> <span class="o">=</span> <span class="n">present_habitat_ids</span><span class="p">(</span><span class="n">ref_nz</span><span class="p">)</span>
+    <span class="n">matched_moving</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">ref_id</span><span class="p">):</span> <span class="nb">int</span><span class="p">(</span><span class="n">mov_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">mov_id</span><span class="p">,</span> <span class="n">ref_id</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">if</span> <span class="n">ref_nz</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">ref_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">ref_nz</span><span class="p">)</span>
+        <span class="n">mov_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">mov_nz</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ref_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">mov_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">both</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_nz</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">mov_nz</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">ref_both</span> <span class="o">=</span> <span class="n">ref_nz</span><span class="p">[</span><span class="n">both</span><span class="p">]</span>
+    <span class="n">mov_both</span> <span class="o">=</span> <span class="n">mov_nz</span><span class="p">[</span><span class="n">both</span><span class="p">]</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">ref_ids</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+        <span class="n">hid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span>
+        <span class="n">n_reference</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ref_counts</span><span class="p">[</span><span class="n">hid</span><span class="p">])</span> <span class="k">if</span> <span class="n">hid</span> <span class="o">&lt;</span> <span class="n">ref_counts</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">hid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">matched_moving</span><span class="p">:</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">hid</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">n_reference</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="n">moved_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">matched_moving</span><span class="p">[</span><span class="n">hid</span><span class="p">])</span>
+        <span class="n">n_moved</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mov_counts</span><span class="p">[</span><span class="n">moved_id</span><span class="p">])</span> <span class="k">if</span> <span class="n">moved_id</span> <span class="o">&lt;</span> <span class="n">mov_counts</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">ref_both</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span> <span class="n">n_reference</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">n_moved</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">intersection</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">((</span><span class="n">ref_both</span> <span class="o">==</span> <span class="n">hid</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">mov_both</span> <span class="o">==</span> <span class="n">moved_id</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">intersection</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">denom</span> <span class="o">=</span> <span class="n">n_reference</span> <span class="o">+</span> <span class="n">n_moved</span>
+        <span class="n">dice</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">intersection</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span> <span class="k">if</span> <span class="n">denom</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">hid</span><span class="p">,</span> <span class="n">moved_id</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">dice</span><span class="p">),</span> <span class="n">n_reference</span><span class="p">,</span> <span class="n">n_moved</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">rows</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">match_labels_by_overlap</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">moving</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pair moving habitats to reference habitats by maximal voxel overlap.</span>
+
+<span class="sd">    This is the Prior 2024 Hungarian / ``munkres`` step. The assignment is</span>
+<span class="sd">    the same pairing :func:`~habit.precision.habitat_stability` uses.</span>
+<span class="sd">    The overlap table is a one-pass ``bincount`` on non-background voxels,</span>
+<span class="sd">    then the same ``linear_sum_assignment(-overlap)`` as before.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reference: Reference integer label image.</span>
+<span class="sd">        moving: Moving integer label image, same shape as ``reference``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Mapping ``{moving_id: reference_id}`` for every assigned pair.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the arrays have different shapes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref_ids</span><span class="p">,</span> <span class="n">mov_ids</span><span class="p">,</span> <span class="n">overlap</span> <span class="o">=</span> <span class="n">overlap_count_table</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">moving</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ref_ids</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">mov_ids</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">rows</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">linear_sum_assignment</span><span class="p">(</span><span class="o">-</span><span class="n">overlap</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">mov_ids</span><span class="p">[</span><span class="n">row</span><span class="p">]):</span> <span class="nb">int</span><span class="p">(</span><span class="n">ref_ids</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">remap_label_array</span><span class="p">(</span>
+    <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mapping</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">reserved_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rewrite non-zero labels according to ``{old_id: new_id}``.</span>
+
+<span class="sd">    Background (``0``) is never remapped. Matched ids follow ``mapping``.</span>
+<span class="sd">    Unmatched positive ids are **not** left as-is: that would merge them</span>
+<span class="sd">    with a habitat that was remapped onto the same integer (for example</span>
+<span class="sd">    moving ``{1, 2, 3}`` with ``{3: 1, 2: 2}`` would turn leftover ``1``</span>
+<span class="sd">    and remapped ``3`` into the same color). Leftovers are rewritten to</span>
+<span class="sd">    unused ids starting at ``max(reserved_ids ∪ mapping values) + 1``,</span>
+<span class="sd">    in sorted leftover order. ``reserved_ids`` should be the reference</span>
+<span class="sd">    habitat ids; when omitted, only the mapping targets are reserved.</span>
+<span class="sd">    An empty ``mapping`` is an identity (no leftover rewrite).</span>
+
+<span class="sd">    A dense look-up table applies the completed mapping in one gather.</span>
+<span class="sd">    That is equivalent to the previous two-pass shift (swap-safe because</span>
+<span class="sd">    every present positive id is rewritten from the original array).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        label_array: Integer habitat labels.</span>
+<span class="sd">        mapping: ``{moving_id: reference_id}`` assignment.</span>
+<span class="sd">        reserved_ids: Ids that leftovers must not reuse (typically the</span>
+<span class="sd">            reference habitat ids). Mapping targets are always reserved.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A new int32 array with remapped ids.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">remapped</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mapping</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">remapped</span>
+
+    <span class="n">complete</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">old_id</span><span class="p">):</span> <span class="nb">int</span><span class="p">(</span><span class="n">new_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">old_id</span><span class="p">,</span> <span class="n">new_id</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">reserved</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">new_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">new_id</span> <span class="ow">in</span> <span class="n">complete</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">new_id</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">reserved_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">reserved</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">reserved_ids</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">next_id</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">reserved</span><span class="p">)</span> <span class="k">if</span> <span class="n">reserved</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="c1"># Sorted so leftover 1, 4 become max_ref+1, max_ref+2 rather than</span>
+    <span class="c1"># depending on unique() encounter order.</span>
+    <span class="k">for</span> <span class="n">old_id</span> <span class="ow">in</span> <span class="n">present_habitat_ids</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+        <span class="n">habitat_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">old_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">complete</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">complete</span><span class="p">[</span><span class="n">habitat_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">next_id</span>
+        <span class="n">next_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Look-up table is bit-identical to the two-pass shift: every present</span>
+    <span class="c1"># positive id is in ``complete``, background 0 stays 0. One gather</span>
+    <span class="c1"># replaces K full-volume equality scans.</span>
+    <span class="n">max_src</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="k">if</span> <span class="n">labels</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">max_src</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">remapped</span>
+    <span class="n">lut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">max_src</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">old_id</span><span class="p">,</span> <span class="n">new_id</span> <span class="ow">in</span> <span class="n">complete</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">old_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">src</span> <span class="o">&lt;=</span> <span class="n">max_src</span><span class="p">:</span>
+            <span class="n">lut</span><span class="p">[</span><span class="n">src</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">(</span><span class="n">new_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lut</span><span class="p">[</span><span class="n">labels</span><span class="p">]</span>
+
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1983 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>纹理特征图：单独与联合强度 &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/02_features/plot_02_texture_feature_maps';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/auto_examples/02_features/plot_02_texture_feature_maps.html" />
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="增强模式" href="plot_03_enhancement_patterns.html" />
+    <link rel="prev" title="来自单一序列的栖息地" href="plot_01_multi_sequence_intensities.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../00_introductory_tutorials/index.html">入门教程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../00_introductory_tutorials/plot_01_two_step.html">两步法生境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../00_introductory_tutorials/plot_02_inside_each_subject.html">生境 inside each 受试者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../00_introductory_tutorials/plot_03_pooled_voxels.html">由池化体素得到的生境</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../01_building_habitat_maps/index.html">构建生境图</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../01_building_habitat_maps/plot_01_two_step_spec.html">用 Spec 的两步法生境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_building_habitat_maps/plot_02_atomic_two_step.html">由原子组件构建两步法生境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_building_habitat_maps/plot_03_inside_each_subject_spec.html">生境 inside each 受试者 with a Spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_building_habitat_maps/plot_04_atomic_inside_each_subject.html">生境 inside each 受试者 from atomic components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_building_habitat_maps/plot_05_pooled_voxels_spec.html">池化-体素 生境 with a Spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_building_habitat_maps/plot_06_atomic_pooled.html">池化-体素 生境 from atomic components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_building_habitat_maps/plot_07_quality_control.html">栖息地地图的质量控制</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_building_habitat_maps/plot_08_cleaning_maps.html">清理生境图（连通分量）</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_01_multi_sequence_intensities.html">来自单一序列的栖息地</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">纹理特征图：单独与联合强度</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_03_enhancement_patterns.html">增强模式</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_04_combining_features.html">体素特征</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_05_own_feature_extractor.html">将自定义特征提取器作为插件</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../03_clustering/index.html">Clustering</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../03_clustering/plot_01_supervoxel_method_and_count.html">超体素方法与数量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03_clustering/plot_02_what_supervoxel_summarizes.html">超体素特征提取与加速</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03_clustering/plot_03_clustering_algorithm.html">聚类算法与生境数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03_clustering/plot_04_consensus_clustering.html">生境共识聚类</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../04_quantifying_habitats/index.html">量化栖息地</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../04_quantifying_habitats/plot_01_volume_fractions.html">体积与分数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_quantifying_habitats/plot_02_msi.html">多区域空间交互 (MSI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_quantifying_habitats/plot_03_ith.html">瘤内异质性（ITH）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_quantifying_habitats/plot_04_graph_network_features.html">生境 graph network 特征</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../04_quantifying_habitats/plot_05_habitat_radiomics.html">含 volume、MSI、ITH 的生境放射组学</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../05_validation_and_reuse/index.html">验证与重用</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_01_train_save_predict.html">训练、保存并预测新患者</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_02_match_same_subject.html">同一受试者、两次拟合：原型匹配</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_03_match_two_subjects.html">两名受试者、相同 Spec：原型匹配</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_04_match_group.html">一步法组拟合：原型匹配</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_05_precise_features.html">在扰动下精确特征与所有纹理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../05_validation_and_reuse/plot_06_reuse_published_model.html">复用已发表生境模型</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../06_manipulating_images/index.html">图像操作</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../06_manipulating_images/plot_01_directory.html">从目录加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_manipulating_images/plot_02_nifti.html">从 NIfTI 文件加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_manipulating_images/plot_03_simpleitk.html">从 SimpleITK 加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_manipulating_images/plot_04_numpy.html">从 NumPy 数组加载</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../06_manipulating_images/plot_05_named_masks.html">命名面具</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../07_advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_01_extract.html">提取体素强度</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_02_subject_preprocess.html">受试者级预处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_03_supervoxels.html">将 ROI 划分为超体素</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_04_pooling.html">Pooling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_05_fit.html">拟合队列生境模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_06_assign.html">分配生境标签</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_07_postprocess.html">清理生境图（连通分量）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_08_backends.html">执行后端上的原子组件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_09_own_pipeline.html">HABIT 嵌入自有流水线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../07_advanced/plot_10_export_results.html">导出结果并起草方法段落</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Examples</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Features</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">纹理特征图：单独与联合强度</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">备注</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-02-features-plot-02-texture-feature-maps-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="texture-feature-maps-alone-and-with-intensity">
+<span id="sphx-glr-auto-examples-02-features-plot-02-texture-feature-maps-py"></span><h1>纹理特征图：单独与联合强度<a class="headerlink" href="#texture-feature-maps-alone-and-with-intensity" title="Link to this heading">#</a></h1>
+<p><strong>背景。</strong> 肿瘤两区平均亮度可相同但局部模式不同：一平滑、一斑点。强度 alone 无法区分。体素级纹理为每体素给出描述小邻域的数，可替代或并列于生境模型聚类的特征表强度列。</p>
+<p><strong>目的。</strong> 在动脉期（LAP）图像每个体素周围计算两个 GLCM 纹理图（Contrast 与 Idm），对两列纹理各运行一次两步法分析，再对仅纹理与 LAP 强度加相同纹理各运行一次；比较两运行的肘部规则选 habitat 数、质心及生境图一致度（调整 Rand 指数，忽略 id 编号）。</p>
+<p><strong>何时使用。</strong> You expect 生境 to differ in local structure (e.g. heterogeneous enhancement or fine necrosis), not only in how bright they are, and you want to know how much the intensity column changes the 生境. 体素-wise texture is slower to extract than raw intensity.</p>
+<p><strong>分析定义。</strong> 批准两步法定义，LAP 为唯一图像；两运行间 <strong>仅</strong> <code class="docutils literal notranslate"><span class="pre">extract</span></code> 阶段特征集不同（仅纹理 vs 强度+纹理）。受试者级 winsorize + z-score、30 k-means 超体素、队列级 10-bin 分箱、k-means 2..10 生境 elbow、最近质心分配与 seed 两运行相同。均在 subj001 + subj002 上拟合。本页 quantify 阶段裁为 <code class="docutils literal notranslate"><span class="pre">volume</span></code> 以加速。</p>
+<p><strong>关键术语。</strong> 完整定义见 <a class="reference internal" href="../../tutorial/concepts.html"><span class="doc">Concepts</span></a> 。</p>
+<ul class="simple">
+<li><p><strong>逐体素 GLCM</strong> -- a grey-level co-occurrence matrix computed in a small cube around each 体素; <em>Contrast</em> is high where neighbouring grey levels differ a lot, <em>Idm</em> (inverse difference moment) is high where the neighbourhood is homogeneous.</p></li>
+<li><p><strong>kernel radius</strong> — 该立方体边长的一半：radius 1 表示 3 x 3 x 3 邻域。</p></li>
+<li><p><strong>bin width</strong> — 计数 GLCM 前灰度离散化，单位为图像自身强度单位。</p></li>
+<li><p><strong>concat 提取器</strong> — 多个体素特征提取器在同一 ROI 上运行，列并排放置，每行一体素。</p></li>
+<li><p><strong>adjusted Rand index (ARI)</strong> — 同一体素两标签图的一致性：1 = 同一划分（id 名无关），约 0 = 不优于随机。</p></li>
+</ul>
+<p>纹理参数是方法的一部分：应随结果一起报告它们。</p>
+<section id="load-the-cohort">
+<h2>加载队列<a class="headerlink" href="#load-the-cohort" title="Link to this heading">#</a></h2>
+<p>Only the arterial phase is loaded: both the intensity column and the texture columns are computed on it. Two 受试者 define the 生境. sphinx_gallery_thumbnail_number = 1</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_rand_score.html#sklearn.metrics.adjusted_rand_score" title="sklearn.metrics.adjusted_rand_score" class="sphx-glr-backref-module-sklearn-metrics sphx-glr-backref-type-py-function"><span class="n">adjusted_rand_score</span></a>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">HabitatModel</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">HabitatMap</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-function"><span class="n">backend_from_policy</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">,</span> <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.policy</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <a href="../../api/generated/habit.viz.plot_cluster_validation_from_report.html#habit.viz.plot_cluster_validation_from_report" title="habit.viz.plot_cluster_validation_from_report" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_cluster_validation_from_report</span></a><span class="p">,</span>
+    <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">,</span>
+    <a href="../../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_voxel_texture_slice</span></a><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.voxel_features</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.voxel_features.build_voxel_extractor.html#habit.voxel_features.build_voxel_extractor" title="habit.voxel_features.build_voxel_extractor" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-function"><span class="n">build_voxel_extractor</span></a>
+
+<span class="c1"># Change DATA / MODALITIES / ROI to your preprocessed layout.</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a> <span class="o">=</span> <a href="../../api/generated/habit.datasets.fetch_demo.html#habit.datasets.fetch_demo" title="habit.datasets.fetch_demo" class="sphx-glr-backref-module-habit-datasets sphx-glr-backref-type-py-function"><span class="n">fetch_demo</span></a><span class="p">()</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+<a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.cohort_from_directory.html#habit.contracts.cohort_from_directory" title="habit.contracts.cohort_from_directory" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-function"><span class="n">cohort_from_directory</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.WindowsPath" title="pathlib.WindowsPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA</span></a><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">)</span>
+<a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">)</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>HABIT demo data (cached)
+DATA (preprocessed root): C:\Users\dongm\.habit_data\demo-data-v1\preprocessed
+
+On-disk inventory of this folder:
+  subjects (5): subj001, subj002, subj003, subj004, subj005
+  image series: LAP, PVP, delay_3min, pre_contrast
+  mask keys:    LAP, PVP, delay_3min, pre_contrast
+  example image: images/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_3min_Series0012.nrrd
+  example mask:  masks/subj001/delay_3min/WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd
+
+Your own data must use the same folder tree (change IDs / series names):
+
+  DATA/
+    images/&lt;subject_id&gt;/&lt;modality&gt;/&lt;one image file&gt;
+    masks/&lt;subject_id&gt;/&lt;roi&gt;/&lt;one mask file&gt;
+
+Then load it with the same call the demos use:
+
+  cohort = cohort_from_directory(DATA, modalities=(&quot;LAP&quot;,), roi=&quot;LAP&quot;)
+
+Swap DATA / modalities / roi to match your tree. Mask key is often the
+same as one image series (here LAP).
+Cohort(2 subjects [subj001, subj002])
+</pre></div>
+</div>
+</section>
+<section id="the-two-feature-sets">
+<h2>两套特征<a class="headerlink" href="#the-two-feature-sets" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">TEXTURE</span></code> 保存两次运行共享的逐体素 GLCM 设置，故纹理列计算方式完全相同：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kernel_radius=1</span></code> —— 每个体素周围的 3 x 3 x 3 立方体。更大的半径会使地图更平滑，但耗时更多；半径为 1 可以保持此页面运行快速。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">binWidth=25</span></code> — 计数共现矩阵前强度按 25 单位宽分 bin。单位为图像单位（原始 MR），故同一 <code class="docutils literal notranslate"><span class="pre">binWidth</span></code> 在更亮/更暗扫描上灰度级数不同。这是 IBSI 离散化选择（固定 bin 宽 vs 固定 bin 数）：按数据选择并报告。</p></li>
+</ul>
+<p>两 <code class="docutils literal notranslate"><span class="pre">extract</span></code> spec 唯一差别是否在前添加 <code class="docutils literal notranslate"><span class="pre">raw</span></code> LAP 强度列。</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">TEXTURE</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">),</span>
+    <span class="s2">&quot;kernel_radius&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="c1"># One (or a few) features from every texture family the voxel-radiomics</span>
+    <span class="c1"># extractor supports. Families, not every IBSI name: enough to show</span>
+    <span class="c1"># the route without making this page a full IBSI dump.</span>
+    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;setting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;binWidth&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">},</span>
+        <span class="s2">&quot;featureClass&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;glcm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;Idm&quot;</span><span class="p">,</span> <span class="s2">&quot;Correlation&quot;</span><span class="p">,</span> <span class="s2">&quot;JointEntropy&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;glrlm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ShortRunEmphasis&quot;</span><span class="p">,</span> <span class="s2">&quot;LongRunEmphasis&quot;</span><span class="p">,</span> <span class="s2">&quot;RunEntropy&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;glszm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SmallAreaEmphasis&quot;</span><span class="p">,</span> <span class="s2">&quot;LargeAreaEmphasis&quot;</span><span class="p">,</span> <span class="s2">&quot;ZoneEntropy&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;gldm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SmallDependenceEmphasis&quot;</span><span class="p">,</span> <span class="s2">&quot;LargeDependenceEmphasis&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;ngtdm&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Coarseness&quot;</span><span class="p">,</span> <span class="s2">&quot;Contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;Busyness&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+<span class="c1"># Texture only: two columns per voxel (GLCM Contrast, GLCM Idm).</span>
+<a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">EXTRACT_TEXTURE</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;voxel_radiomics&quot;</span><span class="p">,</span> <span class="p">{</span><span class="o">**</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">TEXTURE</span></a><span class="p">,</span> <span class="s2">&quot;roi&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">})</span>
+<span class="c1"># Intensity + texture: the LAP intensity column, then the same two</span>
+<span class="c1"># texture columns, side by side (one row per voxel).</span>
+<a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">EXTRACT_BOTH</span></a> <span class="o">=</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span>
+    <span class="s2">&quot;concat&quot;</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;extractors&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MODALITIES</span></a><span class="p">)}},</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;voxel_radiomics&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">TEXTURE</span></a><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;roi&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">texture_spec</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">extract</span><span class="p">:</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the two-step spec used by both runs, with a given extract stage.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Name of the analysis (stored in the model and manifest).</span>
+<span class="sd">        extract: The ``extract`` component; the only thing that differs</span>
+<span class="sd">            between the two runs on this page.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`~habit.spec.HabitatSpec` whose every other stage is the</span>
+<span class="sd">        approved two-step definition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">HabitatSpec</span></a><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;extract&quot;</span><span class="p">,</span> <span class="n">extract</span><span class="p">),</span>
+            <span class="c1"># preprocess (subject-level): clip each column to that patient&#39;s</span>
+            <span class="c1"># own 1st..99th percentile.</span>
+            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;preprocess&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;winsorize&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]})),</span>
+            <span class="c1"># preprocess2 (subject-level): rescale each column to 0..1 with</span>
+            <span class="c1"># that patient&#39;s own min and max. Intensity (hundreds), Contrast</span>
+            <span class="c1"># (can be much larger) and Idm (0..1) have different units;</span>
+            <span class="c1"># k-means uses Euclidean distance, so without this step the</span>
+            <span class="c1"># widest column would decide the habitats alone.</span>
+            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">)),</span>
+            <span class="c1"># partition: 30 supervoxels per tumour, on all extracted columns.</span>
+            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">})),</span>
+            <span class="c1"># pool: stack both training subjects&#39; supervoxels.</span>
+            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
+            <span class="c1"># preprocess_cohort (cohort-level): 10 equal-width bins per</span>
+            <span class="c1"># column, edges learned on the pooled training supervoxels.</span>
+
+            <span class="c1"># fit: one k-means for the cohort, 2..10 habitats, elbow rule.</span>
+            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span>
+                <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+                <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span>
+                    <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+                    <span class="p">{</span><span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+            <span class="c1"># assign: nearest centroid for every supervoxel, then its voxels.</span>
+            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+            <span class="c1"># quantify: volume fractions only on this page.</span>
+            <a href="../../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Stage</span></a><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">Spec</span></a><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+        <span class="p">),</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">spec_texture</span></a> <span class="o">=</span> <span class="n">texture_spec</span><span class="p">(</span><span class="s2">&quot;texture_only_two_step&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">EXTRACT_TEXTURE</span></a><span class="p">)</span>
+<a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">spec_both</span></a> <span class="o">=</span> <span class="n">texture_spec</span><span class="p">(</span><span class="s2">&quot;intensity_texture_two_step&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">EXTRACT_BOTH</span></a><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="look-at-one-texture-map">
+<h2>查看一张纹理图<a class="headerlink" href="#look-at-one-texture-map" title="Link to this heading">#</a></h2>
+<p>Before fitting, build only the <code class="docutils literal notranslate"><span class="pre">extract</span></code> component and call it on the first 受试者. The result is the per-体素 table the model will see: one row per ROI 体素, one column per 特征. The column names carry the 特征 and the 模态 it was computed on.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a> <span class="o">=</span> <a href="../../api/generated/habit.voxel_features.build_voxel_extractor.html#habit.voxel_features.build_voxel_extractor" title="habit.voxel_features.build_voxel_extractor" class="sphx-glr-backref-module-habit-voxel_features sphx-glr-backref-type-py-function"><span class="n">build_voxel_extractor</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">EXTRACT_BOTH</span></a><span class="p">)(</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> voxels, columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span><span class="o">.</span><span class="n">feature_names</span></a><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField.feature_frame" title="habit.contracts.VoxelFeatureField.feature_frame" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">field</span><span class="o">.</span><span class="n">feature_frame</span></a><span class="p">()</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">contrast_name</span></a> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span><span class="o">.</span><span class="n">feature_names</span></a> <span class="k">if</span> <span class="s2">&quot;Contrast&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_voxel_texture_slice</span></a><span class="p">(</span>
+    <a href="../../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.VoxelFeatureField" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">field</span></a><span class="p">,</span>
+    <span class="n">feature</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">contrast_name</span></a><span class="p">,</span>
+    <span class="n">anatomy</span><span class="o">=</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">image</span></a><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">),</span>
+    <span class="n">roi_mask</span><span class="o">=</span><a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.mask" title="habit.contracts.Subject.mask" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">subject</span><span class="o">.</span><span class="n">mask</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ROI</span></a><span class="p">),</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">: GLCM Contrast, kernel radius 1&quot;</span><span class="p">,</span>
+    <span class="n">crop_to</span><span class="o">=</span><span class="s2">&quot;roi&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="s2">&quot;out/texture_maps_contrast.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_02_texture_feature_maps_001.png" srcset="../../_images/sphx_glr_plot_02_texture_feature_maps_001.png" alt="subj001: GLCM Contrast, kernel radius 1, original_glcm_Contrast-LAP - Axis 0 (axial-like) @ 21, original_glcm_Contrast-LAP - Axis 1 (coronal-like) @ 34, original_glcm_Contrast-LAP - Axis 2 (sagittal-like) @ 28" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>voxel_radiomics: glcm batch 1/35 0.690s peak=1MiB
+voxel_radiomics: glcm batch 2/35 0.018s peak=2MiB
+voxel_radiomics: glcm batch 3/35 0.018s peak=3MiB
+voxel_radiomics: glcm batch 4/35 0.018s peak=4MiB
+voxel_radiomics: glcm batch 5/35 0.016s peak=4MiB
+voxel_radiomics: glcm batch 6/35 0.017s peak=5MiB
+voxel_radiomics: glcm batch 7/35 0.017s peak=6MiB
+voxel_radiomics: glcm batch 8/35 0.019s peak=7MiB
+voxel_radiomics: glcm batch 9/35 0.017s peak=8MiB
+voxel_radiomics: glcm batch 10/35 0.017s peak=9MiB
+voxel_radiomics: glcm batch 11/35 0.016s peak=10MiB
+voxel_radiomics: glcm batch 12/35 0.017s peak=11MiB
+voxel_radiomics: glcm batch 13/35 0.017s peak=12MiB
+voxel_radiomics: glcm batch 14/35 0.019s peak=13MiB
+voxel_radiomics: glcm batch 15/35 0.018s peak=13MiB
+voxel_radiomics: glcm batch 16/35 0.016s peak=14MiB
+voxel_radiomics: glcm batch 17/35 0.018s peak=15MiB
+voxel_radiomics: glcm batch 18/35 0.017s peak=16MiB
+voxel_radiomics: glcm batch 19/35 0.017s peak=17MiB
+voxel_radiomics: glcm batch 20/35 0.016s peak=18MiB
+voxel_radiomics: glcm batch 21/35 0.017s peak=19MiB
+voxel_radiomics: glcm batch 22/35 0.017s peak=20MiB
+voxel_radiomics: glcm batch 23/35 0.015s peak=21MiB
+voxel_radiomics: glcm batch 24/35 0.017s peak=22MiB
+voxel_radiomics: glcm batch 25/35 0.016s peak=22MiB
+voxel_radiomics: glcm batch 26/35 0.015s peak=23MiB
+voxel_radiomics: glcm batch 27/35 0.015s peak=24MiB
+voxel_radiomics: glcm batch 28/35 0.017s peak=25MiB
+voxel_radiomics: glcm batch 29/35 0.016s peak=26MiB
+voxel_radiomics: glcm batch 30/35 0.016s peak=27MiB
+voxel_radiomics: glcm batch 31/35 0.016s peak=28MiB
+voxel_radiomics: glcm batch 32/35 0.015s peak=29MiB
+voxel_radiomics: glcm batch 33/35 0.014s peak=30MiB
+voxel_radiomics: glcm batch 34/35 0.016s peak=31MiB
+voxel_radiomics: glcm batch 35/35 0.015s peak=31MiB
+voxel_radiomics: glrlm batch 1/35 0.084s peak=32MiB
+voxel_radiomics: glrlm batch 2/35 0.016s peak=33MiB
+voxel_radiomics: glrlm batch 3/35 0.017s peak=34MiB
+voxel_radiomics: glrlm batch 4/35 0.016s peak=35MiB
+voxel_radiomics: glrlm batch 5/35 0.016s peak=36MiB
+voxel_radiomics: glrlm batch 6/35 0.016s peak=37MiB
+voxel_radiomics: glrlm batch 7/35 0.017s peak=38MiB
+voxel_radiomics: glrlm batch 8/35 0.015s peak=39MiB
+voxel_radiomics: glrlm batch 9/35 0.016s peak=40MiB
+voxel_radiomics: glrlm batch 10/35 0.015s peak=40MiB
+voxel_radiomics: glrlm batch 11/35 0.017s peak=41MiB
+voxel_radiomics: glrlm batch 12/35 0.016s peak=42MiB
+voxel_radiomics: glrlm batch 13/35 0.015s peak=43MiB
+voxel_radiomics: glrlm batch 14/35 0.016s peak=44MiB
+voxel_radiomics: glrlm batch 15/35 0.016s peak=45MiB
+voxel_radiomics: glrlm batch 16/35 0.016s peak=46MiB
+voxel_radiomics: glrlm batch 17/35 0.017s peak=47MiB
+voxel_radiomics: glrlm batch 18/35 0.016s peak=48MiB
+voxel_radiomics: glrlm batch 19/35 0.016s peak=49MiB
+voxel_radiomics: glrlm batch 20/35 0.016s peak=49MiB
+voxel_radiomics: glrlm batch 21/35 0.017s peak=50MiB
+voxel_radiomics: glrlm batch 22/35 0.016s peak=51MiB
+voxel_radiomics: glrlm batch 23/35 0.017s peak=52MiB
+voxel_radiomics: glrlm batch 24/35 0.016s peak=53MiB
+voxel_radiomics: glrlm batch 25/35 0.015s peak=54MiB
+voxel_radiomics: glrlm batch 26/35 0.015s peak=55MiB
+voxel_radiomics: glrlm batch 27/35 0.015s peak=56MiB
+voxel_radiomics: glrlm batch 28/35 0.015s peak=57MiB
+voxel_radiomics: glrlm batch 29/35 0.015s peak=58MiB
+voxel_radiomics: glrlm batch 30/35 0.017s peak=1MiB
+voxel_radiomics: glrlm batch 31/35 0.016s peak=2MiB
+voxel_radiomics: glrlm batch 32/35 0.019s peak=3MiB
+voxel_radiomics: glrlm batch 33/35 0.015s peak=4MiB
+voxel_radiomics: glrlm batch 34/35 0.014s peak=4MiB
+voxel_radiomics: glrlm batch 35/35 0.013s peak=5MiB
+voxel_radiomics: glszm batch 1/35 0.037s peak=6MiB
+voxel_radiomics: glszm batch 2/35 0.014s peak=7MiB
+voxel_radiomics: glszm batch 3/35 0.013s peak=8MiB
+voxel_radiomics: glszm batch 4/35 0.013s peak=9MiB
+voxel_radiomics: glszm batch 5/35 0.014s peak=10MiB
+voxel_radiomics: glszm batch 6/35 0.014s peak=11MiB
+voxel_radiomics: glszm batch 7/35 0.013s peak=12MiB
+voxel_radiomics: glszm batch 8/35 0.014s peak=13MiB
+voxel_radiomics: glszm batch 9/35 0.015s peak=14MiB
+voxel_radiomics: glszm batch 10/35 0.014s peak=14MiB
+voxel_radiomics: glszm batch 11/35 0.013s peak=15MiB
+voxel_radiomics: glszm batch 12/35 0.014s peak=16MiB
+voxel_radiomics: glszm batch 13/35 0.013s peak=17MiB
+voxel_radiomics: glszm batch 14/35 0.014s peak=18MiB
+voxel_radiomics: glszm batch 15/35 0.014s peak=19MiB
+voxel_radiomics: glszm batch 16/35 0.013s peak=20MiB
+voxel_radiomics: glszm batch 17/35 0.014s peak=21MiB
+voxel_radiomics: glszm batch 18/35 0.013s peak=22MiB
+voxel_radiomics: glszm batch 19/35 0.013s peak=23MiB
+voxel_radiomics: glszm batch 20/35 0.013s peak=23MiB
+voxel_radiomics: glszm batch 21/35 0.013s peak=24MiB
+voxel_radiomics: glszm batch 22/35 0.014s peak=25MiB
+voxel_radiomics: glszm batch 23/35 0.014s peak=26MiB
+voxel_radiomics: glszm batch 24/35 0.015s peak=27MiB
+voxel_radiomics: glszm batch 25/35 0.013s peak=28MiB
+voxel_radiomics: glszm batch 26/35 0.014s peak=29MiB
+voxel_radiomics: glszm batch 27/35 0.015s peak=30MiB
+voxel_radiomics: glszm batch 28/35 0.013s peak=31MiB
+voxel_radiomics: glszm batch 29/35 0.015s peak=32MiB
+voxel_radiomics: glszm batch 30/35 0.015s peak=32MiB
+voxel_radiomics: glszm batch 31/35 0.014s peak=33MiB
+voxel_radiomics: glszm batch 32/35 0.013s peak=34MiB
+voxel_radiomics: glszm batch 33/35 0.014s peak=35MiB
+voxel_radiomics: glszm batch 34/35 0.015s peak=36MiB
+voxel_radiomics: glszm batch 35/35 0.013s peak=37MiB
+voxel_radiomics: gldm batch 1/35 0.009s peak=43MiB
+voxel_radiomics: gldm batch 2/35 0.006s peak=44MiB
+voxel_radiomics: gldm batch 3/35 0.007s peak=46MiB
+voxel_radiomics: gldm batch 4/35 0.007s peak=46MiB
+voxel_radiomics: gldm batch 5/35 0.007s peak=47MiB
+voxel_radiomics: gldm batch 6/35 0.006s peak=48MiB
+voxel_radiomics: gldm batch 7/35 0.007s peak=48MiB
+voxel_radiomics: gldm batch 8/35 0.007s peak=50MiB
+voxel_radiomics: gldm batch 9/35 0.006s peak=51MiB
+voxel_radiomics: gldm batch 10/35 0.006s peak=52MiB
+voxel_radiomics: gldm batch 11/35 0.007s peak=53MiB
+voxel_radiomics: gldm batch 12/35 0.007s peak=54MiB
+voxel_radiomics: gldm batch 13/35 0.007s peak=55MiB
+voxel_radiomics: gldm batch 14/35 0.007s peak=56MiB
+voxel_radiomics: gldm batch 15/35 0.007s peak=59MiB
+voxel_radiomics: gldm batch 16/35 0.007s peak=58MiB
+voxel_radiomics: gldm batch 17/35 0.007s peak=60MiB
+voxel_radiomics: gldm batch 18/35 0.006s peak=60MiB
+voxel_radiomics: gldm batch 19/35 0.007s peak=62MiB
+voxel_radiomics: gldm batch 20/35 0.006s peak=62MiB
+voxel_radiomics: gldm batch 21/35 0.006s peak=63MiB
+voxel_radiomics: gldm batch 22/35 0.006s peak=64MiB
+voxel_radiomics: gldm batch 23/35 0.006s peak=64MiB
+voxel_radiomics: gldm batch 24/35 0.007s peak=8MiB
+voxel_radiomics: gldm batch 25/35 0.007s peak=9MiB
+voxel_radiomics: gldm batch 26/35 0.006s peak=10MiB
+voxel_radiomics: gldm batch 27/35 0.006s peak=10MiB
+voxel_radiomics: gldm batch 28/35 0.006s peak=12MiB
+voxel_radiomics: gldm batch 29/35 0.006s peak=12MiB
+voxel_radiomics: gldm batch 30/35 0.007s peak=12MiB
+voxel_radiomics: gldm batch 31/35 0.007s peak=13MiB
+voxel_radiomics: gldm batch 32/35 0.006s peak=14MiB
+voxel_radiomics: gldm batch 33/35 0.006s peak=15MiB
+voxel_radiomics: gldm batch 34/35 0.007s peak=16MiB
+voxel_radiomics: gldm batch 35/35 0.007s peak=15MiB
+voxel_radiomics: ngtdm batch 1/35 0.019s peak=13MiB
+voxel_radiomics: ngtdm batch 2/35 0.008s peak=14MiB
+voxel_radiomics: ngtdm batch 3/35 0.008s peak=15MiB
+voxel_radiomics: ngtdm batch 4/35 0.008s peak=16MiB
+voxel_radiomics: ngtdm batch 5/35 0.008s peak=17MiB
+voxel_radiomics: ngtdm batch 6/35 0.009s peak=18MiB
+voxel_radiomics: ngtdm batch 7/35 0.008s peak=19MiB
+voxel_radiomics: ngtdm batch 8/35 0.008s peak=20MiB
+voxel_radiomics: ngtdm batch 9/35 0.008s peak=21MiB
+voxel_radiomics: ngtdm batch 10/35 0.008s peak=21MiB
+voxel_radiomics: ngtdm batch 11/35 0.008s peak=22MiB
+voxel_radiomics: ngtdm batch 12/35 0.008s peak=23MiB
+voxel_radiomics: ngtdm batch 13/35 0.009s peak=24MiB
+voxel_radiomics: ngtdm batch 14/35 0.007s peak=25MiB
+voxel_radiomics: ngtdm batch 15/35 0.008s peak=26MiB
+voxel_radiomics: ngtdm batch 16/35 0.008s peak=27MiB
+voxel_radiomics: ngtdm batch 17/35 0.008s peak=28MiB
+voxel_radiomics: ngtdm batch 18/35 0.008s peak=29MiB
+voxel_radiomics: ngtdm batch 19/35 0.008s peak=29MiB
+voxel_radiomics: ngtdm batch 20/35 0.007s peak=30MiB
+voxel_radiomics: ngtdm batch 21/35 0.008s peak=31MiB
+voxel_radiomics: ngtdm batch 22/35 0.008s peak=32MiB
+voxel_radiomics: ngtdm batch 23/35 0.008s peak=33MiB
+voxel_radiomics: ngtdm batch 24/35 0.008s peak=34MiB
+voxel_radiomics: ngtdm batch 25/35 0.008s peak=35MiB
+voxel_radiomics: ngtdm batch 26/35 0.008s peak=36MiB
+voxel_radiomics: ngtdm batch 27/35 0.007s peak=37MiB
+voxel_radiomics: ngtdm batch 28/35 0.009s peak=38MiB
+voxel_radiomics: ngtdm batch 29/35 0.008s peak=39MiB
+voxel_radiomics: ngtdm batch 30/35 0.008s peak=39MiB
+voxel_radiomics: ngtdm batch 31/35 0.008s peak=40MiB
+voxel_radiomics: ngtdm batch 32/35 0.008s peak=41MiB
+voxel_radiomics: ngtdm batch 33/35 0.007s peak=42MiB
+voxel_radiomics: ngtdm batch 34/35 0.007s peak=42MiB
+voxel_radiomics: ngtdm batch 35/35 0.008s peak=43MiB
+34694 voxels, columns: [&#39;LAP&#39;, &#39;original_glcm_Contrast-LAP&#39;, &#39;original_glcm_Idm-LAP&#39;, &#39;original_glcm_Correlation-LAP&#39;, &#39;original_glcm_JointEntropy-LAP&#39;, &#39;original_glrlm_ShortRunEmphasis-LAP&#39;, &#39;original_glrlm_LongRunEmphasis-LAP&#39;, &#39;original_glrlm_RunEntropy-LAP&#39;, &#39;original_glszm_SmallAreaEmphasis-LAP&#39;, &#39;original_glszm_LargeAreaEmphasis-LAP&#39;, &#39;original_glszm_ZoneEntropy-LAP&#39;, &#39;original_gldm_SmallDependenceEmphasis-LAP&#39;, &#39;original_gldm_LargeDependenceEmphasis-LAP&#39;, &#39;original_ngtdm_Coarseness-LAP&#39;, &#39;original_ngtdm_Contrast-LAP&#39;, &#39;original_ngtdm_Busyness-LAP&#39;]
+             LAP  ...  original_ngtdm_Busyness-LAP
+count  34694.000  ...                    34694.000
+mean     859.751  ...                        0.063
+std      161.402  ...                        0.104
+min      366.000  ...                        0.003
+25%      739.000  ...                        0.033
+50%      864.000  ...                        0.047
+75%      977.000  ...                        0.071
+max     1420.000  ...                       13.788
+
+[8 rows x 16 columns]
+F:\work\habit_project\habit\viz\voxel_texture.py:1019: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  direction, spacing = resolve_display_geometry(
+</pre></div>
+</div>
+</section>
+<section id="fit-both-runs">
+<h2>拟合两次运行<a class="headerlink" href="#fit-both-runs" title="Link to this heading">#</a></h2>
+<p>相同训练受试者、相同 seed、相同阶段；仅 <code class="docutils literal notranslate"><span class="pre">extract</span></code> 不同。纹理列在每次 <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> 内计算（日志行为体素批次）。</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_texture</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">spec_texture</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span>
+    <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-function"><span class="n">backend_from_policy</span></a><span class="p">(</span>
+        <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;serial&quot;</span><span class="p">,</span> <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<a href="../../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult" title="habit.recipes.StudyResult" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_both</span></a> <span class="o">=</span> <a href="../../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study" class="sphx-glr-backref-module-habit-recipes sphx-glr-backref-type-py-class"><span class="n">Study</span></a><span class="p">(</span><a href="../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">spec_both</span></a><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span>
+    <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><a href="../../api/generated/habit.execution.backend_from_policy.html#habit.execution.backend_from_policy" title="habit.execution.backend_from_policy" class="sphx-glr-backref-module-habit-execution sphx-glr-backref-type-py-function"><span class="n">backend_from_policy</span></a><span class="p">(</span>
+        <a href="../../api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy" class="sphx-glr-backref-module-habit-spec sphx-glr-backref-type-py-class"><span class="n">RunPolicy</span></a><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;serial&quot;</span><span class="p">,</span> <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_texture</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_texture</span><span class="o">.</span><span class="n">habitat_model</span></a>
+<a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_both</span></a> <span class="o">=</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_both</span><span class="o">.</span><span class="n">habitat_model</span></a>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;texture only        : K =&quot;</span><span class="p">,</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_texture</span><span class="o">.</span><span class="n">n_habitats</span></a><span class="p">,</span> <span class="s2">&quot;| features:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_texture</span><span class="o">.</span><span class="n">feature_names</span></a><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;intensity + texture : K =&quot;</span><span class="p">,</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_both</span><span class="o">.</span><span class="n">n_habitats</span></a><span class="p">,</span> <span class="s2">&quot;| features:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_both</span><span class="o">.</span><span class="n">feature_names</span></a><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]voxel_radiomics: glcm batch 1/35 0.024s peak=43MiB
+voxel_radiomics: glcm batch 2/35 0.018s peak=44MiB
+voxel_radiomics: glcm batch 3/35 0.018s peak=45MiB
+voxel_radiomics: glcm batch 4/35 0.019s peak=46MiB
+voxel_radiomics: glcm batch 5/35 0.019s peak=47MiB
+voxel_radiomics: glcm batch 6/35 0.018s peak=48MiB
+voxel_radiomics: glcm batch 7/35 0.018s peak=49MiB
+voxel_radiomics: glcm batch 8/35 0.019s peak=50MiB
+voxel_radiomics: glcm batch 9/35 0.019s peak=50MiB
+voxel_radiomics: glcm batch 10/35 0.020s peak=51MiB
+voxel_radiomics: glcm batch 11/35 0.017s peak=52MiB
+voxel_radiomics: glcm batch 12/35 0.019s peak=53MiB
+voxel_radiomics: glcm batch 13/35 0.017s peak=54MiB
+voxel_radiomics: glcm batch 14/35 0.016s peak=55MiB
+voxel_radiomics: glcm batch 15/35 0.015s peak=56MiB
+voxel_radiomics: glcm batch 16/35 0.016s peak=57MiB
+voxel_radiomics: glcm batch 17/35 0.016s peak=58MiB
+voxel_radiomics: glcm batch 18/35 0.016s peak=1MiB
+voxel_radiomics: glcm batch 19/35 0.015s peak=2MiB
+voxel_radiomics: glcm batch 20/35 0.015s peak=3MiB
+voxel_radiomics: glcm batch 21/35 0.016s peak=4MiB
+voxel_radiomics: glcm batch 22/35 0.015s peak=5MiB
+voxel_radiomics: glcm batch 23/35 0.015s peak=5MiB
+voxel_radiomics: glcm batch 24/35 0.015s peak=6MiB
+voxel_radiomics: glcm batch 25/35 0.015s peak=7MiB
+voxel_radiomics: glcm batch 26/35 0.015s peak=8MiB
+voxel_radiomics: glcm batch 27/35 0.015s peak=9MiB
+voxel_radiomics: glcm batch 28/35 0.015s peak=10MiB
+voxel_radiomics: glcm batch 29/35 0.016s peak=11MiB
+voxel_radiomics: glcm batch 30/35 0.017s peak=12MiB
+voxel_radiomics: glcm batch 31/35 0.015s peak=13MiB
+voxel_radiomics: glcm batch 32/35 0.016s peak=14MiB
+voxel_radiomics: glcm batch 33/35 0.015s peak=14MiB
+voxel_radiomics: glcm batch 34/35 0.015s peak=15MiB
+voxel_radiomics: glcm batch 35/35 0.016s peak=16MiB
+voxel_radiomics: glrlm batch 1/35 0.015s peak=17MiB
+voxel_radiomics: glrlm batch 2/35 0.015s peak=18MiB
+voxel_radiomics: glrlm batch 3/35 0.017s peak=19MiB
+voxel_radiomics: glrlm batch 4/35 0.015s peak=20MiB
+voxel_radiomics: glrlm batch 5/35 0.016s peak=21MiB
+voxel_radiomics: glrlm batch 6/35 0.014s peak=22MiB
+voxel_radiomics: glrlm batch 7/35 0.014s peak=23MiB
+voxel_radiomics: glrlm batch 8/35 0.016s peak=23MiB
+voxel_radiomics: glrlm batch 9/35 0.042s peak=24MiB
+voxel_radiomics: glrlm batch 10/35 0.033s peak=25MiB
+voxel_radiomics: glrlm batch 11/35 0.044s peak=26MiB
+voxel_radiomics: glrlm batch 12/35 0.019s peak=27MiB
+voxel_radiomics: glrlm batch 13/35 0.017s peak=28MiB
+voxel_radiomics: glrlm batch 14/35 0.024s peak=29MiB
+voxel_radiomics: glrlm batch 15/35 0.018s peak=30MiB
+voxel_radiomics: glrlm batch 16/35 0.016s peak=31MiB
+voxel_radiomics: glrlm batch 17/35 0.015s peak=32MiB
+voxel_radiomics: glrlm batch 18/35 0.016s peak=32MiB
+voxel_radiomics: glrlm batch 19/35 0.015s peak=33MiB
+voxel_radiomics: glrlm batch 20/35 0.015s peak=34MiB
+voxel_radiomics: glrlm batch 21/35 0.015s peak=35MiB
+voxel_radiomics: glrlm batch 22/35 0.014s peak=36MiB
+voxel_radiomics: glrlm batch 23/35 0.015s peak=37MiB
+voxel_radiomics: glrlm batch 24/35 0.015s peak=38MiB
+voxel_radiomics: glrlm batch 25/35 0.015s peak=39MiB
+voxel_radiomics: glrlm batch 26/35 0.014s peak=40MiB
+voxel_radiomics: glrlm batch 27/35 0.014s peak=41MiB
+voxel_radiomics: glrlm batch 28/35 0.014s peak=41MiB
+voxel_radiomics: glrlm batch 29/35 0.014s peak=42MiB
+voxel_radiomics: glrlm batch 30/35 0.015s peak=43MiB
+voxel_radiomics: glrlm batch 31/35 0.014s peak=44MiB
+voxel_radiomics: glrlm batch 32/35 0.014s peak=45MiB
+voxel_radiomics: glrlm batch 33/35 0.015s peak=46MiB
+voxel_radiomics: glrlm batch 34/35 0.015s peak=47MiB
+voxel_radiomics: glrlm batch 35/35 0.013s peak=48MiB
+voxel_radiomics: glszm batch 1/35 0.014s peak=49MiB
+voxel_radiomics: glszm batch 2/35 0.013s peak=50MiB
+voxel_radiomics: glszm batch 3/35 0.016s peak=50MiB
+voxel_radiomics: glszm batch 4/35 0.015s peak=51MiB
+voxel_radiomics: glszm batch 5/35 0.013s peak=52MiB
+voxel_radiomics: glszm batch 6/35 0.014s peak=53MiB
+voxel_radiomics: glszm batch 7/35 0.013s peak=54MiB
+voxel_radiomics: glszm batch 8/35 0.013s peak=55MiB
+voxel_radiomics: glszm batch 9/35 0.014s peak=56MiB
+voxel_radiomics: glszm batch 10/35 0.013s peak=57MiB
+voxel_radiomics: glszm batch 11/35 0.014s peak=58MiB
+voxel_radiomics: glszm batch 12/35 0.014s peak=1MiB
+voxel_radiomics: glszm batch 13/35 0.014s peak=2MiB
+voxel_radiomics: glszm batch 14/35 0.013s peak=3MiB
+voxel_radiomics: glszm batch 15/35 0.013s peak=4MiB
+voxel_radiomics: glszm batch 16/35 0.013s peak=5MiB
+voxel_radiomics: glszm batch 17/35 0.013s peak=5MiB
+voxel_radiomics: glszm batch 18/35 0.014s peak=6MiB
+voxel_radiomics: glszm batch 19/35 0.014s peak=7MiB
+voxel_radiomics: glszm batch 20/35 0.015s peak=8MiB
+voxel_radiomics: glszm batch 21/35 0.014s peak=9MiB
+voxel_radiomics: glszm batch 22/35 0.013s peak=10MiB
+voxel_radiomics: glszm batch 23/35 0.013s peak=11MiB
+voxel_radiomics: glszm batch 24/35 0.013s peak=12MiB
+voxel_radiomics: glszm batch 25/35 0.013s peak=13MiB
+voxel_radiomics: glszm batch 26/35 0.013s peak=14MiB
+voxel_radiomics: glszm batch 27/35 0.014s peak=14MiB
+voxel_radiomics: glszm batch 28/35 0.013s peak=15MiB
+voxel_radiomics: glszm batch 29/35 0.013s peak=16MiB
+voxel_radiomics: glszm batch 30/35 0.014s peak=17MiB
+voxel_radiomics: glszm batch 31/35 0.013s peak=18MiB
+voxel_radiomics: glszm batch 32/35 0.014s peak=19MiB
+voxel_radiomics: glszm batch 33/35 0.014s peak=20MiB
+voxel_radiomics: glszm batch 34/35 0.014s peak=21MiB
+voxel_radiomics: glszm batch 35/35 0.014s peak=22MiB
+voxel_radiomics: gldm batch 1/35 0.007s peak=27MiB
+voxel_radiomics: gldm batch 2/35 0.006s peak=29MiB
+voxel_radiomics: gldm batch 3/35 0.006s peak=30MiB
+voxel_radiomics: gldm batch 4/35 0.006s peak=31MiB
+voxel_radiomics: gldm batch 5/35 0.006s peak=32MiB
+voxel_radiomics: gldm batch 6/35 0.006s peak=33MiB
+voxel_radiomics: gldm batch 7/35 0.006s peak=33MiB
+voxel_radiomics: gldm batch 8/35 0.006s peak=35MiB
+voxel_radiomics: gldm batch 9/35 0.006s peak=36MiB
+voxel_radiomics: gldm batch 10/35 0.006s peak=36MiB
+voxel_radiomics: gldm batch 11/35 0.006s peak=37MiB
+voxel_radiomics: gldm batch 12/35 0.006s peak=38MiB
+voxel_radiomics: gldm batch 13/35 0.006s peak=40MiB
+voxel_radiomics: gldm batch 14/35 0.006s peak=41MiB
+voxel_radiomics: gldm batch 15/35 0.007s peak=44MiB
+voxel_radiomics: gldm batch 16/35 0.006s peak=43MiB
+voxel_radiomics: gldm batch 17/35 0.006s peak=44MiB
+voxel_radiomics: gldm batch 18/35 0.005s peak=45MiB
+voxel_radiomics: gldm batch 19/35 0.006s peak=46MiB
+voxel_radiomics: gldm batch 20/35 0.006s peak=47MiB
+voxel_radiomics: gldm batch 21/35 0.006s peak=48MiB
+voxel_radiomics: gldm batch 22/35 0.007s peak=48MiB
+voxel_radiomics: gldm batch 23/35 0.006s peak=49MiB
+voxel_radiomics: gldm batch 24/35 0.006s peak=50MiB
+voxel_radiomics: gldm batch 25/35 0.006s peak=51MiB
+voxel_radiomics: gldm batch 26/35 0.006s peak=52MiB
+voxel_radiomics: gldm batch 27/35 0.006s peak=52MiB
+voxel_radiomics: gldm batch 28/35 0.006s peak=54MiB
+voxel_radiomics: gldm batch 29/35 0.006s peak=54MiB
+voxel_radiomics: gldm batch 30/35 0.006s peak=54MiB
+voxel_radiomics: gldm batch 31/35 0.007s peak=55MiB
+voxel_radiomics: gldm batch 32/35 0.008s peak=56MiB
+voxel_radiomics: gldm batch 33/35 0.008s peak=58MiB
+voxel_radiomics: gldm batch 34/35 0.006s peak=59MiB
+voxel_radiomics: gldm batch 35/35 0.006s peak=57MiB
+voxel_radiomics: ngtdm batch 1/35 0.007s peak=55MiB
+voxel_radiomics: ngtdm batch 2/35 0.007s peak=56MiB
+voxel_radiomics: ngtdm batch 3/35 0.007s peak=57MiB
+voxel_radiomics: ngtdm batch 4/35 0.007s peak=58MiB
+voxel_radiomics: ngtdm batch 5/35 0.007s peak=59MiB
+voxel_radiomics: ngtdm batch 6/35 0.008s peak=3MiB
+voxel_radiomics: ngtdm batch 7/35 0.007s peak=3MiB
+voxel_radiomics: ngtdm batch 8/35 0.008s peak=4MiB
+voxel_radiomics: ngtdm batch 9/35 0.008s peak=5MiB
+voxel_radiomics: ngtdm batch 10/35 0.007s peak=6MiB
+voxel_radiomics: ngtdm batch 11/35 0.008s peak=7MiB
+voxel_radiomics: ngtdm batch 12/35 0.007s peak=8MiB
+voxel_radiomics: ngtdm batch 13/35 0.007s peak=9MiB
+voxel_radiomics: ngtdm batch 14/35 0.007s peak=10MiB
+voxel_radiomics: ngtdm batch 15/35 0.007s peak=11MiB
+voxel_radiomics: ngtdm batch 16/35 0.008s peak=12MiB
+voxel_radiomics: ngtdm batch 17/35 0.007s peak=12MiB
+voxel_radiomics: ngtdm batch 18/35 0.008s peak=13MiB
+voxel_radiomics: ngtdm batch 19/35 0.008s peak=14MiB
+voxel_radiomics: ngtdm batch 20/35 0.008s peak=15MiB
+voxel_radiomics: ngtdm batch 21/35 0.008s peak=16MiB
+voxel_radiomics: ngtdm batch 22/35 0.007s peak=17MiB
+voxel_radiomics: ngtdm batch 23/35 0.008s peak=18MiB
+voxel_radiomics: ngtdm batch 24/35 0.008s peak=19MiB
+voxel_radiomics: ngtdm batch 25/35 0.008s peak=20MiB
+voxel_radiomics: ngtdm batch 26/35 0.008s peak=21MiB
+voxel_radiomics: ngtdm batch 27/35 0.008s peak=21MiB
+voxel_radiomics: ngtdm batch 28/35 0.007s peak=23MiB
+voxel_radiomics: ngtdm batch 29/35 0.009s peak=23MiB
+voxel_radiomics: ngtdm batch 30/35 0.010s peak=24MiB
+voxel_radiomics: ngtdm batch 31/35 0.008s peak=25MiB
+voxel_radiomics: ngtdm batch 32/35 0.009s peak=26MiB
+voxel_radiomics: ngtdm batch 33/35 0.007s peak=26MiB
+voxel_radiomics: ngtdm batch 34/35 0.007s peak=27MiB
+voxel_radiomics: ngtdm batch 35/35 0.007s peak=28MiB
+
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:05&lt;00:05,  5.33s/it]voxel_radiomics: glcm batch 1/10 0.125s peak=27MiB
+voxel_radiomics: glcm batch 2/10 0.017s peak=28MiB
+voxel_radiomics: glcm batch 3/10 0.018s peak=28MiB
+voxel_radiomics: glcm batch 4/10 0.018s peak=28MiB
+voxel_radiomics: glcm batch 5/10 0.016s peak=28MiB
+voxel_radiomics: glcm batch 6/10 0.018s peak=29MiB
+voxel_radiomics: glcm batch 7/10 0.016s peak=29MiB
+voxel_radiomics: glcm batch 8/10 0.018s peak=29MiB
+voxel_radiomics: glcm batch 9/10 0.016s peak=29MiB
+voxel_radiomics: glcm batch 10/10 0.015s peak=30MiB
+voxel_radiomics: glrlm batch 1/10 0.016s peak=30MiB
+voxel_radiomics: glrlm batch 2/10 0.016s peak=30MiB
+voxel_radiomics: glrlm batch 3/10 0.016s peak=30MiB
+voxel_radiomics: glrlm batch 4/10 0.016s peak=31MiB
+voxel_radiomics: glrlm batch 5/10 0.018s peak=31MiB
+voxel_radiomics: glrlm batch 6/10 0.019s peak=31MiB
+voxel_radiomics: glrlm batch 7/10 0.015s peak=31MiB
+voxel_radiomics: glrlm batch 8/10 0.014s peak=32MiB
+voxel_radiomics: glrlm batch 9/10 0.014s peak=32MiB
+voxel_radiomics: glrlm batch 10/10 0.015s peak=32MiB
+voxel_radiomics: glszm batch 1/10 0.013s peak=32MiB
+voxel_radiomics: glszm batch 2/10 0.012s peak=33MiB
+voxel_radiomics: glszm batch 3/10 0.012s peak=33MiB
+voxel_radiomics: glszm batch 4/10 0.013s peak=33MiB
+voxel_radiomics: glszm batch 5/10 0.013s peak=33MiB
+voxel_radiomics: glszm batch 6/10 0.013s peak=34MiB
+voxel_radiomics: glszm batch 7/10 0.013s peak=34MiB
+voxel_radiomics: glszm batch 8/10 0.012s peak=34MiB
+voxel_radiomics: glszm batch 9/10 0.012s peak=34MiB
+voxel_radiomics: glszm batch 10/10 0.012s peak=35MiB
+voxel_radiomics: gldm batch 1/10 0.006s peak=39MiB
+voxel_radiomics: gldm batch 2/10 0.006s peak=41MiB
+voxel_radiomics: gldm batch 3/10 0.006s peak=42MiB
+voxel_radiomics: gldm batch 4/10 0.006s peak=42MiB
+voxel_radiomics: gldm batch 5/10 0.007s peak=5MiB
+voxel_radiomics: gldm batch 6/10 0.006s peak=5MiB
+voxel_radiomics: gldm batch 7/10 0.006s peak=6MiB
+voxel_radiomics: gldm batch 8/10 0.006s peak=5MiB
+voxel_radiomics: gldm batch 9/10 0.006s peak=7MiB
+voxel_radiomics: gldm batch 10/10 0.005s peak=7MiB
+voxel_radiomics: ngtdm batch 1/10 0.008s peak=3MiB
+voxel_radiomics: ngtdm batch 2/10 0.007s peak=4MiB
+voxel_radiomics: ngtdm batch 3/10 0.008s peak=4MiB
+voxel_radiomics: ngtdm batch 4/10 0.008s peak=4MiB
+voxel_radiomics: ngtdm batch 5/10 0.008s peak=5MiB
+voxel_radiomics: ngtdm batch 6/10 0.007s peak=5MiB
+voxel_radiomics: ngtdm batch 7/10 0.008s peak=5MiB
+voxel_radiomics: ngtdm batch 8/10 0.008s peak=5MiB
+voxel_radiomics: ngtdm batch 9/10 0.007s peak=5MiB
+voxel_radiomics: ngtdm batch 10/10 0.007s peak=5MiB
+
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07&lt;00:00,  3.97s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:07&lt;00:00,  3.97s/it]
+
+Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  2.76it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.75it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.75it/s]
+
+Cohort.map[_ComputeUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]voxel_radiomics: glcm batch 1/35 0.276s peak=5MiB
+voxel_radiomics: glcm batch 2/35 0.016s peak=6MiB
+voxel_radiomics: glcm batch 3/35 0.018s peak=7MiB
+voxel_radiomics: glcm batch 4/35 0.017s peak=8MiB
+voxel_radiomics: glcm batch 5/35 0.018s peak=9MiB
+voxel_radiomics: glcm batch 6/35 0.016s peak=10MiB
+voxel_radiomics: glcm batch 7/35 0.016s peak=10MiB
+voxel_radiomics: glcm batch 8/35 0.016s peak=11MiB
+voxel_radiomics: glcm batch 9/35 0.018s peak=12MiB
+voxel_radiomics: glcm batch 10/35 0.016s peak=13MiB
+voxel_radiomics: glcm batch 11/35 0.016s peak=14MiB
+voxel_radiomics: glcm batch 12/35 0.016s peak=15MiB
+voxel_radiomics: glcm batch 13/35 0.016s peak=16MiB
+voxel_radiomics: glcm batch 14/35 0.015s peak=17MiB
+voxel_radiomics: glcm batch 15/35 0.016s peak=18MiB
+voxel_radiomics: glcm batch 16/35 0.016s peak=19MiB
+voxel_radiomics: glcm batch 17/35 0.016s peak=19MiB
+voxel_radiomics: glcm batch 18/35 0.016s peak=20MiB
+voxel_radiomics: glcm batch 19/35 0.017s peak=21MiB
+voxel_radiomics: glcm batch 20/35 0.018s peak=22MiB
+voxel_radiomics: glcm batch 21/35 0.017s peak=23MiB
+voxel_radiomics: glcm batch 22/35 0.017s peak=24MiB
+voxel_radiomics: glcm batch 23/35 0.015s peak=25MiB
+voxel_radiomics: glcm batch 24/35 0.015s peak=26MiB
+voxel_radiomics: glcm batch 25/35 0.016s peak=27MiB
+voxel_radiomics: glcm batch 26/35 0.017s peak=28MiB
+voxel_radiomics: glcm batch 27/35 0.015s peak=28MiB
+voxel_radiomics: glcm batch 28/35 0.014s peak=29MiB
+voxel_radiomics: glcm batch 29/35 0.015s peak=30MiB
+voxel_radiomics: glcm batch 30/35 0.015s peak=31MiB
+voxel_radiomics: glcm batch 31/35 0.015s peak=32MiB
+voxel_radiomics: glcm batch 32/35 0.015s peak=33MiB
+voxel_radiomics: glcm batch 33/35 0.016s peak=34MiB
+voxel_radiomics: glcm batch 34/35 0.016s peak=35MiB
+voxel_radiomics: glcm batch 35/35 0.016s peak=36MiB
+voxel_radiomics: glrlm batch 1/35 0.015s peak=37MiB
+voxel_radiomics: glrlm batch 2/35 0.016s peak=37MiB
+voxel_radiomics: glrlm batch 3/35 0.015s peak=38MiB
+voxel_radiomics: glrlm batch 4/35 0.015s peak=39MiB
+voxel_radiomics: glrlm batch 5/35 0.016s peak=40MiB
+voxel_radiomics: glrlm batch 6/35 0.015s peak=41MiB
+voxel_radiomics: glrlm batch 7/35 0.015s peak=42MiB
+voxel_radiomics: glrlm batch 8/35 0.015s peak=43MiB
+voxel_radiomics: glrlm batch 9/35 0.015s peak=44MiB
+voxel_radiomics: glrlm batch 10/35 0.016s peak=45MiB
+voxel_radiomics: glrlm batch 11/35 0.015s peak=45MiB
+voxel_radiomics: glrlm batch 12/35 0.016s peak=46MiB
+voxel_radiomics: glrlm batch 13/35 0.015s peak=47MiB
+voxel_radiomics: glrlm batch 14/35 0.016s peak=1MiB
+voxel_radiomics: glrlm batch 15/35 0.016s peak=2MiB
+voxel_radiomics: glrlm batch 16/35 0.016s peak=3MiB
+voxel_radiomics: glrlm batch 17/35 0.016s peak=4MiB
+voxel_radiomics: glrlm batch 18/35 0.016s peak=5MiB
+voxel_radiomics: glrlm batch 19/35 0.015s peak=5MiB
+voxel_radiomics: glrlm batch 20/35 0.015s peak=6MiB
+voxel_radiomics: glrlm batch 21/35 0.015s peak=7MiB
+voxel_radiomics: glrlm batch 22/35 0.015s peak=8MiB
+voxel_radiomics: glrlm batch 23/35 0.014s peak=9MiB
+voxel_radiomics: glrlm batch 24/35 0.015s peak=10MiB
+voxel_radiomics: glrlm batch 25/35 0.016s peak=11MiB
+voxel_radiomics: glrlm batch 26/35 0.014s peak=12MiB
+voxel_radiomics: glrlm batch 27/35 0.015s peak=13MiB
+voxel_radiomics: glrlm batch 28/35 0.015s peak=14MiB
+voxel_radiomics: glrlm batch 29/35 0.015s peak=14MiB
+voxel_radiomics: glrlm batch 30/35 0.015s peak=15MiB
+voxel_radiomics: glrlm batch 31/35 0.015s peak=16MiB
+voxel_radiomics: glrlm batch 32/35 0.015s peak=17MiB
+voxel_radiomics: glrlm batch 33/35 0.015s peak=18MiB
+voxel_radiomics: glrlm batch 34/35 0.014s peak=19MiB
+voxel_radiomics: glrlm batch 35/35 0.013s peak=20MiB
+voxel_radiomics: glszm batch 1/35 0.014s peak=21MiB
+voxel_radiomics: glszm batch 2/35 0.013s peak=22MiB
+voxel_radiomics: glszm batch 3/35 0.013s peak=23MiB
+voxel_radiomics: glszm batch 4/35 0.014s peak=23MiB
+voxel_radiomics: glszm batch 5/35 0.012s peak=24MiB
+voxel_radiomics: glszm batch 6/35 0.014s peak=25MiB
+voxel_radiomics: glszm batch 7/35 0.013s peak=26MiB
+voxel_radiomics: glszm batch 8/35 0.014s peak=27MiB
+voxel_radiomics: glszm batch 9/35 0.015s peak=28MiB
+voxel_radiomics: glszm batch 10/35 0.014s peak=29MiB
+voxel_radiomics: glszm batch 11/35 0.014s peak=30MiB
+voxel_radiomics: glszm batch 12/35 0.014s peak=31MiB
+voxel_radiomics: glszm batch 13/35 0.014s peak=32MiB
+voxel_radiomics: glszm batch 14/35 0.014s peak=32MiB
+voxel_radiomics: glszm batch 15/35 0.014s peak=33MiB
+voxel_radiomics: glszm batch 16/35 0.013s peak=34MiB
+voxel_radiomics: glszm batch 17/35 0.012s peak=35MiB
+voxel_radiomics: glszm batch 18/35 0.012s peak=36MiB
+voxel_radiomics: glszm batch 19/35 0.012s peak=37MiB
+voxel_radiomics: glszm batch 20/35 0.013s peak=38MiB
+voxel_radiomics: glszm batch 21/35 0.012s peak=39MiB
+voxel_radiomics: glszm batch 22/35 0.013s peak=40MiB
+voxel_radiomics: glszm batch 23/35 0.013s peak=41MiB
+voxel_radiomics: glszm batch 24/35 0.012s peak=41MiB
+voxel_radiomics: glszm batch 25/35 0.013s peak=42MiB
+voxel_radiomics: glszm batch 26/35 0.014s peak=43MiB
+voxel_radiomics: glszm batch 27/35 0.014s peak=44MiB
+voxel_radiomics: glszm batch 28/35 0.012s peak=45MiB
+voxel_radiomics: glszm batch 29/35 0.013s peak=46MiB
+voxel_radiomics: glszm batch 30/35 0.012s peak=47MiB
+voxel_radiomics: glszm batch 31/35 0.013s peak=48MiB
+voxel_radiomics: glszm batch 32/35 0.012s peak=49MiB
+voxel_radiomics: glszm batch 33/35 0.012s peak=50MiB
+voxel_radiomics: glszm batch 34/35 0.013s peak=50MiB
+voxel_radiomics: glszm batch 35/35 0.012s peak=51MiB
+voxel_radiomics: gldm batch 1/35 0.006s peak=57MiB
+voxel_radiomics: gldm batch 2/35 0.006s peak=58MiB
+voxel_radiomics: gldm batch 3/35 0.006s peak=60MiB
+voxel_radiomics: gldm batch 4/35 0.006s peak=61MiB
+voxel_radiomics: gldm batch 5/35 0.006s peak=62MiB
+voxel_radiomics: gldm batch 6/35 0.006s peak=62MiB
+voxel_radiomics: gldm batch 7/35 0.006s peak=63MiB
+voxel_radiomics: gldm batch 8/35 0.007s peak=7MiB
+voxel_radiomics: gldm batch 9/35 0.006s peak=8MiB
+voxel_radiomics: gldm batch 10/35 0.005s peak=8MiB
+voxel_radiomics: gldm batch 11/35 0.006s peak=9MiB
+voxel_radiomics: gldm batch 12/35 0.006s peak=11MiB
+voxel_radiomics: gldm batch 13/35 0.006s peak=12MiB
+voxel_radiomics: gldm batch 14/35 0.006s peak=13MiB
+voxel_radiomics: gldm batch 15/35 0.006s peak=16MiB
+voxel_radiomics: gldm batch 16/35 0.006s peak=15MiB
+voxel_radiomics: gldm batch 17/35 0.005s peak=16MiB
+voxel_radiomics: gldm batch 18/35 0.005s peak=17MiB
+voxel_radiomics: gldm batch 19/35 0.006s peak=19MiB
+voxel_radiomics: gldm batch 20/35 0.006s peak=19MiB
+voxel_radiomics: gldm batch 21/35 0.006s peak=20MiB
+voxel_radiomics: gldm batch 22/35 0.006s peak=21MiB
+voxel_radiomics: gldm batch 23/35 0.006s peak=21MiB
+voxel_radiomics: gldm batch 24/35 0.006s peak=22MiB
+voxel_radiomics: gldm batch 25/35 0.005s peak=23MiB
+voxel_radiomics: gldm batch 26/35 0.006s peak=24MiB
+voxel_radiomics: gldm batch 27/35 0.006s peak=24MiB
+voxel_radiomics: gldm batch 28/35 0.006s peak=26MiB
+voxel_radiomics: gldm batch 29/35 0.006s peak=26MiB
+voxel_radiomics: gldm batch 30/35 0.006s peak=26MiB
+voxel_radiomics: gldm batch 31/35 0.006s peak=27MiB
+voxel_radiomics: gldm batch 32/35 0.006s peak=28MiB
+voxel_radiomics: gldm batch 33/35 0.006s peak=30MiB
+voxel_radiomics: gldm batch 34/35 0.005s peak=31MiB
+voxel_radiomics: gldm batch 35/35 0.006s peak=29MiB
+voxel_radiomics: ngtdm batch 1/35 0.008s peak=27MiB
+voxel_radiomics: ngtdm batch 2/35 0.008s peak=28MiB
+voxel_radiomics: ngtdm batch 3/35 0.007s peak=29MiB
+voxel_radiomics: ngtdm batch 4/35 0.007s peak=30MiB
+voxel_radiomics: ngtdm batch 5/35 0.007s peak=31MiB
+voxel_radiomics: ngtdm batch 6/35 0.007s peak=32MiB
+voxel_radiomics: ngtdm batch 7/35 0.007s peak=33MiB
+voxel_radiomics: ngtdm batch 8/35 0.007s peak=34MiB
+voxel_radiomics: ngtdm batch 9/35 0.008s peak=35MiB
+voxel_radiomics: ngtdm batch 10/35 0.007s peak=36MiB
+voxel_radiomics: ngtdm batch 11/35 0.007s peak=37MiB
+voxel_radiomics: ngtdm batch 12/35 0.008s peak=38MiB
+voxel_radiomics: ngtdm batch 13/35 0.007s peak=38MiB
+voxel_radiomics: ngtdm batch 14/35 0.007s peak=39MiB
+voxel_radiomics: ngtdm batch 15/35 0.007s peak=40MiB
+voxel_radiomics: ngtdm batch 16/35 0.007s peak=41MiB
+voxel_radiomics: ngtdm batch 17/35 0.007s peak=42MiB
+voxel_radiomics: ngtdm batch 18/35 0.007s peak=43MiB
+voxel_radiomics: ngtdm batch 19/35 0.007s peak=44MiB
+voxel_radiomics: ngtdm batch 20/35 0.007s peak=45MiB
+voxel_radiomics: ngtdm batch 21/35 0.008s peak=46MiB
+voxel_radiomics: ngtdm batch 22/35 0.008s peak=47MiB
+voxel_radiomics: ngtdm batch 23/35 0.007s peak=48MiB
+voxel_radiomics: ngtdm batch 24/35 0.007s peak=48MiB
+voxel_radiomics: ngtdm batch 25/35 0.007s peak=49MiB
+voxel_radiomics: ngtdm batch 26/35 0.008s peak=50MiB
+voxel_radiomics: ngtdm batch 27/35 0.007s peak=51MiB
+voxel_radiomics: ngtdm batch 28/35 0.008s peak=52MiB
+voxel_radiomics: ngtdm batch 29/35 0.008s peak=53MiB
+voxel_radiomics: ngtdm batch 30/35 0.007s peak=54MiB
+voxel_radiomics: ngtdm batch 31/35 0.007s peak=55MiB
+voxel_radiomics: ngtdm batch 32/35 0.007s peak=55MiB
+voxel_radiomics: ngtdm batch 33/35 0.007s peak=56MiB
+voxel_radiomics: ngtdm batch 34/35 0.007s peak=57MiB
+voxel_radiomics: ngtdm batch 35/35 0.006s peak=57MiB
+
+Cohort.map[_ComputeUnits]:  50%|█████     | 1/2 [00:05&lt;00:05,  5.86s/it]voxel_radiomics: glcm batch 1/10 0.151s peak=57MiB
+voxel_radiomics: glcm batch 2/10 0.018s peak=0MiB
+voxel_radiomics: glcm batch 3/10 0.017s peak=1MiB
+voxel_radiomics: glcm batch 4/10 0.016s peak=1MiB
+voxel_radiomics: glcm batch 5/10 0.017s peak=1MiB
+voxel_radiomics: glcm batch 6/10 0.016s peak=1MiB
+voxel_radiomics: glcm batch 7/10 0.016s peak=2MiB
+voxel_radiomics: glcm batch 8/10 0.017s peak=2MiB
+voxel_radiomics: glcm batch 9/10 0.014s peak=2MiB
+voxel_radiomics: glcm batch 10/10 0.015s peak=2MiB
+voxel_radiomics: glrlm batch 1/10 0.015s peak=3MiB
+voxel_radiomics: glrlm batch 2/10 0.015s peak=3MiB
+voxel_radiomics: glrlm batch 3/10 0.015s peak=3MiB
+voxel_radiomics: glrlm batch 4/10 0.015s peak=3MiB
+voxel_radiomics: glrlm batch 5/10 0.015s peak=4MiB
+voxel_radiomics: glrlm batch 6/10 0.014s peak=4MiB
+voxel_radiomics: glrlm batch 7/10 0.014s peak=4MiB
+voxel_radiomics: glrlm batch 8/10 0.016s peak=4MiB
+voxel_radiomics: glrlm batch 9/10 0.017s peak=5MiB
+voxel_radiomics: glrlm batch 10/10 0.016s peak=5MiB
+voxel_radiomics: glszm batch 1/10 0.014s peak=5MiB
+voxel_radiomics: glszm batch 2/10 0.013s peak=5MiB
+voxel_radiomics: glszm batch 3/10 0.014s peak=6MiB
+voxel_radiomics: glszm batch 4/10 0.014s peak=6MiB
+voxel_radiomics: glszm batch 5/10 0.013s peak=6MiB
+voxel_radiomics: glszm batch 6/10 0.013s peak=6MiB
+voxel_radiomics: glszm batch 7/10 0.013s peak=7MiB
+voxel_radiomics: glszm batch 8/10 0.014s peak=7MiB
+voxel_radiomics: glszm batch 9/10 0.013s peak=7MiB
+voxel_radiomics: glszm batch 10/10 0.013s peak=7MiB
+voxel_radiomics: gldm batch 1/10 0.006s peak=12MiB
+voxel_radiomics: gldm batch 2/10 0.005s peak=14MiB
+voxel_radiomics: gldm batch 3/10 0.006s peak=15MiB
+voxel_radiomics: gldm batch 4/10 0.006s peak=15MiB
+voxel_radiomics: gldm batch 5/10 0.006s peak=14MiB
+voxel_radiomics: gldm batch 6/10 0.007s peak=13MiB
+voxel_radiomics: gldm batch 7/10 0.006s peak=15MiB
+voxel_radiomics: gldm batch 8/10 0.006s peak=14MiB
+voxel_radiomics: gldm batch 9/10 0.006s peak=15MiB
+voxel_radiomics: gldm batch 10/10 0.006s peak=15MiB
+voxel_radiomics: ngtdm batch 1/10 0.008s peak=12MiB
+voxel_radiomics: ngtdm batch 2/10 0.007s peak=12MiB
+voxel_radiomics: ngtdm batch 3/10 0.007s peak=12MiB
+voxel_radiomics: ngtdm batch 4/10 0.007s peak=13MiB
+voxel_radiomics: ngtdm batch 5/10 0.007s peak=13MiB
+voxel_radiomics: ngtdm batch 6/10 0.007s peak=13MiB
+voxel_radiomics: ngtdm batch 7/10 0.008s peak=13MiB
+voxel_radiomics: ngtdm batch 8/10 0.008s peak=14MiB
+voxel_radiomics: ngtdm batch 9/10 0.007s peak=14MiB
+voxel_radiomics: ngtdm batch 10/10 0.007s peak=14MiB
+
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09&lt;00:00,  4.69s/it]
+Cohort.map[_ComputeUnits]: 100%|██████████| 2/2 [00:09&lt;00:00,  4.69s/it]
+
+Cohort.map[_AssignPrecomputedUnits]:   0%|          | 0/2 [00:00&lt;?, ?it/s]
+Cohort.map[_AssignPrecomputedUnits]:  50%|█████     | 1/2 [00:00&lt;00:00,  3.09it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.98it/s]
+Cohort.map[_AssignPrecomputedUnits]: 100%|██████████| 2/2 [00:00&lt;00:00,  2.98it/s]
+texture only        : K = 5 | features: [&#39;original_glcm_Contrast-LAP&#39;, &#39;original_glcm_Idm-LAP&#39;, &#39;original_glcm_Correlation-LAP&#39;, &#39;original_glcm_JointEntropy-LAP&#39;, &#39;original_glrlm_ShortRunEmphasis-LAP&#39;, &#39;original_glrlm_LongRunEmphasis-LAP&#39;, &#39;original_glrlm_RunEntropy-LAP&#39;, &#39;original_glszm_SmallAreaEmphasis-LAP&#39;, &#39;original_glszm_LargeAreaEmphasis-LAP&#39;, &#39;original_glszm_ZoneEntropy-LAP&#39;, &#39;original_gldm_SmallDependenceEmphasis-LAP&#39;, &#39;original_gldm_LargeDependenceEmphasis-LAP&#39;, &#39;original_ngtdm_Coarseness-LAP&#39;, &#39;original_ngtdm_Contrast-LAP&#39;, &#39;original_ngtdm_Busyness-LAP&#39;]
+intensity + texture : K = 4 | features: [&#39;LAP&#39;, &#39;original_glcm_Contrast-LAP&#39;, &#39;original_glcm_Idm-LAP&#39;, &#39;original_glcm_Correlation-LAP&#39;, &#39;original_glcm_JointEntropy-LAP&#39;, &#39;original_glrlm_ShortRunEmphasis-LAP&#39;, &#39;original_glrlm_LongRunEmphasis-LAP&#39;, &#39;original_glrlm_RunEntropy-LAP&#39;, &#39;original_glszm_SmallAreaEmphasis-LAP&#39;, &#39;original_glszm_LargeAreaEmphasis-LAP&#39;, &#39;original_glszm_ZoneEntropy-LAP&#39;, &#39;original_gldm_SmallDependenceEmphasis-LAP&#39;, &#39;original_gldm_LargeDependenceEmphasis-LAP&#39;, &#39;original_ngtdm_Coarseness-LAP&#39;, &#39;original_ngtdm_Contrast-LAP&#39;, &#39;original_ngtdm_Busyness-LAP&#39;]
+</pre></div>
+</div>
+</section>
+<section id="how-many-habitats">
+<h2>生境数量<a class="headerlink" href="#how-many-habitats" title="Link to this heading">#</a></h2>
+<p>HABIT 验证 <code class="docutils literal notranslate"><span class="pre">elbow</span></code> 与 <code class="docutils literal notranslate"><span class="pre">kneedle</span></code> 同规则。在 k-means inertia（簇内平方和）上运行 <code class="docutils literal notranslate"><span class="pre">KneeLocator</span></code> ，曲线 convex、方向 decreasing（Satopaa, Albrecht, Irwin, and Raghavan, 2011, Finding a &quot;Kneedle&quot; in a Haystack, IEEE ICDCS）。将 k 与 inertia 归一化到单位正方形，从首点到末点作弦，取离弦最远的 k；平滑曲线常使该 knee 位于人眼所见拐点右侧。文献“elbow”指考察簇内离散度随 k 变化（Thorndike RL, 1953, Who belongs in the family?, Psychometrika 18(4):267-276）——非二阶差分公式。离散曲率 elbow（视觉 elbow、可计算）最大化 inertia 二阶差（HABIT pre-v1.0 elbow）；非 Thorndike 公式。生境图保留 Kneedle 的 K；其他 K 仅在下表。完整对比：<a class="reference internal" href="../03_clustering/plot_03_clustering_algorithm.html"><span class="doc">聚类算法与生境数</span></a> 。</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">discrete_curvature_elbow_k</span><span class="p">(</span><span class="n">cluster_range</span><span class="p">,</span> <span class="n">inertia_scores</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return k maximizing the second difference of inertia (pre-v1.0 elbow).&quot;&quot;&quot;</span>
+    <span class="n">values</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><span class="n">inertia_scores</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">cluster_range</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">cluster_range</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">cluster_range</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.argmin.html#numpy.argmin" title="numpy.argmin" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">argmin</span></a><span class="p">(</span><span class="n">values</span><span class="p">))])</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">cluster_range</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.argmax.html#numpy.argmax" title="numpy.argmax" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">argmax</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.diff.html#numpy.diff" title="numpy.diff" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">diff</span></a><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">)))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.habitat_model</span><span class="w"> </span><span class="kn">import</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a>
+
+<span class="k">for</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units_ref</span></a> <span class="ow">in</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;texture only&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_texture</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_texture</span><span class="o">.</span><span class="n">units</span></a><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;intensity + texture&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_both</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_both</span><span class="o">.</span><span class="n">units</span></a><span class="p">),</span>
+<span class="p">):</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">report</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span><span class="o">.</span><span class="n">preprocessing_state</span></a><span class="p">[</span><span class="s2">&quot;selection_report&quot;</span><span class="p">]</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">candidates</span></a> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">report</span></a><span class="p">[</span><span class="s2">&quot;candidates&quot;</span><span class="p">]]</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inertia</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">report</span></a><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">][</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">report</span></a><span class="p">[</span><span class="s2">&quot;methods&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_kneedle</span></a> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span><span class="o">.</span><span class="n">n_habitats</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_discrete</span></a> <span class="o">=</span> <span class="n">discrete_curvature_elbow_k</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">candidates</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inertia</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;elbow_kneedle&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_kneedle</span></a><span class="p">,</span> <span class="s2">&quot;discrete_curvature_elbow&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_discrete</span></a><span class="p">}</span>
+    <span class="k">for</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_name</span></a> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">,</span> <span class="s2">&quot;davies_bouldin&quot;</span><span class="p">):</span>
+        <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_fitter</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span>
+            <span class="n">min_habitats</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_habitats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_name</span></a><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span>
+        <span class="p">)</span>
+        <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">_fitter</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a><span class="p">[</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_name</span></a><span class="p">]</span> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.fit" title="habit.habitat_model.KMeansHabitatModelFitter.fit" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">_fitter</span><span class="o">.</span><span class="n">fit</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units_ref</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="o">=</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">)</span><span class="o">.</span><span class="n">n_habitats</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_name</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_name</span></a><span class="si">}</span><span class="s2">: </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Plot every supported k-means criterion (skip gap).</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_criteria</span></a> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;elbow&quot;</span><span class="p">,</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">,</span> <span class="s2">&quot;davies_bouldin&quot;</span><span class="p">)</span>
+    <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_vote</span></a> <span class="o">=</span> <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter" title="habit.habitat_model.KMeansHabitatModelFitter" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-class"><span class="n">KMeansHabitatModelFitter</span></a><span class="p">(</span>
+        <span class="n">min_habitats</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_habitats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">validation</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_criteria</span></a><span class="p">),</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span>
+    <span class="p">)</span>
+    <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.set_random_state" title="habit.habitat_model.KMeansHabitatModelFitter.set_random_state" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">_vote</span><span class="o">.</span><span class="n">set_random_state</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_vote_report</span></a> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <a href="../../api/generated/habit.habitat_model.KMeansHabitatModelFitter.html#habit.habitat_model.KMeansHabitatModelFitter.fit" title="habit.habitat_model.KMeansHabitatModelFitter.fit" class="sphx-glr-backref-module-habit-habitat_model sphx-glr-backref-type-py-method"><span class="n">_vote</span><span class="o">.</span><span class="n">fit</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">units_ref</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cohort</span></a><span class="o">=</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">)</span><span class="o">.</span><span class="n">preprocessing_state</span><span class="p">[</span><span class="s2">&quot;selection_report&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_vote_report</span></a><span class="p">[</span><span class="s2">&quot;selected&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;elbow&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_kneedle</span></a><span class="p">,</span>
+        <span class="s2">&quot;silhouette&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a><span class="p">[</span><span class="s2">&quot;silhouette&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a><span class="p">[</span><span class="s2">&quot;calinski_harabasz&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;davies_bouldin&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_k_table</span></a><span class="p">[</span><span class="s2">&quot;davies_bouldin&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_cluster_validation_from_report.html#habit.viz.plot_cluster_validation_from_report" title="habit.viz.plot_cluster_validation_from_report" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_cluster_validation_from_report</span></a><span class="p">(</span>
+        <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_vote_report</span></a><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="si">}</span><span class="s2">: K criteria (elbow panel: x = Kneedle)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.axes.html#matplotlib.figure.Figure.axes" title="matplotlib.figure.Figure.axes" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-property"><span class="n">fig</span><span class="o">.</span><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_discrete</span></a><span class="p">,</span>
+        <span class="nb">float</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inertia</span></a><span class="p">[</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">candidates</span></a><span class="o">.</span><span class="n">index</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_discrete</span></a><span class="p">)]),</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+        <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">markerfacecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+        <span class="n">markeredgecolor</span><span class="o">=</span><span class="s2">&quot;C2&quot;</span><span class="p">,</span>
+        <span class="n">markeredgewidth</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span>
+        <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+        <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;discrete-curvature k=</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k_discrete</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.axes.html#matplotlib.figure.Figure.axes" title="matplotlib.figure.Figure.axes" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-property"><span class="n">fig</span><span class="o">.</span><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stem</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; + &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;out/texture_maps_elbow_</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stem</span></a><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_plot_02_texture_feature_maps_002.png" srcset="../../_images/sphx_glr_plot_02_texture_feature_maps_002.png" alt="texture only: K criteria (elbow panel: x = Kneedle), elbow (selected k=5), silhouette (selected k=2), calinski_harabasz (selected k=2), davies_bouldin (selected k=8)" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_plot_02_texture_feature_maps_003.png" srcset="../../_images/sphx_glr_plot_02_texture_feature_maps_003.png" alt="intensity + texture: K criteria (elbow panel: x = Kneedle), elbow (selected k=4), silhouette (selected k=2), calinski_harabasz (selected k=2), davies_bouldin (selected k=9)" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>texture only:
+  elbow_kneedle: 5
+  discrete_curvature_elbow: 3
+  silhouette: 2
+  calinski_harabasz: 2
+  davies_bouldin: 8
+intensity + texture:
+  elbow_kneedle: 4
+  discrete_curvature_elbow: 3
+  silhouette: 2
+  calinski_harabasz: 2
+  davies_bouldin: 9
+</pre></div>
+</div>
+</section>
+<section id="what-each-habitat-means">
+<h2>各生境含义<a class="headerlink" href="#what-each-habitat-means" title="Link to this heading">#</a></h2>
+<p>每个质心一行；列按模型特征名顺序。质心位于拟合空间：受试者级 0..1 缩放与队列级分箱后，每值为 0–9 的 bin 索引（0 = 该列低，9 = 高）。高 Contrast 为异质邻域，高 Idm 为同质邻域。</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">centroid_table</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span></a><span class="p">:</span> <a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">HabitatModel</span></a><span class="p">)</span> <span class="o">-&gt;</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the model&#39;s centroids as a table, one row per habitat.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: A fitted habitat model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DataFrame indexed ``habitat_1``, ``habitat_2``, ... with one column</span>
+<span class="sd">        per feature name stored in the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">centroids</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span><span class="o">.</span><span class="n">centroids</span></a><span class="p">)</span>
+    <span class="k">return</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+        <span class="n">centroids</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model</span><span class="o">.</span><span class="n">feature_names</span></a><span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;habitat_</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">centroids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># &quot;+ 0.0&quot; turns a printed &quot;-0.00&quot; (a tiny negative float) into &quot;0.00&quot;.</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;texture only:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">((</span><span class="n">centroid_table</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_texture</span></a><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">intensity + texture:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">((</span><span class="n">centroid_table</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">model_both</span></a><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>texture only:
+           original_glcm_Contrast-LAP  original_glcm_Idm-LAP  original_glcm_Correlation-LAP  original_glcm_JointEntropy-LAP  original_glrlm_ShortRunEmphasis-LAP  original_glrlm_LongRunEmphasis-LAP  original_glrlm_RunEntropy-LAP  original_glszm_SmallAreaEmphasis-LAP  original_glszm_LargeAreaEmphasis-LAP  original_glszm_ZoneEntropy-LAP  original_gldm_SmallDependenceEmphasis-LAP  original_gldm_LargeDependenceEmphasis-LAP  original_ngtdm_Coarseness-LAP  original_ngtdm_Contrast-LAP  original_ngtdm_Busyness-LAP
+habitat_1                       -0.83                   2.03                          -0.67                           -1.70                                -2.44                                2.45                          -1.69                                 -1.16                                  2.79                           -1.87                                      -1.30                                       2.69                           0.18                        -0.58                         1.76
+habitat_2                        0.05                  -0.45                          -0.02                            0.31                                 0.48                               -0.46                           0.35                                  0.34                                 -0.46                            0.41                                       0.37                                      -0.45                          -0.15                         0.00                        -0.10
+habitat_3                        2.61                  -1.45                           0.29                            0.54                                 1.05                               -0.94                           1.29                                  1.12                                 -0.79                            1.14                                       1.48                                      -0.85                          -1.01                         2.29                        -0.19
+habitat_4                        2.20                  -0.96                          -1.41                           -1.47                                -0.07                                0.32                          -0.80                                 -0.20                                 -0.25                           -0.75                                      -0.04                                      -0.21                          -1.67                         4.40                         2.34
+habitat_5                       -0.62                   0.76                          -0.67                           -0.95                                -0.57                                0.51                          -1.03                                 -0.63                                  0.37                           -0.98                                      -0.67                                       0.39                           0.51                        -0.40                         0.38
+
+intensity + texture:
+            LAP  original_glcm_Contrast-LAP  original_glcm_Idm-LAP  original_glcm_Correlation-LAP  original_glcm_JointEntropy-LAP  original_glrlm_ShortRunEmphasis-LAP  original_glrlm_LongRunEmphasis-LAP  original_glrlm_RunEntropy-LAP  original_glszm_SmallAreaEmphasis-LAP  original_glszm_LargeAreaEmphasis-LAP  original_glszm_ZoneEntropy-LAP  original_gldm_SmallDependenceEmphasis-LAP  original_gldm_LargeDependenceEmphasis-LAP  original_ngtdm_Coarseness-LAP  original_ngtdm_Contrast-LAP  original_ngtdm_Busyness-LAP
+habitat_1 -0.03                        0.37                  -0.70                           0.22                            0.54                                 0.70                               -0.68                           0.72                                  0.64                                 -0.60                            0.72                                       0.73                                      -0.61                          -0.14                         0.13                        -0.32
+habitat_2 -0.09                       -0.54                   0.56                          -0.59                           -0.68                                -0.42                                0.38                          -0.82                                 -0.54                                  0.23                           -0.74                                      -0.58                                       0.26                           0.27                        -0.33                         0.49
+habitat_3 -0.45                       -0.84                   2.09                          -0.62                           -1.73                                -2.48                                2.49                          -1.72                                 -1.21                                  2.86                           -1.91                                      -1.34                                       2.71                           0.27                        -0.59                         1.63
+habitat_4 -0.43                        2.61                  -1.27                          -0.46                           -0.38                                 0.62                               -0.45                           0.40                                  0.58                                 -0.58                            0.35                                       0.86                                      -0.60                          -1.34                         3.36                         0.80
+</pre></div>
+</div>
+</section>
+<section id="habitat-maps-side-by-side">
+<h2>栖息地地图并排<a class="headerlink" href="#habitat-maps-side-by-side" title="Link to this heading">#</a></h2>
+<p>同一患者两次运行。两行颜色不可比：各 run 自行编号生境。</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">map_texture</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">map_both</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><a href="../../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_texture</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_both</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">):</span>
+    <span class="k">for</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one_map</span></a> <span class="ow">in</span> <span class="p">((</span><span class="s2">&quot;texture only&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">map_texture</span></a><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;intensity + texture&quot;</span><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">map_both</span></a><span class="p">)):</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="../../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay" class="sphx-glr-backref-module-habit-viz sphx-glr-backref-type-py-function"><span class="n">plot_habitat_overlay</span></a><span class="p">(</span>
+            <a href="../../api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image" title="habit.contracts.Subject.image" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-method"><span class="n">one</span><span class="o">.</span><span class="n">image</span></a><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">),</span>
+            <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one_map</span></a><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">: </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">crop_to</span><span class="o">=</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stem</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; + &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;out/texture_maps_</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">one</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">_</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stem</span></a><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_plot_02_texture_feature_maps_004.png" srcset="../../_images/sphx_glr_plot_02_texture_feature_maps_004.png" alt="subj001: texture only, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_plot_02_texture_feature_maps_005.png" srcset="../../_images/sphx_glr_plot_02_texture_feature_maps_005.png" alt="subj001: intensity + texture, Axis 0 (axial-like) @ 96, Axis 1 (coronal-like) @ 165, Axis 2 (sagittal-like) @ 71" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_plot_02_texture_feature_maps_006.png" srcset="../../_images/sphx_glr_plot_02_texture_feature_maps_006.png" alt="subj002: texture only, Axis 0 (axial-like) @ 86, Axis 1 (coronal-like) @ 233, Axis 2 (sagittal-like) @ 69" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_plot_02_texture_feature_maps_007.png" srcset="../../_images/sphx_glr_plot_02_texture_feature_maps_007.png" alt="subj002: intensity + texture, Axis 0 (axial-like) @ 86, Axis 1 (coronal-like) @ 233, Axis 2 (sagittal-like) @ 69" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  resolved_direction, resolved_spacing = resolve_display_geometry(
+F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  resolved_direction, resolved_spacing = resolve_display_geometry(
+F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  resolved_direction, resolved_spacing = resolve_display_geometry(
+F:\work\habit_project\habit\viz\habitat_overlay.py:806: UserWarning: Display geometry conflict: image/anatomy direction does not match mask/label direction. Using the mask/label direction so coronal/sagittal superior-up follows the labelled anatomy. Pass direction= to override.
+  resolved_direction, resolved_spacing = resolve_display_geometry(
+</pre></div>
+</div>
+</section>
+<section id="how-much-do-the-two-maps-agree">
+<h2>两地图一致程度<a class="headerlink" href="#how-much-do-the-two-maps-agree" title="Link to this heading">#</a></h2>
+<p>生境 ids are arbitrary names, so &quot;生境 2 in run A&quot; need not be &quot;生境 2 in run B&quot;. The adjusted Rand index compares the two partitions of the ROI 体素 without using the ids. The cross-table shows which texture-only 生境 each intensity + texture 生境 draws its 体素 from (row fractions).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">map_agreement</span><span class="p">(</span><span class="n">map_a</span><span class="p">:</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">HabitatMap</span></a><span class="p">,</span> <span class="n">map_b</span><span class="p">:</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class"><span class="n">HabitatMap</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare two habitat maps of the same subject voxel by voxel.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        map_a: First habitat map (rows of the cross-table).</span>
+<span class="sd">        map_b: Second habitat map on the same grid (columns).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The adjusted Rand index over voxels labelled in both maps, and a</span>
+<span class="sd">        row-normalised cross-table of voxel counts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels_a</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><span class="n">map_a</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="n">labels_b</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.asarray.html#numpy.asarray" title="numpy.asarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">asarray</span></a><span class="p">(</span><span class="n">map_b</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="c1"># Only ROI voxels: label 0 is background in both maps.</span>
+    <span class="n">inside</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels_a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">labels_b</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">labels_a</span><span class="p">[</span><span class="n">inside</span><span class="p">],</span> <span class="n">labels_b</span><span class="p">[</span><span class="n">inside</span><span class="p">]</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.crosstab.html#pandas.crosstab" title="pandas.crosstab" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span></a><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">Series</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">),</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">Series</span></a><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;texture_only&quot;</span><span class="p">),</span> <span class="n">normalize</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_rand_score.html#sklearn.metrics.adjusted_rand_score" title="sklearn.metrics.adjusted_rand_score" class="sphx-glr-backref-module-sklearn-metrics sphx-glr-backref-type-py-function"><span class="n">adjusted_rand_score</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)),</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a>
+
+
+<span class="k">for</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">map_texture</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">map_both</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_texture</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">result_both</span><span class="o">.</span><span class="n">habitat_maps</span></a><span class="p">):</span>
+    <a href="https://docs.python.org/3/builtins/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ari</span></a><span class="p">,</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">table</span></a> <span class="o">=</span> <span class="n">map_agreement</span><span class="p">(</span><a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">map_both</span></a><span class="p">,</span> <a href="../../api/generated/habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.HabitatMap" class="sphx-glr-backref-module-habit-contracts sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">map_texture</span></a><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">map_both</span><span class="o">.</span><span class="n">subject_id</span></a><span class="si">}</span><span class="s2">: ARI(intensity + texture, texture only) = </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ari</span></a><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.round.html#pandas.DataFrame.round" title="pandas.DataFrame.round" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">table</span><span class="o">.</span><span class="n">round</span></a><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(),</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>subj001: ARI(intensity + texture, texture only) = 0.595
+texture_only     1     2     3     4     5
+both
+1             0.00  0.83  0.16  0.00  0.01
+2             0.01  0.19  0.00  0.00  0.81
+3             0.94  0.00  0.00  0.00  0.06
+4             0.00  0.03  0.84  0.14  0.00
+
+subj002: ARI(intensity + texture, texture only) = 0.447
+texture_only     1     2     3     4     5
+both
+1             0.00  0.94  0.06  0.00  0.00
+2             0.02  0.39  0.00  0.00  0.59
+3             0.83  0.00  0.00  0.00  0.17
+4             0.00  0.19  0.50  0.31  0.00
+</pre></div>
+</div>
+</section>
+<section id="how-to-read-the-result">
+<h2>如何解读结果<a class="headerlink" href="#how-to-read-the-result" title="Link to this heading">#</a></h2>
+<p>构建本页时（subj001 + subj002，seed 0）：</p>
+<ul class="simple">
+<li><p><strong>K.</strong> elbow 仅纹理保留 K = 4，加入强度后 K = 5。</p></li>
+<li><p><strong>质心（bin 索引 0..9）。</strong> 仅纹理得两同质生境（Idm 7.7、Contrast 0.0；Idm 4.2、Contrast 1.4）与两异质（Contrast 7.8 与 3.5，Idm 约 1）。加强度后异质各出现两次，暗（LAP 1.7）与亮（LAP 7.2），Contrast 相近（6.5 与 6.4）；同质侧分为暗（LAP 1.2）与亮（LAP 6.8、7.0）。</p></li>
+<li><p><strong>图一致性。</strong> 两图 ARI 在 subj001 为 0.342、subj002 为 0.302：划分相关但远非相同。交叉表说明原因：联合运行中暗与亮异质生境各约一半体素来自仅纹理生境 2 与 3，强度横切纹理划分而非细化；最同质联合生境 (5) 在两名患者中 87 % 体素来自最同质仅纹理生境 (4)。</p></li>
+</ul>
+<p>特征集是真实建模选择：增加一列强度会改变 K 并使许多体素进入不同定义的生境。两名演示患者上两种运行皆非“正确”；请按生物学问题选特征集并报告。这些数字仅描述本演示与本设置。</p>
+</section>
+<section id="where-to-go-next">
+<h2>接下来去哪里<a class="headerlink" href="#where-to-go-next" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>单独纹理内核及更多特征与 GPU 路径：<a class="reference internal" href="#"><span class="doc">纹理特征图：单独与联合强度</span></a> 与 <a class="reference internal" href="#"><span class="doc">纹理特征图：单独与联合强度</span></a> 。</p></li>
+<li><p>Clustering a texture field directly on one 受试者: <a class="reference internal" href="#"><span class="doc">纹理特征图：单独与联合强度</span></a>.</p></li>
+<li><p>受试者级与队列级预处理阶段行为：<a class="reference internal" href="../07_advanced/plot_02_subject_preprocess.html"><span class="doc">受试者级预处理</span></a> 。</p></li>
+<li><p>The same design on intensity alone:
+<a class="reference internal" href="#"><span class="doc">纹理特征图：单独与联合强度</span></a>.</p></li>
+</ul>
+<p class="sphx-glr-timing"><strong>脚本总运行时间：</strong> （0 分 39.560 秒）</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-features-plot-02-texture-feature-maps-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/de9dd94f4f6d8f3d11569033dd30d641/plot_02_texture_feature_maps.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_02_texture_feature_maps.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/52d92db91421abfefb8c4605c2134153/plot_02_texture_feature_maps.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_02_texture_feature_maps.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/1982568f1703900a21eb0663aa416406/plot_02_texture_feature_maps.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_02_texture_feature_maps.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">图库由 Sphinx-Gallery 生成</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_01_multi_sequence_intensities.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">来自单一序列的栖息地</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_03_enhancement_patterns.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">增强模式</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-cohort">加载队列</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-two-feature-sets">两套特征</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#look-at-one-texture-map">查看一张纹理图</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fit-both-runs">拟合两次运行</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-many-habitats">生境数量</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-each-habitat-means">各生境含义</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habitat-maps-side-by-side">栖息地地图并排</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-much-do-the-two-maps-agree">两地图一致程度</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-read-the-result">如何解读结果</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-go-next">接下来去哪里</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

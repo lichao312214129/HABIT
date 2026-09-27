@@ -1,0 +1,1799 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../../../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>habit.contracts.manifest &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/translations.js?v=beaddf03"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/habit/contracts/manifest';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/_modules/habit/contracts/manifest.html" />
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">模块代码</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">habit.contracts.manifest</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>habit.contracts.manifest 源代码</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;What a completed run records: the run manifest.</span>
+
+<span class="sd">This is an L2 data structure only. The L4 recipe layer assembles it from</span>
+<span class="sd">executed runs, and the L4 report layer renders it; nothing here touches the</span>
+<span class="sd">filesystem except ``RunManifest.to_json`` when explicitly called by the user.</span>
+
+<span class="sd">``StudyResult`` used to live here too. It moved to</span>
+<span class="sd">:mod:`habit.recipes.result`, where it belongs: it is the recipe layer&#39;s</span>
+<span class="sd">return type, no L0-L3 component produces or consumes one, and its ``save``</span>
+<span class="sd">method needs an output directory -- a concept L2 is forbidden to know.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">_provenance_to_dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Provenance</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RunManifest&quot;</span><span class="p">]</span>
+
+<span class="c1">#: Reporting standards supported by :meth:`RunManifest.checklist`.</span>
+<span class="n">_CHECKLIST_STANDARDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;IBSI&quot;</span><span class="p">,</span> <span class="s2">&quot;CLEAR&quot;</span><span class="p">,</span> <span class="s2">&quot;METRICS&quot;</span><span class="p">,</span> <span class="s2">&quot;TRIPOD+AI&quot;</span><span class="p">)</span>
+
+<span class="c1">#: Methods styles supported by ``describe_methods`` here and on HabitatSpec.</span>
+<span class="n">_METHODS_STYLES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">,</span> <span class="s2">&quot;nature&quot;</span><span class="p">)</span>
+
+<span class="c1">#: Human phrasing for the HabitatSpec component domains, in pipeline order.</span>
+<span class="c1">#: (Deliberately duplicated in ``habit.spec.specs``: the contracts layer must</span>
+<span class="c1">#: never import the spec layer, and the fragment is small.)</span>
+<span class="n">_COMPONENT_PHRASES</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;voxel_feature_extractor&quot;</span><span class="p">,</span> <span class="s2">&quot;voxel feature extraction&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;supervoxelizer&quot;</span><span class="p">,</span> <span class="s2">&quot;supervoxelization&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">,</span> <span class="s2">&quot;supervoxel connected-component postprocessing&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;habitat_model_fitter&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat model fitting&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;habitat_assigner&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat assignment&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat connected-component postprocessing&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<span class="c1">#: Pipeline position of every ``produced_by`` label HABIT itself emits, as</span>
+<span class="c1">#: ``(prefix, rank)``. Ranks follow the habitat pipeline: input images -&gt;</span>
+<span class="c1">#: voxel feature extraction -&gt; subject-level preprocessing -&gt; partition -&gt;</span>
+<span class="c1">#: pooling -&gt; cohort-level preprocessing -&gt; fit -&gt; assign -&gt; postprocess -&gt;</span>
+<span class="c1">#: quantify -&gt; run record. Matching is by prefix so every registered</span>
+<span class="c1">#: component name of a domain (``supervoxelizer.kmeans``,</span>
+<span class="c1">#: ``supervoxelizer.slic`` ...) shares its domain&#39;s rank. Labels not listed</span>
+<span class="c1">#: here (third-party components) are ranked from their inputs instead, see</span>
+<span class="c1">#: :func:`_ordered_steps`.</span>
+<span class="n">_STEP_RANKS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;voxel_feature_extractor.&quot;</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;feature_preprocessing.subject.voxel&quot;</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;pipeline.voxel_units&quot;</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;supervoxelizer.&quot;</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;supervoxel_feature_extractor.&quot;</span><span class="p">,</span> <span class="mf">36.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;feature_preprocessing.subject.supervoxel&quot;</span><span class="p">,</span> <span class="mf">38.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;stages.pool&quot;</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;feature_preprocessing.cohort&quot;</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;habitat_model_fitter.&quot;</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;stages.fit&quot;</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;habitat_assigner.&quot;</span><span class="p">,</span> <span class="mf">70.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;postprocess.&quot;</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;habitat_feature_extractor.&quot;</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;feature_table.join&quot;</span><span class="p">,</span> <span class="mf">95.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;recipes.&quot;</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;recipe.&quot;</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">),</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_known_step_rank</span><span class="p">(</span><span class="n">produced_by</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the pipeline rank of a HABIT-emitted ``produced_by`` label.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        produced_by: The provenance label, e.g. ``&quot;supervoxelizer.kmeans&quot;``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The rank from :data:`_STEP_RANKS`, or ``None`` for labels HABIT does</span>
+<span class="sd">        not emit itself (third-party components, external sources).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">rank</span> <span class="ow">in</span> <span class="n">_STEP_RANKS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">produced_by</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">rank</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ordered_steps</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Provenance</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List every executed step ONCE, in pipeline order.</span>
+
+<span class="sd">    A cohort run&#39;s provenance DAG holds one record per subject for every</span>
+<span class="sd">    subject-level step (extraction, preprocessing, partition, assignment),</span>
+<span class="sd">    and a breadth-first walk from the root visits them newest first. Neither</span>
+<span class="sd">    property belongs in a methods paragraph: a manuscript states each step</span>
+<span class="sd">    once, in the order the pipeline applies it. Steps are therefore</span>
+<span class="sd">    deduplicated by their ``produced_by`` label (the registered component</span>
+<span class="sd">    name, i.e. the step&#39;s identity; per-subject records of one step share</span>
+<span class="sd">    it) and ordered by:</span>
+
+<span class="sd">    1. pipeline rank -- :data:`_STEP_RANKS` for HABIT&#39;s own labels; an</span>
+<span class="sd">       external root (no inputs, e.g. ``&quot;subject_images&quot;``) ranks 0; any</span>
+<span class="sd">       other label ranks just after the latest-ranked step it consumed, so</span>
+<span class="sd">       a third-party step is placed where it actually sat in the DAG;</span>
+<span class="sd">    2. DAG depth (longest path from a root) as a tie-breaker;</span>
+<span class="sd">    3. first appearance in the walk as the final, deterministic tie-breaker.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root: Root provenance of the run.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Unique ``produced_by`` labels in pipeline order. Empty labels are</span>
+<span class="sd">        skipped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">chain</span> <span class="o">=</span> <span class="n">_collect_provenance_chain</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="n">rank_memo</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">depth_memo</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rank_of</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">Provenance</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="c1"># Memoised by object identity: the DAG shares input records between</span>
+        <span class="c1"># branches, so each record is scored once.</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">rank_memo</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">rank_memo</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">known</span> <span class="o">=</span> <span class="n">_known_step_rank</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">produced_by</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">known</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">known</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">record</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Unknown step: place it right after everything it consumed.</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">rank_of</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span>
+        <span class="n">rank_memo</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">depth_of</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">Provenance</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">depth_memo</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">depth_memo</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">0</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">record</span><span class="o">.</span><span class="n">inputs</span>
+            <span class="k">else</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">depth_of</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">depth_memo</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="c1"># label -&gt; (rank, depth, first_seen); the minimum over a label&#39;s records</span>
+    <span class="c1"># keeps the earliest pipeline position of that step.</span>
+    <span class="n">keyed</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">position</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chain</span><span class="p">):</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">produced_by</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">label</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">candidate</span> <span class="o">=</span> <span class="p">(</span><span class="n">rank_of</span><span class="p">(</span><span class="n">record</span><span class="p">),</span> <span class="n">depth_of</span><span class="p">(</span><span class="n">record</span><span class="p">),</span> <span class="n">position</span><span class="p">)</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">keyed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">keyed</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">candidate</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">keyed</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">min</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">candidate</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="nb">min</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">candidate</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="n">current</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">keyed</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">label</span><span class="p">:</span> <span class="n">keyed</span><span class="p">[</span><span class="n">label</span><span class="p">]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_provenance_chain</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Provenance</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Provenance</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flatten a provenance DAG into a breadth-first tuple without repeats.&quot;&quot;&quot;</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ordered</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Provenance</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="p">[</span><span class="n">root</span><span class="p">]</span>
+    <span class="k">while</span> <span class="n">queue</span><span class="p">:</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">current</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">current</span><span class="p">))</span>
+        <span class="n">ordered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+        <span class="n">queue</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ordered</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_params_text</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render one component&#39;s parameter mapping as prose.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;default parameters&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_component_phrases</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render a HabitatSpec-shaped payload as ordered prose phrases.</span>
+
+<span class="sd">    Only keys actually present are rendered: the report states what the</span>
+<span class="sd">    analysis contains, never what a template might have contained.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        payload: Spec payload as produced by ``HabitatSpec.to_dict``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        One phrase per present component, in pipeline order.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">phrases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">_COMPONENT_PHRASES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;supervoxelizer&quot;</span><span class="p">:</span>
+                <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;direct voxel clustering (no supervoxelization)&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+            <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phrase</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">_params_text</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phrase</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">entry</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">features</span><span class="p">:</span>
+        <span class="n">families</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">_params_text</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
+            <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">features</span>
+        <span class="p">)</span>
+        <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;habitat feature families: </span><span class="si">{</span><span class="n">families</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">chain_phrase</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;voxel_feature_preprocessors&quot;</span><span class="p">,</span> <span class="s2">&quot;per-subject voxel feature preprocessing&quot;</span><span class="p">),</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;supervoxel_feature_preprocessors&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;per-subject supervoxel feature preprocessing&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;cohort_feature_preprocessors&quot;</span><span class="p">,</span> <span class="s2">&quot;cohort-level feature preprocessing&quot;</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="n">chain</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chain_key</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">chain</span><span class="p">:</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">chain</span>
+            <span class="p">)</span>
+            <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chain_phrase</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">phrases</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stage_phrases</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render the ordered ``stages`` of a spec payload as prose phrases.</span>
+
+<span class="sd">    The declared stage order is the pipeline order (HabitatSpec validates</span>
+<span class="sd">    it), so each phrase appears once, in that order, with the component&#39;s</span>
+<span class="sd">    recorded parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        payload: Spec payload as produced by ``HabitatSpec.to_dict``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        One ``&quot;&lt;stage&gt; (&lt;component&gt;: &lt;params&gt;)&quot;`` phrase per stage, or an</span>
+<span class="sd">        empty tuple when the payload has no stage list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stages</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stages&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">phrases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">stage</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;component&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">component</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">)</span>
+            <span class="n">detail</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span>
+                <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">component</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">_params_text</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">detail</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+        <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">detail</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">detail</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">phrases</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_specification_sentence</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render the analysis specification as one methods sentence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        payload: The manifest&#39;s recorded spec payload.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The sentence, or ``None`` when no specification was recorded.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+    <span class="n">lead</span> <span class="o">=</span> <span class="s2">&quot;The analysis specification&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">lead</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">&quot;</span>
+    <span class="n">stage_phrases</span> <span class="o">=</span> <span class="n">_stage_phrases</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stage_phrases</span><span class="p">:</span>
+        <span class="c1"># Explicit-stage specs serialise ONLY their ordered stages (the</span>
+        <span class="c1"># named component keys are absent from the payload), so the stages</span>
+        <span class="c1"># are the one place the parameters of every step can be read from.</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lead</span><span class="si">}</span><span class="s2"> comprised the following ordered stages: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stage_phrases</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">phrases</span> <span class="o">=</span> <span class="n">_component_phrases</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">phrases</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lead</span><span class="si">}</span><span class="s2"> comprised </span><span class="si">{</span><span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phrases</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+    <span class="c1"># The dataflow declaration is part of the recorded spec payload; state it</span>
+    <span class="c1"># when habitats were defined per subject (cohort-level pooling stays the</span>
+    <span class="c1"># unmentioned default, mirroring HabitatSpec.describe_methods).</span>
+    <span class="k">if</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;definition_level&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;subject&quot;</span><span class="p">:</span>
+        <span class="n">sentence</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="s2">&quot; Habitats were defined within each subject independently (no &quot;</span>
+            <span class="s2">&quot;cross-subject pooling), so habitat labels are not comparable &quot;</span>
+            <span class="s2">&quot;across subjects.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">sentence</span>
+
+
+<span class="c1">#: Guidance text for checklist items no execution record can answer. Every</span>
+<span class="c1">#: item is an honest &quot;needs_human_answer&quot; rather than a fabricated tick.</span>
+<span class="n">_HUMAN_CHECKLIST_GUIDANCE</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;study_design&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Study design (prospective/retrospective, multi-centre) must be &quot;</span>
+        <span class="s2">&quot;described by the authors&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;clinical_cohort_description&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Cohort recruitment, eligibility and ethics cannot be derived from &quot;</span>
+        <span class="s2">&quot;execution records&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;image_acquisition&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Scanner, sequence and acquisition parameters must be described by &quot;</span>
+        <span class="s2">&quot;the authors&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;annotation_protocol&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;ROI delineation protocol must be described by the authors&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;image_preprocessing&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Pre-analysis image processing (resampling, denoising, &quot;</span>
+        <span class="s2">&quot;normalisation) must be described by the authors&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;outcome_definition&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;The clinical outcome and its assessment must be described by the &quot;</span>
+        <span class="s2">&quot;authors&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;predictor_definition&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Predictor measurement and blinding must be described by the authors&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;missing_data&quot;</span><span class="p">:</span> <span class="s2">&quot;Missing-data handling must be described by the authors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;validation_design&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Internal/external validation design must be described by the authors&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;calibration_assessment&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Calibration assessment of the outcome model must be reported by &quot;</span>
+        <span class="s2">&quot;the authors&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;fairness&quot;</span><span class="p">:</span> <span class="s2">&quot;Fairness/subgroup analyses must be reported by the authors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;benchmark_validation&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Benchmarking against reference implementations must be reported by &quot;</span>
+        <span class="s2">&quot;the authors&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;code_availability&quot;</span><span class="p">:</span> <span class="s2">&quot;A code availability statement is an editorial decision&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;data_availability&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;A data availability statement is an editorial/legal decision&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;funding&quot;</span><span class="p">:</span> <span class="s2">&quot;A funding statement is an editorial decision&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">#: Ordered checklist items per reporting standard. Items present in</span>
+<span class="c1">#: ``RunManifest._checklist_facts`` are evidenced; the rest need humans.</span>
+<span class="n">_CHECKLIST_LAYOUTS</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># IBSI (Image Biomarker Standardisation Initiative) reporting items.</span>
+    <span class="s2">&quot;IBSI&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;image_acquisition&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;annotation_protocol&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;image_preprocessing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;analysis_specification&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;feature_families&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;software_version&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dependency_versions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;random_seeds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;benchmark_validation&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># CLEAR (CheckList for EvaluAtion of Radiomics research).</span>
+    <span class="s2">&quot;CLEAR&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;clinical_cohort_description&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;image_acquisition&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;annotation_protocol&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;image_preprocessing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;analysis_specification&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;feature_families&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cohort_size&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;excluded_subjects&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;software_version&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dependency_versions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;random_seeds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code_availability&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data_availability&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># METRICS (MEthodological RadiomICs Score) topics.</span>
+    <span class="s2">&quot;METRICS&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;study_design&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;clinical_cohort_description&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;image_acquisition&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;annotation_protocol&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;image_preprocessing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;analysis_specification&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;feature_families&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cohort_size&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;validation_design&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;software_version&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dependency_versions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;random_seeds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code_availability&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data_availability&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># TRIPOD+AI prediction-model reporting items.</span>
+    <span class="s2">&quot;TRIPOD+AI&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;study_design&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;clinical_cohort_description&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;outcome_definition&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;predictor_definition&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;missing_data&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;analysis_specification&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cohort_size&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;excluded_subjects&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;validation_design&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;calibration_assessment&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fairness&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;software_version&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;random_seeds&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;data_availability&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;funding&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="RunManifest">
+<a class="viewcode-back" href="../../../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest">[文档]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RunManifest</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Everything needed to describe and audit one completed analysis.</span>
+
+<span class="sd">    Assembled from the :class:`Provenance` records that travelled with the</span>
+<span class="sd">    data, so it reports what actually ran rather than what was requested.</span>
+<span class="sd">    That distinction is the whole point: a methods paragraph derived from a</span>
+<span class="sd">    configuration file would describe intent, while this one describes fact,</span>
+<span class="sd">    including subjects that failed and were excluded.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        spec_payload: Serialised specification of the analysis that ran.</span>
+<span class="sd">        provenance: Root provenance of the primary result.</span>
+<span class="sd">        subject_outcomes: Per-subject success or failure, keyed by subject</span>
+<span class="sd">            id. Values are ``&quot;success&quot;`` or an error summary.</span>
+<span class="sd">        started_at: ISO-8601 start timestamp.</span>
+<span class="sd">        finished_at: ISO-8601 completion timestamp.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">spec_payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="n">provenance</span><span class="p">:</span> <span class="n">Provenance</span>
+    <span class="n">subject_outcomes</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">started_at</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">finished_at</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="RunManifest.software_versions">
+<a class="viewcode-back" href="../../../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest.software_versions">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">software_versions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return HABIT and dependency versions captured at execution time.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">provenance</span><span class="o">.</span><span class="n">software</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RunManifest.random_seeds">
+<a class="viewcode-back" href="../../../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest.random_seeds">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">random_seeds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the seed used by each stochastic component in the DAG.&quot;&quot;&quot;</span>
+        <span class="n">seeds</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">_collect_provenance_chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">provenance</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">record</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">seeds</span><span class="p">[</span><span class="n">record</span><span class="o">.</span><span class="n">produced_by</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">random_seed</span>
+        <span class="k">return</span> <span class="n">seeds</span></div>
+
+
+<div class="viewcode-block" id="RunManifest.describe_methods">
+<a class="viewcode-back" href="../../../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest.describe_methods">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">describe_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;radiology&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Render the executed analysis as a manuscript methods paragraph.</span>
+
+<span class="sd">        The text states only steps that actually executed, derived from the</span>
+<span class="sd">        provenance DAG, plus the recorded specification, software versions,</span>
+<span class="sd">        seeds, and excluded subjects. Each ``produced_by`` label is listed</span>
+<span class="sd">        once, in pipeline order (not once per subject, and not in</span>
+<span class="sd">        breadth-first reverse discovery order). Generating plausible but</span>
+<span class="sd">        unexecuted methods text would make the whole reporting feature</span>
+<span class="sd">        untrustworthy.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            style: Target venue convention. ``&quot;radiology&quot;`` opens with the</span>
+<span class="sd">                software sentence; ``&quot;nature&quot;`` closes with it. Ordering and</span>
+<span class="sd">                wording only -- the stated facts are identical.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            English prose that states only steps that actually executed,</span>
+<span class="sd">            each step once and in pipeline order.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: On an unknown style.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_METHODS_STYLES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown methods style </span><span class="si">{</span><span class="n">style</span><span class="si">!r}</span><span class="s2">; expected one of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_METHODS_STYLES</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">versions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">software_versions</span><span class="p">()</span>
+        <span class="n">seeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seeds</span><span class="p">()</span>
+        <span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">specification</span> <span class="o">=</span> <span class="n">_specification_sentence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spec_payload</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">specification</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">specification</span><span class="p">)</span>
+        <span class="c1"># Each step once, in pipeline order -- never once per subject.</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="n">_ordered_steps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">provenance</span><span class="p">)</span>
+        <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot;The executed pipeline steps, in pipeline order, were: &quot;</span>
+            <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span> <span class="k">if</span> <span class="n">steps</span> <span class="k">else</span> <span class="s2">&quot;none recorded&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">seeds</span><span class="p">:</span>
+            <span class="c1"># Same pipeline order as the steps sentence; a single shared</span>
+            <span class="c1"># seed is stated once instead of once per component.</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">steps</span><span class="p">)}</span>
+            <span class="n">ordered_seeds</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">seeds</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">position</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="n">distinct</span> <span class="o">=</span> <span class="p">{</span><span class="n">seed</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">ordered_seeds</span><span class="p">}</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">distinct</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">ordered_seeds</span><span class="p">)</span>
+                <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Random seed </span><span class="si">{</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">distinct</span><span class="p">))</span><span class="si">}</span><span class="s2"> was fixed for the &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;seeded steps (</span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">seed_text</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">ordered_seeds</span>
+                <span class="p">)</span>
+                <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Random seeds were fixed as follows: </span><span class="si">{</span><span class="n">seed_text</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">failed</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">subject</span>
+            <span class="k">for</span> <span class="n">subject</span><span class="p">,</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject_outcomes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">outcome</span> <span class="o">!=</span> <span class="s2">&quot;success&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject_outcomes</span><span class="p">:</span>
+            <span class="c1"># Cohort size stated once for the whole run.</span>
+            <span class="n">n_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subject_outcomes</span><span class="p">)</span>
+            <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n_total</span><span class="si">}</span><span class="s2"> subject(s) entered the analysis and &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n_total</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2"> were processed successfully.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">failed</span><span class="p">:</span>
+            <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2"> subject(s) failed processing and were &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;excluded: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;nature&quot;</span><span class="p">:</span>
+            <span class="n">closing</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;All analyses were performed with HABIT &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(version </span><span class="si">{</span><span class="n">versions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;habit&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="o">*</span><span class="n">body</span><span class="p">,</span> <span class="n">closing</span><span class="p">])</span>
+        <span class="n">opening</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Habitat imaging analysis was performed with HABIT &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(version </span><span class="si">{</span><span class="n">versions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;habit&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">opening</span><span class="p">,</span> <span class="o">*</span><span class="n">body</span><span class="p">])</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_checklist_facts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the checklist items HABIT can evidence from execution records.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Item key -&gt; ``(status, evidence)`` for every machine-evidencable</span>
+<span class="sd">            item. Anything absent from this mapping is a human question, and</span>
+<span class="sd">            :data:`_HUMAN_CHECKLIST_GUIDANCE` explains why.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">versions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">software_versions</span><span class="p">()</span>
+        <span class="n">seeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seeds</span><span class="p">()</span>
+        <span class="n">failed</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">subject</span><span class="p">:</span> <span class="n">outcome</span>
+            <span class="k">for</span> <span class="n">subject</span><span class="p">,</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject_outcomes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">outcome</span> <span class="o">!=</span> <span class="s2">&quot;success&quot;</span>
+        <span class="p">}</span>
+        <span class="n">facts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;software_version&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;evidenced&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;HABIT </span><span class="si">{</span><span class="n">versions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;habit&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;dependency_versions&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;evidenced&quot;</span><span class="p">,</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">versions</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;random_seeds&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;evidenced&quot;</span> <span class="k">if</span> <span class="n">seeds</span> <span class="k">else</span> <span class="s2">&quot;needs_human_answer&quot;</span><span class="p">,</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">seeds</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">seeds</span>
+                <span class="k">else</span> <span class="s2">&quot;No stochastic components recorded&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;excluded_subjects&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;evidenced&quot;</span><span class="p">,</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">failed</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;analysis_specification&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;evidenced&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec_payload</span> <span class="k">else</span> <span class="s2">&quot;needs_human_answer&quot;</span><span class="p">,</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spec_payload</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec_payload</span>
+                <span class="k">else</span> <span class="s2">&quot;No analysis specification was recorded for this run&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;cohort_size&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;evidenced&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject_outcomes</span> <span class="k">else</span> <span class="s2">&quot;needs_human_answer&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subject_outcomes</span><span class="p">)</span><span class="si">}</span><span class="s2"> subjects processed, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2"> excluded&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject_outcomes</span>
+                <span class="k">else</span> <span class="s2">&quot;Subject counts were not recorded for this run&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">features</span><span class="p">:</span>
+            <span class="n">families</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">features</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
+            <span class="p">]</span>
+            <span class="n">facts</span><span class="p">[</span><span class="s2">&quot;feature_families&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;evidenced&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">families</span><span class="p">)</span> <span class="k">if</span> <span class="n">families</span> <span class="k">else</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">facts</span><span class="p">[</span><span class="s2">&quot;feature_families&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;needs_human_answer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Habitat feature families were not recorded for this run&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">facts</span>
+
+<div class="viewcode-block" id="RunManifest.checklist">
+<a class="viewcode-back" href="../../../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest.checklist">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">checklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">standard</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an item-by-item compliance table for a reporting standard.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            standard: One of ``&quot;IBSI&quot;``, ``&quot;CLEAR&quot;``, ``&quot;METRICS&quot;``,</span>
+<span class="sd">                ``&quot;TRIPOD+AI&quot;``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            One row per checklist item of that standard with the value HABIT</span>
+<span class="sd">            can evidence and, where it cannot, an explicit statement that the</span>
+<span class="sd">            item needs a human answer. Silently marking unverifiable items as</span>
+<span class="sd">            satisfied would make the whole feature untrustworthy.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: On an unknown standard.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">standard</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_CHECKLIST_STANDARDS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown reporting standard </span><span class="si">{</span><span class="n">standard</span><span class="si">!r}</span><span class="s2">; expected one of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_CHECKLIST_STANDARDS</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">facts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checklist_facts</span><span class="p">()</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">_CHECKLIST_LAYOUTS</span><span class="p">[</span><span class="n">standard</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">facts</span><span class="p">:</span>
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="n">facts</span><span class="p">[</span><span class="n">item</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;needs_human_answer&quot;</span><span class="p">,</span> <span class="n">_HUMAN_CHECKLIST_GUIDANCE</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;evidence&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RunManifest.to_json">
+<a class="viewcode-back" href="../../../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest.to_json">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialise the manifest, optionally writing it to disk.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: Destination file. When ``None`` the JSON text is only</span>
+<span class="sd">                returned.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The JSON text.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;spec_payload&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spec_payload</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)),</span>
+            <span class="s2">&quot;provenance&quot;</span><span class="p">:</span> <span class="n">_provenance_to_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">provenance</span><span class="p">),</span>
+            <span class="s2">&quot;subject_outcomes&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subject_outcomes</span><span class="p">),</span>
+            <span class="s2">&quot;started_at&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">started_at</span><span class="p">,</span>
+            <span class="s2">&quot;finished_at&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">finished_at</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">destination</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">destination</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">destination</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1911 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Spec、RunPolicy 和 YAML 同构 &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/spec';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/spec.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="Spec" href="generated/habit.spec.Spec.html" />
+    <link rel="prev" title="merge_tables" href="generated/habit.recipes.merge_tables.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="recipes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes</span></code> ：命名研究设计</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.Study.html">Study</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.StudyResult.html">StudyResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.two_step_habitat.html">two_step_habitat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.one_step_habitat.html">one_step_habitat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.direct_pooling_habitat.html">direct_pooling_habitat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.extract_habitat_features.html">extract_habitat_features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.traditional_radiomics.html">traditional_radiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.prior2024_voxel_extract_params.html">prior2024_voxel_extract_params</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.run_from_yaml.html">run_from_yaml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.icc_analysis.html">icc_analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.sort_dicom.html">sort_dicom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.dice.html">dice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.dicom_info.html">dicom_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.merge_tables.html">merge_tables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Spec、RunPolicy 和 YAML 同构</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.Spec.html">Spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.Stage.html">Stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.HabitatSpec.html">HabitatSpec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.MLSpec.html">MLSpec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.RunPolicy.html">RunPolicy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.LegacyConfigAdapter.html">LegacyConfigAdapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.LegacyTranslation.html">LegacyTranslation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.MigrationReport.html">MigrationReport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.coerce_spec.html">coerce_spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.parse_feature_expression.html">parse_feature_expression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.load_habitat_spec.html">load_habitat_spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.detect_yaml_version.html">detect_yaml_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.migrate_yaml.html">migrate_yaml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.spec.validate_v1_document.html">validate_v1_document</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="contracts.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.contracts</span></code> ：内存数据模型</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.Geometry.html">Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.ImageRef.html">ImageRef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.ArrayImageRef.html">ArrayImageRef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.ImageVolume.html">ImageVolume</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.MaskVolume.html">MaskVolume</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.Subject.html">Subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.Cohort.html">Cohort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.CohortFingerprint.html">CohortFingerprint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.Provenance.html">Provenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.RunManifest.html">RunManifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.StepRecord.html">StepRecord</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.StepObserver.html">StepObserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.VoxelFeatureField.html">VoxelFeatureField</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.Supervoxelization.html">Supervoxelization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.HabitatMap.html">HabitatMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.HabitatModel.html">HabitatModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.FeatureTable.html">FeatureTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.Outcome.html">Outcome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.BinaryOutcome.html">BinaryOutcome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.MulticlassOutcome.html">MulticlassOutcome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.ContinuousOutcome.html">ContinuousOutcome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.SurvivalOutcome.html">SurvivalOutcome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.SubjectOperator.html">SubjectOperator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.CohortOperator.html">CohortOperator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.SubjectResult.html">SubjectResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.ExecutionBackend.html">ExecutionBackend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.DataSource.html">DataSource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.ResultWriter.html">ResultWriter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.cohort_from_directory.html">cohort_from_directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.software_fingerprint.html">software_fingerprint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.outcome_from_dict.html">outcome_from_dict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.contracts.outcome_to_dict.html">outcome_to_dict</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="voxel_features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.voxel_features</span></code> ：逐体素描述符</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.VoxelFeatureExtractor.html">VoxelFeatureExtractor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.RawVoxelFeatures.html">RawVoxelFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.LocalEntropyVoxelFeatures.html">LocalEntropyVoxelFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.VoxelRadiomicsFeatures.html">VoxelRadiomicsFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.ConcatVoxelFeatures.html">ConcatVoxelFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.ExpressionVoxelFeatures.html">ExpressionVoxelFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.KineticVoxelFeatures.html">KineticVoxelFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.VoxelFeatureTree.html">VoxelFeatureTree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.VoxelFeatureExtractorRegistry.html">VoxelFeatureExtractorRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.build_voxel_extractor.html">build_voxel_extractor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.build_voxel_field.html">build_voxel_field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.aligned_image.html">aligned_image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.roi_voxels.html">roi_voxels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.load_cached_voxel_field.html">load_cached_voxel_field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.save_cached_voxel_field.html">save_cached_voxel_field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.voxel_radiomics_cache_key.html">voxel_radiomics_cache_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.voxel_features.voxel_volume_fingerprint.html">voxel_volume_fingerprint</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="supervoxel.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.supervoxel</span></code> ：划分 ROI</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.Supervoxelizer.html">Supervoxelizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.SlicSupervoxelizer.html">SlicSupervoxelizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.KMeansSupervoxelizer.html">KMeansSupervoxelizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.GmmSupervoxelizer.html">GmmSupervoxelizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.SupervoxelizerRegistry.html">SupervoxelizerRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.SupervoxelFeatureExtractor.html">SupervoxelFeatureExtractor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.MeanVoxelFeatures.html">MeanVoxelFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.MeanSupervoxelFeatures.html">MeanSupervoxelFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.StdSupervoxelFeatures.html">StdSupervoxelFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.PercentileSupervoxelFeatures.html">PercentileSupervoxelFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.SupervoxelRadiomicsFeatures.html">SupervoxelRadiomicsFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.SupervoxelFeatureTree.html">SupervoxelFeatureTree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.SupervoxelFeatureExtractorRegistry.html">SupervoxelFeatureExtractorRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.build_supervoxel_extractor.html">build_supervoxel_extractor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.supervoxel.aggregate_voxel_means.html">aggregate_voxel_means</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="habitat_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.habitat_model</span></code> ：拟合并分配生境</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatModelFitter.html">HabitatModelFitter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.KMeansHabitatModelFitter.html">KMeansHabitatModelFitter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.GmmHabitatModelFitter.html">GmmHabitatModelFitter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.ConsensusHabitatModelFitter.html">ConsensusHabitatModelFitter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatModelFitterRegistry.html">HabitatModelFitterRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatAssigner.html">HabitatAssigner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.NearestCentroidAssigner.html">NearestCentroidAssigner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.HabitatAssignerRegistry.html">HabitatAssignerRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.ConnectedComponentPostprocess.html">ConnectedComponentPostprocess</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_model.build_connected_component_postprocess.html">build_connected_component_postprocess</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="habitat_features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.habitat_features</span></code>: quantify 生境</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.HabitatFeatureExtractor.html">HabitatFeatureExtractor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.HabitatVolumeFeatures.html">HabitatVolumeFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.IthHabitatFeatures.html">IthHabitatFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.MsiHabitatFeatures.html">MsiHabitatFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.GraphHabitatFeatures.html">GraphHabitatFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.NonRadiomicsHabitatFeatures.html">NonRadiomicsHabitatFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.HabitatFeaturePanel.html">HabitatFeaturePanel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.HabitatFeatureComparison.html">HabitatFeatureComparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.HabitatFeatureTree.html">HabitatFeatureTree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.HabitatFeatureExtractorRegistry.html">HabitatFeatureExtractorRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.to_habitat_feature_panel.html">to_habitat_feature_panel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.compare_habitat_features.html">compare_habitat_features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.habitat_features.build_habitat_extractor.html">build_habitat_extractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="feature_preprocessing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.feature_preprocessing</span></code>: scale voxel-feature matrices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.SubjectFeaturePreprocessor.html">SubjectFeaturePreprocessor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.CohortFeaturePreprocessor.html">CohortFeaturePreprocessor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.SubjectPreprocessingChain.html">SubjectPreprocessingChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.CohortPreprocessingChain.html">CohortPreprocessingChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.ZScoreScaling.html">ZScoreScaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.MinMaxScaling.html">MinMaxScaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.RobustScaling.html">RobustScaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.Winsorizing.html">Winsorizing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.LogTransform.html">LogTransform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.Binning.html">Binning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.Impute.html">Impute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.VarianceFilter.html">VarianceFilter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.CorrelationFilter.html">CorrelationFilter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.PreciseCorrelationFilter.html">PreciseCorrelationFilter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.MaxAbsScaling.html">MaxAbsScaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.QuantileTransform.html">QuantileTransform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.L2Normalizer.html">L2Normalizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.FeatureWhitelist.html">FeatureWhitelist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.FeaturePreprocessingMethodRegistry.html">FeaturePreprocessingMethodRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_preprocessing.build_methods.html">build_methods</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="precision.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.precision</span></code> ：可重复性筛选</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.ImagePerturbation.html">ImagePerturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.GaussianNoisePerturbation.html">GaussianNoisePerturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.TranslationPerturbation.html">TranslationPerturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.RotationPerturbation.html">RotationPerturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.RigidPerturbation.html">RigidPerturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.BSplineDeformPerturbation.html">BSplineDeformPerturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.PerturbationChain.html">PerturbationChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.ImagePerturbationRegistry.html">ImagePerturbationRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.HabitatPrototypeAlignment.html">HabitatPrototypeAlignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.aggregate_panels.html">aggregate_panels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.align_habitat_map.html">align_habitat_map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.align_habitat_maps_to_prototypes.html">align_habitat_maps_to_prototypes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.precision.habitat_stability.html">habitat_stability</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.pipeline</span></code>: compose subject / table pipelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.pipeline.SubjectPipeline.html">SubjectPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.pipeline.TablePipeline.html">TablePipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.pipeline.PoolMarker.html">PoolMarker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.pipeline.PooledUnits.html">PooledUnits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.pipeline.PoolingRegistry.html">PoolingRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.pipeline.voxel_units.html">voxel_units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.pipeline.fan_in.html">fan_in</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="combiners.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.combiners</span></code> ：组合特征树</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.Combiner.html">Combiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.ConcatCombiner.html">ConcatCombiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.WeightedConcatCombiner.html">WeightedConcatCombiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.AverageCombiner.html">AverageCombiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.RatioCombiner.html">RatioCombiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.DifferenceCombiner.html">DifferenceCombiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.ExpressionCombiner.html">ExpressionCombiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.KineticCombiner.html">KineticCombiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.CombinerRegistry.html">CombinerRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.block_sources.html">block_sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.check_blocks.html">check_blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.combiners.concat_blocks.html">concat_blocks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="report.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.report</span></code>: run-scoped persistence and figures</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.Report.html">Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.FigureAtom.html">FigureAtom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.SubjectContext.html">SubjectContext</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.Overlay.html">Overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.VolumeFractions.html">VolumeFractions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.MSI.html">MSI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.ITH.html">ITH</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.ClusterValidation.html">ClusterValidation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.GraphSlice.html">GraphSlice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.GraphNetwork2D.html">GraphNetwork2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.report.coerce_report.html">coerce_report</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="viz.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code> ：发表级叠加图</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.StyleSpec.html">StyleSpec</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.use_style.html">use_style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.get_style.html">get_style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.register_style.html">register_style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.available_styles.html">available_styles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.sanitize_label.html">sanitize_label</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_clustering_pca_2d.html">plot_habitat_clustering_pca_2d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_cluster_validation_curves.html">plot_cluster_validation_curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_cluster_validation_from_report.html">plot_cluster_validation_from_report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_delta.html">plot_consensus_delta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_cdf.html">plot_consensus_cdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_matrix.html">plot_consensus_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_matrices.html">plot_consensus_matrices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_cluster_stability.html">plot_consensus_cluster_stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_consensus_item_stability.html">plot_consensus_item_stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_volume_fractions.html">plot_habitat_volume_fractions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_msi_matrix.html">plot_msi_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_label_overlap_matrix.html">plot_label_overlap_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_prototype_matching.html">plot_prototype_matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_directory_ingest.html">plot_directory_ingest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_simpleitk_ingest.html">plot_simpleitk_ingest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_numpy_ingest.html">plot_numpy_ingest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_nifti_ingest.html">plot_nifti_ingest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_feature_preprocessing_chain.html">plot_feature_preprocessing_chain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_kaplan_meier.html">plot_kaplan_meier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_risk_triptych.html">plot_risk_triptych</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_time_dependent_auc.html">plot_time_dependent_auc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_survival_calibration.html">plot_survival_calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_brier_curve.html">plot_brier_curve</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_cox_forest.html">plot_cox_forest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_predicted_vs_observed.html">plot_predicted_vs_observed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_residuals.html">plot_residuals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_shap_summary.html">plot_shap_summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_shap_bar.html">plot_shap_bar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_shap_violin.html">plot_shap_violin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_shap_heatmap.html">plot_shap_heatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_shap_dependence.html">plot_shap_dependence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_shap_waterfall.html">plot_shap_waterfall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_shap_decision.html">plot_shap_decision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_shap_force.html">plot_shap_force</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.rank_shap_feature_indices.html">rank_shap_feature_indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.select_representative_sample_indices.html">select_representative_sample_indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.viz.net_benefit.html">net_benefit</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="execution.html">执行后端</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.execution.SerialBackend.html">SerialBackend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.execution.ProcessPoolBackend.html">ProcessPoolBackend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.execution.SubjectTimeoutError.html">SubjectTimeoutError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.execution.CheckpointStore.html">CheckpointStore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.execution.LegacyCheckpointMigrationReport.html">LegacyCheckpointMigrationReport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.execution.backend_from_policy.html">backend_from_policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.execution.should_use_process_pool.html">should_use_process_pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.execution.is_v01_checkpoint_layout.html">is_v01_checkpoint_layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.execution.migrate_v01_checkpoint_if_needed.html">migrate_v01_checkpoint_if_needed</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="adapters.html">适配器（ <code class="docutils literal notranslate"><span class="pre">habit.adapters</span></code> ）</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.adapters.DirectoryDataSource.html">DirectoryDataSource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.adapters.DirectoryResultWriter.html">DirectoryResultWriter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.adapters.FileImageRef.html">FileImageRef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.adapters.PreprocessingIOAdapter.html">PreprocessingIOAdapter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.adapters.discover_habitat_map_paths.html">discover_habitat_map_paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.adapters.load_extract_cohort.html">load_extract_cohort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.adapters.read_habitat_map.html">read_habitat_map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.adapters.resolve_n_habitats.html">resolve_n_habitats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.adapters.write_extract_feature_csvs.html">write_extract_feature_csvs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.datasets</span></code> ：演示包与合成构建器</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.datasets.PreprocessedInventory.html">PreprocessedInventory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.datasets.fetch_demo.html">fetch_demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.datasets.get_data_home.html">get_data_home</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.datasets.inspect_preprocessed_root.html">inspect_preprocessed_root</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.datasets.make_synthetic_cohort.html">make_synthetic_cohort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.datasets.make_synthetic_feature_table.html">make_synthetic_feature_table</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="kernels.html">数字内核 (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.GraphNullModelOptions.html">GraphNullModelOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.GraphNullModelResult.html">GraphNullModelResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.local_entropy_map.html">local_entropy_map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.spatial_interaction_matrix.html">spatial_interaction_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.msi_features_from_matrix.html">msi_features_from_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.habitat_volume_fractions.html">habitat_volume_fractions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.habitat_region_stats.html">habitat_region_stats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.habitat_ith_dispersion.html">habitat_ith_dispersion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.ith_score.html">ith_score</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.adjusted_rand_index.html">adjusted_rand_index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.pair_count.html">pair_count</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.compare_graph_to_degree_preserving_null.html">compare_graph_to_degree_preserving_null</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.remove_small_connected_components.html">remove_small_connected_components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.score_direction.html">score_direction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.knee_index.html">knee_index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.prior2024_bic_gradient_k.html">prior2024_bic_gradient_k</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.best_index.html">best_index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.vote_best_index.html">vote_best_index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.gap_statistic.html">gap_statistic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.cluster_selection.SCORE_DIRECTIONS.html">habit.kernels.cluster_selection.SCORE_DIRECTIONS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.cluster_selection.MAXIMIZE.html">habit.kernels.cluster_selection.MAXIMIZE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.cluster_selection.MINIMIZE.html">habit.kernels.cluster_selection.MINIMIZE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.cluster_selection.KNEE.html">habit.kernels.cluster_selection.KNEE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.estimate_noise_sigma.html">estimate_noise_sigma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.add_gaussian_noise.html">add_gaussian_noise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.translate_image.html">translate_image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.rotate_image.html">rotate_image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.icc2_1_estimate.html">icc2_1_estimate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.compute_midrank.html">compute_midrank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.fast_delong.html">fast_delong</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.delong_roc_variance.html">delong_roc_variance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.delong_roc_test.html">delong_roc_test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.delong_roc_ci.html">delong_roc_ci</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.hosmer_lemeshow_test.html">hosmer_lemeshow_test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.spiegelhalter_z_test.html">spiegelhalter_z_test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.two_way_mean_squares.html">two_way_mean_squares</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.icc3_1.html">icc3_1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.kernels.icc2_1.html">icc2_1</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="registry.html">组件注册表</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.registry.ComponentRegistry.html">ComponentRegistry</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="plugins.html">插件 introspection API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.PluginParamInfo.html">PluginParamInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.list_plugins.html">list_plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.get_plugin_info.html">get_plugin_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.plugin_catalog.html">plugin_catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.load_plugins.html">load_plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.utils.runtime.setup_logger.html">setup_logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.utils.runtime.is_available.html">is_available</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.utils.runtime.show_versions.html">show_versions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.utils.runtime.check_component.html">check_component</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="exceptions.html">错误与可选依赖</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.HabitError.html">habit.exceptions.HabitError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.HABITAPIError.html">habit.exceptions.HABITAPIError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.ConfigurationError.html">habit.exceptions.ConfigurationError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.DataFormatError.html">habit.exceptions.DataFormatError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.GeometryError.html">habit.exceptions.GeometryError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.OptionalDependencyError.html">habit.exceptions.OptionalDependencyError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.ComponentNotFoundError.html">habit.exceptions.ComponentNotFoundError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.CompatibilityError.html">habit.exceptions.CompatibilityError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.ProcessingError.html">habit.exceptions.ProcessingError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.exceptions.NotFittedError.html">habit.exceptions.NotFittedError</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="table_ml.html">表格 ML（书签）</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.table_preprocessing.TablePreprocessor.html">TablePreprocessor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.table_preprocessing.TablePreprocessorRegistry.html">TablePreprocessorRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_selection.FeatureSelector.html">FeatureSelector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.feature_selection.FeatureSelectorRegistry.html">FeatureSelectorRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.classification.Classifier.html">Classifier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.classification.ClassifierRegistry.html">ClassifierRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.Metric.html">Metric</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.MetricRegistry.html">MetricRegistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.ModelResult.html">ModelResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.CVResult.html">CVResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.PredictionResult.html">PredictionResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.SearchResult.html">SearchResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.train_model.html">train_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.cross_validate.html">cross_validate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.predict_model.html">predict_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.search_hyperparameters.html">search_hyperparameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.compare_models.html">compare_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.pairwise_delong_test.html">pairwise_delong_test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.plugins.create_ml_model.html">create_ml_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.auc_confidence_interval.html">auc_confidence_interval</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.calibration_tests.html">calibration_tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.delong_test.html">delong_test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.icc_analysis.html">icc_analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.repeat_measurement_matrix.html">repeat_measurement_matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.AucConfidenceInterval.html">AucConfidenceInterval</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.CalibrationResult.html">CalibrationResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.evaluation.DelongResult.html">DelongResult</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="image_io.html">低级图像输入输出助手</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.image.GeometryPolicy.html">GeometryPolicy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.image.GeometryReport.html">GeometryReport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.image.ImageMaskPair.html">ImageMaskPair</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.radiomics.extract.FeatureResult.html">FeatureResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.radiomics.extract.FeatureTableResult.html">FeatureTableResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.image.read_image.html">read_image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.image.read_mask.html">read_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.image.validate_geometry.html">validate_geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.image.align_image_mask.html">align_image_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.radiomics.extract.extract_features.html">extract_features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.radiomics.extract.extract_batch.html">extract_batch</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="image_preprocessing.html">图像预处理（书签）</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.preprocess_images.html">preprocess_images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.preprocess_subject.html">preprocess_subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/habit.recipes.preprocess_image.html">preprocess_image</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="python_api.html">Python API 指南（v2.0）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">数据模型（ <code class="docutils literal notranslate"><span class="pre">habit.contracts</span></code> ）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="domain.html">领域协议与注册表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="domain_habitat.html">生境域 API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="domain_table.html">表格 ML 域 API</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API 参考</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Spec、RunPolicy 和 YAML 同构</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-habit.spec">
+<span id="spec-runpolicy-and-yaml-isomorphism"></span><span id="api-spec"></span><h1>Spec、RunPolicy 和 YAML 同构<a class="headerlink" href="#module-habit.spec" title="Link to this heading">#</a></h1>
+<p>Spec / DataSource / RunPolicy 三分法。</p>
+<p><code class="docutils literal notranslate"><span class="pre">habit.spec</span></code> 持有算法规格（算什么）、运行策略（如何执行）、YAML 同构与旧配置翻译。数据位置刻意缺失：那是 <a class="reference internal" href="generated/habit.contracts.DataSource.html#habit.contracts.DataSource" title="habit.contracts.ops.DataSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSource</span></code></a> 契约的事。</p>
+<p><strong>用户指南：</strong> <a class="reference internal" href="python_api.html"><span class="doc">Python API 指南（v2.0）</span></a> · 生境指南 <a class="reference internal" href="../auto_examples/index.html"><span class="doc">Examples</span></a> 。 <strong>选择器（生境阶段、参数含义与允许值）：</strong> <a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> 。名称与参数的实时列表来自各组件构造器（及 <code class="docutils literal notranslate"><span class="pre">Registry.constructor_signature</span></code> / <code class="docutils literal notranslate"><span class="pre">Registry.create</span></code> ）——见 <a class="reference internal" href="plugins.html"><span class="doc">插件 introspection API</span></a> （勿手抄表）。</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Spec</span></code></a></p></td>
+<td><p>一个可插拔组件的规格说明。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stage</span></code></a></p></td>
+<td><p>生境数据流中的一个命名步骤。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></p></td>
+<td><p>生境分析的完整规格。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MLSpec</span></code></a></p></td>
+<td><p>表格机器学习分析的完整规格。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></p></td>
+<td><p>试运行的执行策略。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter" title="habit.spec.LegacyConfigAdapter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></a></p></td>
+<td><p>将冻结的 v0 YAML 映射译为 v1 文档模型。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.LegacyTranslation.html#habit.spec.LegacyTranslation" title="habit.spec.LegacyTranslation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyTranslation</span></code></a></p></td>
+<td><p>将 v0 载荷转换为 v1 文档布局的结果。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.MigrationReport.html#habit.spec.MigrationReport" title="habit.spec.MigrationReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MigrationReport</span></code></a></p></td>
+<td><p>一次 <code class="docutils literal notranslate"><span class="pre">migrate_yaml</span></code> 调用的结果。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p>Spec 解析：<a class="reference internal" href="generated/habit.spec.coerce_spec.html#habit.spec.coerce_spec" title="habit.spec.coerce_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coerce_spec</span></code></a></p></td>
+<td><p>将单个组件载荷强制转换为 Spec。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.parse_feature_expression.html#habit.spec.parse_feature_expression" title="habit.spec.parse_feature_expression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_feature_expression</span></code></a></p></td>
+<td><p>将一个特征树表达式解析为其规范的 Spec 树。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.load_habitat_spec.html#habit.spec.load_habitat_spec" title="habit.spec.load_habitat_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_habitat_spec</span></code></a></p></td>
+<td><p>从其 YAML 形式加载 <a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.save_habitat_spec.html#habit.spec.save_habitat_spec" title="habit.spec.save_habitat_spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_habitat_spec</span></code></a></p></td>
+<td><p>将 <a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 写为 YAML。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.load_run_policy.html#habit.spec.load_run_policy" title="habit.spec.load_run_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_run_policy</span></code></a></p></td>
+<td><p>从 YAML 映射加载 <a class="reference internal" href="generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> 。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.save_run_policy.html#habit.spec.save_run_policy" title="habit.spec.save_run_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_run_policy</span></code></a></p></td>
+<td><p>将 <a class="reference internal" href="generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> 写为 YAML。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.build_habitat_document.html#habit.spec.build_habitat_document" title="habit.spec.build_habitat_document"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_habitat_document</span></code></a></p></td>
+<td><p>组装带展开默认值的 native v1 生境文档。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.save_habitat_config.html#habit.spec.save_habitat_config" title="habit.spec.save_habitat_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_生境_config</span></code></a></p></td>
+<td><p>写入完整有效 v1 生境 YAML 供 CLI / YAML-API 重放。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.load_habitat_config.html#habit.spec.load_habitat_config" title="habit.spec.load_habitat_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_habitat_config</span></code></a></p></td>
+<td><p>加载并结构性验证 v1 栖息地 YAML 文档。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.detect_yaml_version.html#habit.spec.detect_yaml_version" title="habit.spec.detect_yaml_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_yaml_version</span></code></a></p></td>
+<td><p>检测 YAML 载荷遵循 v0 还是 v1 布局。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.migrate_yaml.html#habit.spec.migrate_yaml" title="habit.spec.migrate_yaml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">migrate_yaml</span></code></a></p></td>
+<td><p>将 v0 YAML 配置迁移为 v1 文档布局。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.validate_v1_document.html#habit.spec.validate_v1_document" title="habit.spec.validate_v1_document"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_v1_document</span></code></a></p></td>
+<td><p>验证 v1 文档 payload 的结构。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="stage-and-habitatspec-stages-source-of-truth">
+<h2><code class="docutils literal notranslate"><span class="pre">Stage</span></code> 与 <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> （真源）<a class="headerlink" href="#stage-and-habitatspec-stages-source-of-truth" title="Link to this heading">#</a></h2>
+<p>生境分析是 <strong>有序具名阶段列表</strong> 。每个 <a class="reference internal" href="generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stage</span></code></a> 将自定义标签与 <a class="reference internal" href="generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> 组件配对。阶段名是 <strong>标签</strong> 而非角色关键字：科学角色由位置 + 注册表域推断。推荐标签（仅约定）： <code class="docutils literal notranslate"><span class="pre">extract_voxel_features</span></code> 、 <code class="docutils literal notranslate"><span class="pre">preprocess1</span></code> / <code class="docutils literal notranslate"><span class="pre">preprocess2</span></code> / …、 <code class="docutils literal notranslate"><span class="pre">partition</span></code> 、 <code class="docutils literal notranslate"><span class="pre">extract_supervoxel_features</span></code> 、 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 、 <code class="docutils literal notranslate"><span class="pre">fit</span></code> 、 <code class="docutils literal notranslate"><span class="pre">assign</span></code> 、 <code class="docutils literal notranslate"><span class="pre">quantify</span></code> 。正常编写时勿设 <code class="docutils literal notranslate"><span class="pre">role=</span></code> （仅逃生口）。</p>
+<p>战略是 <strong>根据阶段顺序推断</strong> 的：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 38.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Strategy</p></th>
+<th class="head"><p>阶段序列签名</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>two_step</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">partition</span></code> + <code class="docutils literal notranslate"><span class="pre">pool</span></code></p></td>
+<td><p>池化后特征预处理为一等公民</p></td>
+</tr>
+<tr class="row-odd"><td><p>direct_pooling</p></td>
+<td><p>仅 <code class="docutils literal notranslate"><span class="pre">pool</span></code> （无 partition）</p></td>
+<td><p>池化后特征预处理为一等公民</p></td>
+</tr>
+<tr class="row-even"><td><p>one_step</p></td>
+<td><p>既不分区也不池化</p></td>
+<td><p>逐受试者拟合/分配；生境 id 不可跨受试者比较</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>无 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 的分区会被拒绝（<a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.validate_dataflow" title="habit.spec.HabitatSpec.validate_dataflow"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate_dataflow()</span></code></a> ）。</p>
+<p>主入口：<a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study.fit_predict" title="habit.recipes.Study.fit_predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_predict()</span></code></a> 。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
+
+<span class="c1"># two_step shape (partition + pool)</span>
+<span class="n">two_step</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;demo_two_step&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;slic&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify3&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify4&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;non_radiomics&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify5&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">)),</span>
+        <span class="c1"># Heavy PyRadiomics families (opt-in; require pyradiomics):</span>
+        <span class="c1"># Stage(&quot;quantify6&quot;, Spec(&quot;traditional&quot;)),</span>
+        <span class="c1"># Stage(&quot;quantify7&quot;, Spec(&quot;whole_habitat&quot;)),</span>
+        <span class="c1"># Stage(&quot;quantify8&quot;, Spec(&quot;each_habitat&quot;)),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># direct_pooling shape (pool only; post-pool preprocess allowed)</span>
+<span class="n">direct</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;demo_direct&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span>
+            <span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span>
+            <span class="n">Spec</span><span class="p">(</span>
+                <span class="s2">&quot;binning&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+                    <span class="s2">&quot;bin_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># one_step shape (no partition, no pool)</span>
+<span class="n">one_step</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;demo_one_step&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">two_step</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">two_step</span><span class="o">.</span><span class="n">describe_methods</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;radiology&quot;</span><span class="p">))</span>
+<span class="c1"># result = recipes.Study(spec=two_step).fit_predict(cohort)</span>
+</pre></div>
+</div>
+</section>
+<section id="named-field-constructor-deprecated">
+<h2>命名字段构造函数（已弃用）<a class="headerlink" href="#named-field-constructor-deprecated" title="Link to this heading">#</a></h2>
+<p>经典命名字段（ <code class="docutils literal notranslate"><span class="pre">voxel_feature_extractor</span></code> 、 <code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code> 、 <code class="docutils literal notranslate"><span class="pre">habitat_model_fitter</span></code> 、 <code class="docutils literal notranslate"><span class="pre">*_preprocessors</span></code> 、…）与 <code class="docutils literal notranslate"><span class="pre">pooling</span></code> 声明在 v3.x 内仍为 <strong>弃用构造器</strong> ：它们展开为相同内部阶段列表并保留历史指纹。 <code class="docutils literal notranslate"><span class="pre">HabitatSpec.from_dict</span></code> 仍可加载命名字段 YAML。新 Python 与新 YAML 应仅声明 <code class="docutils literal notranslate"><span class="pre">stages</span></code> 。计划在 v4.0.0 移除。</p>
+<p>Derived views: a <code class="docutils literal notranslate"><span class="pre">pool</span></code> stage ⇒ <code class="docutils literal notranslate"><span class="pre">pooling=&quot;cohort&quot;</span></code> /
+<code class="docutils literal notranslate"><span class="pre">definition_level=&quot;cohort&quot;</span></code>; otherwise <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;subject&quot;</span></code>.
+<code class="docutils literal notranslate"><span class="pre">definition_level</span></code> is read-only.</p>
+<p>生境工厂 <a class="reference internal" href="generated/habit.recipes.two_step_habitat.html#habit.recipes.two_step_habitat" title="habit.recipes.two_step_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step_habitat()</span></code></a> 、<a class="reference internal" href="generated/habit.recipes.one_step_habitat.html#habit.recipes.one_step_habitat" title="habit.recipes.one_step_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">one_step_habitat()</span></code></a> 、<a class="reference internal" href="generated/habit.recipes.direct_pooling_habitat.html#habit.recipes.direct_pooling_habitat" title="habit.recipes.direct_pooling_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">direct_pooling_habitat()</span></code></a> 返回 <a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study"><code class="xref py py-class docutils literal notranslate"><span class="pre">Study</span></code></a> ，其 <code class="docutils literal notranslate"><span class="pre">design</span></code> 在 <a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study.fit" title="habit.recipes.Study.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> 前验证名称所承诺的形状。不想手写阶段列表时仍是最短路径。</p>
+</section>
+<section id="save-load-and-runnable-yaml">
+<h2>保存 / 加载与可运行 YAML<a class="headerlink" href="#save-load-and-runnable-yaml" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HabitatSpec</span><span class="p">,</span>
+    <span class="n">RunPolicy</span><span class="p">,</span>
+    <span class="n">Spec</span><span class="p">,</span>
+    <span class="n">Stage</span><span class="p">,</span>
+    <span class="n">load_habitat_spec</span><span class="p">,</span>
+    <span class="n">save_habitat_config</span><span class="p">,</span>
+    <span class="n">save_habitat_spec</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;two_step&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;slic&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">save_habitat_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="s2">&quot;habitat_spec.yaml&quot;</span><span class="p">)</span>
+<span class="n">restored</span> <span class="o">=</span> <span class="n">load_habitat_spec</span><span class="p">(</span><span class="s2">&quot;habitat_spec.yaml&quot;</span><span class="p">)</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="n">again</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="c1"># Runnable v1 document (spec + data + policy + output, defaults expanded).</span>
+<span class="c1"># Same file works with recipes.run_from_yaml and habit get-habitat --config.</span>
+<span class="n">save_habitat_config</span><span class="p">(</span>
+    <span class="s2">&quot;habitat_run.yaml&quot;</span><span class="p">,</span>
+    <span class="n">spec</span><span class="p">,</span>
+    <span class="n">data_source</span><span class="o">=</span><span class="s2">&quot;demo_data/preprocessed&quot;</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="o">=</span><span class="s2">&quot;out/habitat&quot;</span><span class="p">,</span>
+    <span class="n">policy</span><span class="o">=</span><span class="n">RunPolicy</span><span class="p">(</span><span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;serial&quot;</span><span class="p">,</span> <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Fingerprints: pure sugar forms (no explicit <code class="docutils literal notranslate"><span class="pre">stages</span></code>) keep the historical named-field + <code class="docutils literal notranslate"><span class="pre">pooling</span></code> payload for two_step / direct_池化 stability. Explicit <code class="docutils literal notranslate"><span class="pre">stages</span></code> records the ordered list (names + components) and <code class="docutils literal notranslate"><span class="pre">random_seed</span></code>.</p>
+</section>
+<section id="feature-trees-and-the-expression-form">
+<h2>特征树与表达式形式<a class="headerlink" href="#feature-trees-and-the-expression-form" title="Link to this heading">#</a></h2>
+<p>可复制配方（单模态叶节点，再组合器）：<a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> 第 1 节。嵌套树：<a class="reference internal" href="../auto_examples/02_features/plot_05_own_feature_extractor.html"><span class="doc">将自定义特征提取器作为插件</span></a> 。</p>
+<p>提取阶段接受 <strong>树</strong> 状节点：叶节点携带 <code class="docutils literal notranslate"><span class="pre">modality=</span></code> / <code class="docutils literal notranslate"><span class="pre">modalities=</span></code> 参数，组合器节点在 <code class="docutils literal notranslate"><span class="pre">params[&quot;children&quot;]</span></code> 下嵌套子节点，载荷为 <code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;,</span> <span class="pre">&quot;params&quot;}</span></code> 。任何组件条目可写两种 <strong>指纹相同</strong> 形式——上述结构化映射，或由 <a class="reference internal" href="generated/habit.spec.parse_feature_expression.html#habit.spec.parse_feature_expression" title="habit.spec.parse_feature_expression"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse_feature_expression()</span></code></a> 解析的严格表达式（<a class="reference internal" href="generated/habit.spec.coerce_spec.html#habit.spec.coerce_spec" title="habit.spec.coerce_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">coerce_spec()</span></code></a> 将字符串交给解析器，映射交给 <code class="docutils literal notranslate"><span class="pre">Spec.from_dict</span></code> ）：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span><span class="p">,</span> <span class="n">parse_feature_expression</span>
+
+<span class="n">expr</span> <span class="o">=</span> <span class="n">parse_feature_expression</span><span class="p">(</span>
+    <span class="s1">&#39;concat(raw(&quot;T1&quot;), local_entropy(&quot;T2&quot;, kernel_size=3))&#39;</span>
+<span class="p">)</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tree&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">expr</span><span class="p">),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># YAML dual form — a string entry is parsed the same way:</span>
+<span class="n">again</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;tree&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;stages&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s1">&#39;concat(raw(&quot;T1&quot;), local_entropy(&quot;T2&quot;, kernel_size=3))&#39;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="c1"># ... remaining stages ...</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>表达式语法刻意严格：模态名为 <strong>带引号字符串</strong> ，参数为显式 <code class="docutils literal notranslate"><span class="pre">key=value</span></code> 字面量，子节点为嵌套调用（子节点中的引号字符串成为隐式 <code class="docutils literal notranslate"><span class="pre">raw</span></code> 叶）。裸 v0.1 风格标识符会明确报错而非猜测——旧 YAML 适配器对未加引号的 v0.1 表达式仍用宽松解析，仅将加引号表达式路由到此，旧配置字节级一致，新配置得到树。</p>
+</section>
+<section id="runpolicy">
+<h2><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code><a class="headerlink" href="#runpolicy" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> is the declarative snapshot of every
+scheduling concern. Field names match backend keyword arguments so the
+YAML <code class="docutils literal notranslate"><span class="pre">policy:</span></code> block and the Python form stay one-to-one.</p>
+<div class="admonition important">
+<p class="admonition-title">重要</p>
+<p><strong>Windows + 进程池：</strong> 生成 worker 会重新导入你的脚本。任何会启动 <a class="reference internal" href="generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.ProcessPoolBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a> 的调用（ <code class="docutils literal notranslate"><span class="pre">RunPolicy(backend=&quot;process&quot;)</span></code> 、 <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> 或 <code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;isolated&quot;</span></code> ）必须放在以下代码块内:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>Running the same code at module top level (or pasting it into a <code class="docutils literal notranslate"><span class="pre">.py</span></code>
+file without this guard) raises
+<code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">...</span> <span class="pre">bootstrapping</span> <span class="pre">phase</span></code> on Windows.
+The <code class="docutils literal notranslate"><span class="pre">habit</span></code> CLI entry point is already safe; this applies to <strong>scripts /
+notebooks converted to scripts / pure-Python recipes</strong>.
+For a quick serial check, use <code class="docutils literal notranslate"><span class="pre">RunPolicy(workers=1,</span> <span class="pre">backend=&quot;serial&quot;)</span></code>
+(no spawn).</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span><span class="p">,</span> <span class="n">load_run_policy</span><span class="p">,</span> <span class="n">save_run_policy</span>
+
+<span class="n">policy</span> <span class="o">=</span> <span class="n">RunPolicy</span><span class="p">(</span>
+    <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>              <span class="c1"># &quot;serial&quot; | &quot;process&quot;</span>
+    <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;fail_fast&quot;</span>
+    <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="mf">900.0</span><span class="p">,</span>
+    <span class="n">parallel_mode</span><span class="o">=</span><span class="s2">&quot;persistent&quot;</span><span class="p">,</span>     <span class="c1"># library default</span>
+    <span class="n">auto_retry_rounds</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">save_run_policy</span><span class="p">(</span><span class="n">policy</span><span class="p">,</span> <span class="s2">&quot;run_policy.yaml&quot;</span><span class="p">)</span>
+<span class="n">policy2</span> <span class="o">=</span> <span class="n">load_run_policy</span><span class="p">(</span><span class="s2">&quot;run_policy.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">on_subject_failure=&quot;continue&quot;</span></code> 在执行后端内隔离错误。<a class="reference internal" href="generated/habit.contracts.Cohort.html#habit.contracts.Cohort.map" title="habit.contracts.Cohort.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">map()</span></code></a> 默认仍抛 <code class="docutils literal notranslate"><span class="pre">ProcessingError</span></code> ；传 <code class="docutils literal notranslate"><span class="pre">raise_on_failure=False</span></code> （配方 / CLI）可仅保留成功 — 见 <a class="reference internal" href="execution.html"><span class="doc">执行后端</span></a> 与 <a class="reference internal" href="../auto_examples/07_advanced/plot_08_backends.html"><span class="doc">执行后端上的原子组件</span></a> 。</p>
+<section id="full-field-set-defaults-from-habit-spec-policy-py">
+<h3>Full field set (defaults from <code class="docutils literal notranslate"><span class="pre">habit/spec/policy.py</span></code>)<a class="headerlink" href="#full-field-set-defaults-from-habit-spec-policy-py" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 16.0%" />
+<col style="width: 54.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">workers</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>并行工作进程； <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">1</span></code> 选择 ProcessPool</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">backend</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;serial&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;serial&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;process&quot;</span></code> （ <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> 或 <code class="docutils literal notranslate"><span class="pre">parallel_mode=isolated</span></code> 时亦强制）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">900.0</span></code></p></td>
+<td><p>每个主题的挂钟秒； <code class="docutils literal notranslate"><span class="pre">None</span></code> 禁用（仅限 ProcessPool；不选择后端）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">subject_spawn_timeout_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">120.0</span></code></p></td>
+<td><p>spawn 启动秒数； <code class="docutils literal notranslate"><span class="pre">None</span></code> 禁用（ProcessPool / isolated）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">graceful_shutdown_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">15.0</span></code></p></td>
+<td><p>超时时在 <code class="docutils literal notranslate"><span class="pre">terminate()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">kill()</span></code> 之间的秒数</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">on_subject_failure</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;fail_fast&quot;</span></code> （Serial + ProcessPool）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oom_backoff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>致命 <code class="docutils literal notranslate"><span class="pre">MemoryError</span></code> 后减少 worker（仅 ProcessPool）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oom_reduce_workers_by</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>每次 OOM 步骤减去的 worker 数</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cap_workers_to_gpu_pool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>将 worker 数限制在可用 GPU 池</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resume</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>附加检查点存储时复用已检查点的受试者结果</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>检查点根；由 CLI/配方解析（未由 <code class="docutils literal notranslate"><span class="pre">from_policy</span></code> 应用）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parallel_mode</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;persistent&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;persistent&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">&quot;isolated&quot;</span></code> （仅 ProcessPool）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auto_retry_rounds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>运行内对失败受试者的重派发轮数； <code class="docutils literal notranslate"><span class="pre">0</span></code> 禁用</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_failed_subjects</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>下次恢复运行时将 checkpoint 失败重新入队</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span></code></p></td>
+<td><p>强制重新计算的受试者 ID</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clear_checkpoint_on_success</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>干净运行后删除检查点目录</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>检查点指纹 / 遗留 v0.1 布局不兼容时抛出 <a class="reference internal" href="generated/habit.exceptions.CompatibilityError.html#habit.exceptions.CompatibilityError" title="habit.exceptions.CompatibilityError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompatibilityError</span></code></a> （v0.1 一致）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">persistent_worker_max_consecutive_failures</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>在出现如此多连续致命故障后重启持久工作程序</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">persistent_worker_recycle_after_tasks</span></code> （持久 worker 回收任务数）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>在这么多次成功后重启持久 worker（ <code class="docutils literal notranslate"><span class="pre">0</span></code> 表示禁用）</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>当 <code class="docutils literal notranslate"><span class="pre">run_from_yaml</span></code> 、 <code class="docutils literal notranslate"><span class="pre">backend</span> <span class="pre">==</span> <span class="pre">&quot;process&quot;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> 时，CLI / <code class="docutils literal notranslate"><span class="pre">parallel_mode</span> <span class="pre">==</span> <span class="pre">&quot;isolated&quot;</span></code> 选择 ProcessPoolBackend。仅 <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code> 为正不会强制 spawn。详情：<a class="reference internal" href="execution.html"><span class="doc">执行后端</span></a> 。</p>
+</section>
+<section id="v0-1-yaml-top-level-keys-vs-runpolicy">
+<h3>v0.1 YAML 顶层键与 <code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code> 对照<a class="headerlink" href="#v0-1-yaml-top-level-keys-vs-runpolicy" title="Link to this heading">#</a></h3>
+<p>A <strong>v0.1</strong> habitat document keeps parallel knobs at the YAML top level
+(<code class="docutils literal notranslate"><span class="pre">processes</span></code>, <code class="docutils literal notranslate"><span class="pre">individual_subject_*</span></code>, …).
+<a class="reference internal" href="generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter" title="habit.spec.legacy.LegacyConfigAdapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></a> renames them into the v1
+<code class="docutils literal notranslate"><span class="pre">policy:</span></code> section. A native <strong>v1</strong> document writes the right-hand names
+under <code class="docutils literal notranslate"><span class="pre">policy:</span></code> directly (see <code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step_v1.yaml</span></code>).
+Habitat field reference: <a class="reference internal" href="../configuration/habitat.html"><span class="doc">生境分割配置</span></a>.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 38.0%" />
+<col style="width: 30.0%" />
+<col style="width: 16.0%" />
+<col style="width: 16.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>v0.1 顶层键</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code> / v1 <code class="docutils literal notranslate"><span class="pre">policy:</span></code> 字段</p></th>
+<th class="head"><p>Schema 默认值</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code> 默认值</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">processes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">workers</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><em>（由</em> <code class="docutils literal notranslate"><span class="pre">processes</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> <em>隐含）</em></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">backend</span></code></p></td>
+<td><p>—</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;serial&quot;</span></code> （翻译后 <code class="docutils literal notranslate"><span class="pre">&quot;process&quot;</span></code> 时设为 <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> ）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">individual_subject_timeout_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">subject_timeout_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">900.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">900.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">individual_subject_spawn_timeout_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">subject_spawn_timeout_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">120.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">120.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">individual_subject_graceful_shutdown_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">graceful_shutdown_sec</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">15.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">15.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">on_subject_failure</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">on_subject_failure</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;continue&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">oom_backoff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oom_backoff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">oom_reduce_workers_by</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">oom_reduce_workers_by</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cap_processes_to_gpu_pool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cap_workers_to_gpu_pool</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resume</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">resume</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">individual_subject_parallel_mode</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">parallel_mode</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;persistent&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;persistent&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">individual_subject_auto_retry_rounds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">auto_retry_rounds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_failed_subjects</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">retry_failed_subjects</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">force_rerun_subjects</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clear_checkpoint_on_success</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">clear_checkpoint_on_success</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">strict_checkpoint_hash</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">persistent_worker_max_consecutive_failures</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">persistent_worker_max_consecutive_failures</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">persistent_worker_recycle_after_tasks</span></code> （持久 worker 回收任务数）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">persistent_worker_recycle_after_tasks</span></code> （持久 worker 回收任务数）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Note the default gap on <code class="docutils literal notranslate"><span class="pre">processes</span></code> / <code class="docutils literal notranslate"><span class="pre">workers</span></code>: a bare v0.1 生境 YAML defaults to <code class="docutils literal notranslate"><span class="pre">processes:</span> <span class="pre">2</span></code> (process backend after translation), while a bare <code class="docutils literal notranslate"><span class="pre">RunPolicy()</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">workers=1</span></code>, <code class="docutils literal notranslate"><span class="pre">backend=&quot;serial&quot;</span></code>. CLI / <code class="docutils literal notranslate"><span class="pre">run_from_yaml</span></code> select ProcessPool when <code class="docutils literal notranslate"><span class="pre">workers</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">backend=&quot;process&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">parallel_mode=&quot;isolated&quot;</span></code> — not merely because the default <code class="docutils literal notranslate"><span class="pre">subject_timeout_sec=900</span></code> is set.</p>
+</section>
+</section>
+<section id="detect-validate-migrate-yaml">
+<h2>检测、验证、迁移 YAML<a class="headerlink" href="#detect-validate-migrate-yaml" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LegacyConfigAdapter</span><span class="p">,</span>
+    <span class="n">detect_yaml_version</span><span class="p">,</span>
+    <span class="n">migrate_yaml</span><span class="p">,</span>
+    <span class="n">validate_v1_document</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;config/habitat/config_habitat_two_step.yaml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">version</span> <span class="o">=</span> <span class="n">detect_yaml_version</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>  <span class="c1"># &quot;v0&quot; | &quot;v1&quot;</span>
+
+<span class="c1"># Structural validation of a v1 document</span>
+<span class="c1"># validate_v1_document(v1_payload, workflow=&quot;habitat&quot;)</span>
+
+<span class="c1"># Migrate v0 -&gt; v1 (dry-run)</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">migrate_yaml</span><span class="p">(</span>
+    <span class="s2">&quot;config/habitat/config_habitat_two_step.yaml&quot;</span><span class="p">,</span>
+    <span class="n">dry_run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">diff</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">document</span><span class="p">)</span>
+
+<span class="c1"># Lower-level translation</span>
+<span class="n">translation</span> <span class="o">=</span> <span class="n">LegacyConfigAdapter</span><span class="p">()</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="s2">&quot;habitat&quot;</span><span class="p">)</span>
+<span class="c1"># translation.document[&quot;spec&quot;] / translation.document[&quot;policy&quot;]</span>
+</pre></div>
+</div>
+</section>
+<section id="run-the-translated-spec-with-a-recipe">
+<h2>用配方运行翻译后的 spec<a class="headerlink" href="#run-the-translated-spec-with-a-recipe" title="Link to this heading">#</a></h2>
+<p>v0.1 YAML 通过 <code class="docutils literal notranslate"><span class="pre">habitat_segmentation.clustering_mode</span></code> 选择生境设计。转换将该旋钮变为命名字段语法加派生的 <code class="docutils literal notranslate"><span class="pre">pooling</span></code> 声明（ <code class="docutils literal notranslate"><span class="pre">one_step</span></code> → <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code> ； <code class="docutils literal notranslate"><span class="pre">two_step</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> → <code class="docutils literal notranslate"><span class="pre">&quot;cohort&quot;</span></code> ）。原生 v1 文档也可显式声明 <code class="docutils literal notranslate"><span class="pre">stages</span></code> 。无论哪种，<a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study.fit_predict" title="habit.recipes.Study.fit_predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_predict()</span></code></a> 都运行共享阶段执行器。按模式命名的别名仍作为薄验证器保留：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 36.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">clustering_mode</span></code> （YAML）</p></th>
+<th class="head"><p>推断的阶段签名 / 语法糖</p></th>
+<th class="head"><p>别名（均派发到 <code class="docutils literal notranslate"><span class="pre">Study.fit_predict</span></code> ）</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">two_step</span></code></p></td>
+<td><p>partition + pool（语法糖： <code class="docutils literal notranslate"><span class="pre">pooling=&quot;cohort&quot;</span></code> + supervoxelizer）</p></td>
+<td><p><a class="reference internal" href="generated/habit.recipes.two_step_habitat.html#habit.recipes.two_step_habitat" title="habit.recipes.two_step_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step_habitat()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">one_step</span></code></p></td>
+<td><p>二者皆无（语法糖： <code class="docutils literal notranslate"><span class="pre">pooling=&quot;none&quot;</span></code> ）</p></td>
+<td><p><a class="reference internal" href="generated/habit.recipes.one_step_habitat.html#habit.recipes.one_step_habitat" title="habit.recipes.one_step_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">one_step_habitat()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code></p></td>
+<td><p>仅池化（语法糖： <code class="docutils literal notranslate"><span class="pre">pooling=&quot;cohort&quot;</span></code> ，无超体素化器）</p></td>
+<td><p><a class="reference internal" href="generated/habit.recipes.direct_pooling_habitat.html#habit.recipes.direct_pooling_habitat" title="habit.recipes.direct_pooling_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">direct_pooling_habitat()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Pattern: load the YAML, translate with <a class="reference internal" href="generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter" title="habit.spec.legacy.LegacyConfigAdapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></a>,
+build a <a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.specs.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a>, then call
+<a class="reference internal" href="generated/habit.recipes.Study.html#habit.recipes.Study.fit_predict" title="habit.recipes.Study.fit_predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_predict()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_synthetic_cohort</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">LegacyConfigAdapter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;config/habitat/config_habitat_two_step.yaml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">translation</span> <span class="o">=</span> <span class="n">LegacyConfigAdapter</span><span class="p">()</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="s2">&quot;habitat&quot;</span><span class="p">)</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">translation</span><span class="o">.</span><span class="n">document</span><span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">])</span>
+
+<span class="c1"># Modalities must match the spec&#39;s feature expression.</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span>
+    <span class="n">n_subjects</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">),</span>
+    <span class="n">rng</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># cohort = DirectoryDataSource(...).load()  # real data on disk</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;out/study&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>migrate / validate / adapter 接受的工作流别名：</p>
+<p><code class="docutils literal notranslate"><span class="pre">preprocess</span></code> 、 <code class="docutils literal notranslate"><span class="pre">habitat</span></code> 、 <code class="docutils literal notranslate"><span class="pre">extract</span></code> 、 <code class="docutils literal notranslate"><span class="pre">radiomics</span></code> 、 <code class="docutils literal notranslate"><span class="pre">model</span></code> 、 <code class="docutils literal notranslate"><span class="pre">cv</span></code> 、 <code class="docutils literal notranslate"><span class="pre">compare</span></code> 、 <code class="docutils literal notranslate"><span class="pre">icc</span></code> 、 <code class="docutils literal notranslate"><span class="pre">retest</span></code> 、 <code class="docutils literal notranslate"><span class="pre">sort-dicom</span></code> 。</p>
+</section>
+<section id="cli">
+<h2>CLI<a class="headerlink" href="#cli" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">check-config</span> <span class="pre">-c</span> <span class="pre">PATH</span></code> — 自动检测 v0/v1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">migrate-config</span> <span class="pre">-c</span> <span class="pre">PATH</span></code> — 写入 v1 文档</p></li>
+</ul>
+<p>见 <a class="reference internal" href="../reference/cli.html"><span class="doc">命令参考</span></a> 。</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="generated/habit.recipes.merge_tables.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">merge_tables</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="generated/habit.spec.Spec.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">Spec</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> 与 <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> （真源）</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#named-field-constructor-deprecated">命名字段构造函数（已弃用）</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#save-load-and-runnable-yaml">保存 / 加载与可运行 YAML</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-trees-and-the-expression-form">特征树与表达式形式</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#full-field-set-defaults-from-habit-spec-policy-py">Full field set (defaults from <code class="docutils literal notranslate"><span class="pre">habit/spec/policy.py</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-yaml-top-level-keys-vs-runpolicy">v0.1 YAML 顶层键与 <code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code> 对照</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#detect-validate-migrate-yaml">检测、验证、迁移 YAML</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-translated-spec-with-a-recipe">用配方运行翻译后的 spec</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli">CLI</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

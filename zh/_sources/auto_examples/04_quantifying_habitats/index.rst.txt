@@ -1,0 +1,123 @@
+
+
+.. _sphx_glr_auto_examples_04_quantifying_habitats:
+
+Quantifying habitats
+====================
+
+Volume fractions, MSI, ITH, HABIT graph-network features, and habitat
+radiomics (each habitat + whole map).
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The simplest habitat number is how much of the tumour each habitat occupies. Volume fractions let you ask, for example, whether a larger share of one habitat goes with a worse outcome.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_01_volume_fractions_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_quantifying_habitats/plot_01_volume_fractions`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Volume and fractions</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Two tumours can have the same habitat fractions but a different spatial arrangement: habitats mixed together, or kept apart. MSI measures that arrangement by counting which habitats touch which.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_02_msi_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_quantifying_habitats/plot_02_msi`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiregional spatial interaction (MSI)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Intratumoral heterogeneity (ITH) describes how mixed a tumour is. Here it is measured from the habitat map as fragmentation: do habitats form a few compact blobs, or many scattered pieces?">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_03_ith_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_quantifying_habitats/plot_03_ith`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Intratumoral heterogeneity (ITH)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Volume fractions say how much of each habitat a tumour has; they do not say how the habitat is arranged. The same 30 % of a habitat can be one compact mass or a scatter of small islands. HABIT&#x27;s graph family turns the habitat map into a network and measures that arrangement with standard network statistics.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_04_graph_network_features_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_quantifying_habitats/plot_04_graph_network_features`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitat graph network features</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Once every voxel has a habitat id, a patient can be described in several complementary ways: how much of each habitat there is (volume), how the habitats border each other (MSI), how fragmented they are (ITH score), and what the image intensities look like inside each habitat (per-habitat radiomics). A statistics tool needs all of them as columns of one table, one row per patient.">
+
+.. only:: html
+
+  .. image:: /auto_examples/04_quantifying_habitats/images/thumb/sphx_glr_plot_05_habitat_radiomics_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/04_quantifying_habitats/plot_05_habitat_radiomics`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitat radiomics with volume, MSI and ITH</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/04_quantifying_habitats/plot_01_volume_fractions
+   /auto_examples/04_quantifying_habitats/plot_02_msi
+   /auto_examples/04_quantifying_habitats/plot_03_ith
+   /auto_examples/04_quantifying_habitats/plot_04_graph_network_features
+   /auto_examples/04_quantifying_habitats/plot_05_habitat_radiomics
+

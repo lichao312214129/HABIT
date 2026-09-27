@@ -1,0 +1,2291 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../../../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>habit.execution.process_pool &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/translations.js?v=beaddf03"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/habit/execution/process_pool';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/_modules/habit/execution/process_pool.html" />
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">模块代码</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">habit.execution.process_pool</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>habit.execution.process_pool 源代码</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Process-pool execution backend: v0.1&#39;s parallel engineering, relocated.</span>
+
+<span class="sd">Every scheduling concern that v0.1 kept in the configuration schema lives</span>
+<span class="sd">here now, so algorithms contain no scheduling code at all:</span>
+
+<span class="sd">* per-subject wall-clock timeout with graceful shutdown</span>
+<span class="sd">  (``terminate`` -&gt; ``graceful_shutdown_sec`` -&gt; ``kill``),</span>
+<span class="sd">* spawn-startup timeout for per-subject child processes,</span>
+<span class="sd">* subject failure isolation (``continue``) or abort (``fail_fast``),</span>
+<span class="sd">* OOM backoff that reduces the effective worker count after a fatal</span>
+<span class="sd">  memory error,</span>
+<span class="sd">* two worker lifecycles -- ``persistent`` (one long-lived worker per slot)</span>
+<span class="sd">  and ``isolated`` (one child process per subject),</span>
+<span class="sd">* optional GPU-pool capping of the worker count,</span>
+<span class="sd">* checkpoint-aware resume with the v0.1 failure-skip rule</span>
+<span class="sd">  (``retry_failed_subjects`` / ``force_rerun_subjects`` /</span>
+<span class="sd">  ``clear_checkpoint_on_success``),</span>
+<span class="sd">* automatic re-dispatch rounds for failed subjects within one run</span>
+<span class="sd">  (``auto_retry_rounds``).</span>
+
+<span class="sd">The constructor surface mirrors :class:`~habit.spec.policy.RunPolicy`</span>
+<span class="sd">field-by-field, so the YAML form and the Python form stay one-to-one and</span>
+<span class="sd">:meth:`from_policy` is a pure transcription.</span>
+
+<span class="sd">Children run under the ``spawn`` context: fork-safety is not negotiable in</span>
+<span class="sd">a stack that may hold native imaging libraries. Operators and items must</span>
+<span class="sd">therefore be picklable -- which is exactly the boundary Phase 1 designed</span>
+<span class="sd">``Subject``/``ImageRef`` for: light references cross the process boundary,</span>
+<span class="sd">arrays never do until the child loads them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">queue</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">queue_module</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">replace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Generator</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">Iterator</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubjectOperator</span><span class="p">,</span> <span class="n">SubjectResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">_cache_key_of</span><span class="p">,</span> <span class="n">_subject_id_of</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution.checkpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckpointStore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.parallel_gpu_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">pin_worker_visible_cuda_device</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="c1"># Typing-only reference: ``habit.spec`` sits outside the layers the</span>
+    <span class="c1"># execution package may import at module load time, so the runtime</span>
+    <span class="c1"># import happens lazily inside ``__init__`` / ``from_policy``.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ProcessPoolBackend&quot;</span><span class="p">,</span> <span class="s2">&quot;SubjectTimeoutError&quot;</span><span class="p">]</span>
+
+<span class="n">TIn</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;TIn&quot;</span><span class="p">)</span>
+<span class="n">TOut</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;TOut&quot;</span><span class="p">)</span>
+
+<span class="c1">#: Result-queue message kinds exchanged with child processes.</span>
+<span class="n">_STATUS_OK</span> <span class="o">=</span> <span class="s2">&quot;ok&quot;</span>
+<span class="n">_STATUS_ERROR</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
+<span class="n">_STATUS_OOM</span> <span class="o">=</span> <span class="s2">&quot;oom&quot;</span>
+<span class="n">_MSG_STARTED</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
+<span class="n">_MSG_BOUND</span> <span class="o">=</span> <span class="s2">&quot;bound&quot;</span>
+
+<span class="c1">#: Parent -&gt; worker command tags for the persistent protocol.</span>
+<span class="n">_CMD_BIND</span> <span class="o">=</span> <span class="s2">&quot;bind&quot;</span>
+<span class="n">_CMD_RUN</span> <span class="o">=</span> <span class="s2">&quot;run&quot;</span>
+
+<span class="c1">#: Poll interval of the parent-side scheduling loops, in seconds.</span>
+<span class="n">_POLL_INTERVAL_SEC</span> <span class="o">=</span> <span class="mf">0.05</span>
+
+<span class="c1">#: BLAS / OpenMP thread caps applied once in every spawned worker so that</span>
+<span class="c1">#: ``workers × default_OMP`` cannot oversubscribe the machine (v0.1</span>
+<span class="c1">#: ``cluster_search_parallel`` parity; the process-pool path previously</span>
+<span class="c1">#: omitted this and could freeze laptop hosts under sklearn / numpy).</span>
+<span class="n">_WORKER_THREAD_ENV</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MKL_NUM_THREADS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NUMEXPR_NUM_THREADS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VECLIB_MAXIMUM_THREADS&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_worker_thread_cap</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve the per-worker BLAS/OpenMP thread budget.</span>
+
+<span class="sd">    Honours ``HABIT_WORKER_THREADS`` when set to a positive integer;</span>
+<span class="sd">    otherwise forces ``1`` so ``workers × parent_OMP`` cannot oversubscribe</span>
+<span class="sd">    the host (``setdefault`` would inherit a large parent value).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Decimal string used for every ``*_NUM_THREADS`` env var.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HABIT_WORKER_THREADS&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="s2">&quot;1&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">n_threads</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">raw</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">n_threads</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">n_threads</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_configure_worker_runtime</span><span class="p">(</span><span class="n">worker_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Cap nested threading and publish the GPU slot for one child process.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        worker_index: Zero-based slot index for this worker (also written to</span>
+<span class="sd">            ``HABIT_GPU_SLOT_INDEX`` for TorchRadiomics device selection).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Force (do not setdefault): parent shells often export OMP_NUM_THREADS</span>
+    <span class="c1"># equal to the host core count; inheriting that makes every child</span>
+    <span class="c1"># oversubscribe and can make parallel runs slower than serial.</span>
+    <span class="n">thread_cap</span> <span class="o">=</span> <span class="n">_worker_thread_cap</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_WORKER_THREAD_ENV</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">thread_cap</span>
+    <span class="c1"># Hide every GPU except this slot *before* importing torch. Otherwise</span>
+    <span class="c1"># both workers see cuda:0 and cuda:1, initialize both, and kernels</span>
+    <span class="c1"># pile onto GPU 0 while GPU 1 stays idle. On a single-GPU host,</span>
+    <span class="c1"># workers beyond slot 0 fall back to CPU (see parallel_gpu_utils).</span>
+    <span class="n">pin_worker_visible_cuda_device</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">worker_index</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+        <span class="n">torch</span><span class="o">.</span><span class="n">set_num_threads</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">thread_cap</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - torch optional / broken is fine</span>
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="SubjectTimeoutError">
+<a class="viewcode-back" href="../../../api/generated/habit.execution.SubjectTimeoutError.html#habit.execution.SubjectTimeoutError">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubjectTimeoutError</span><span class="p">(</span><span class="ne">TimeoutError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A subject exceeded its wall-clock or spawn-startup budget.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_WorkerDiedError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A worker process exited without reporting an outcome.&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_picklable</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="ne">BaseException</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return ``exc`` when it survives pickling, else a wrapping error.</span>
+
+<span class="sd">    Exceptions raised inside a child process cross back through a queue,</span>
+<span class="sd">    which pickles them; third-party exceptions are not always picklable, so</span>
+<span class="sd">    the text is preserved in a :class:`HABITAPIError` fallback rather than</span>
+<span class="sd">    losing the failure entirely.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        exc: The exception captured in the child.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The original exception, or a picklable wrapper.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="c1"># ``HABITAPIError`` is an exception subclass, but mypy sees it as</span>
+        <span class="c1"># ``Any`` when ``habit.exceptions`` is outside the checked set</span>
+        <span class="c1"># (``follow_imports = &quot;skip&quot;``); the cast keeps that boundary explicit.</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="ne">BaseException</span><span class="p">,</span>
+            <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> raised in worker (not picklable): </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">exc</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_isolated_worker</span><span class="p">(</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">item</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">result_queue</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">worker_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run one subject in a dedicated child process.</span>
+
+<span class="sd">    The first message is always the startup signal -- the parent&#39;s spawn</span>
+<span class="sd">    timeout keys on it. The outcome is reported exactly once, as</span>
+<span class="sd">    ``(status, payload)``; ``MemoryError`` gets its own status so the</span>
+<span class="sd">    parent can apply OOM backoff.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        op: The subject-level operator (pickled in).</span>
+<span class="sd">        item: The subject-scoped payload (pickled in).</span>
+<span class="sd">        result_queue: Parent-owned queue for messages.</span>
+<span class="sd">        worker_index: Slot index for GPU/thread configuration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_configure_worker_runtime</span><span class="p">(</span><span class="n">worker_index</span><span class="p">)</span>
+    <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">_MSG_STARTED</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">op</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">MemoryError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">_STATUS_OOM</span><span class="p">,</span> <span class="n">_picklable</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - isolation is the point</span>
+        <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">_STATUS_ERROR</span><span class="p">,</span> <span class="n">_picklable</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># ``Queue.put`` serialises lazily in a background feeder thread, so</span>
+        <span class="c1"># the outcome is pre-serialised here, synchronously: an unpicklable</span>
+        <span class="c1"># result must become an error message, not a silently dying feeder.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - unpicklable result</span>
+            <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">_STATUS_ERROR</span><span class="p">,</span>
+                    <span class="n">HABITAPIError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Result of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not picklable: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">_STATUS_OK</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_persistent_worker</span><span class="p">(</span>
+    <span class="n">task_queue</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">result_queue</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">worker_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">recycle_after_tasks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serve bind/run commands from a private queue until poisoned (``None``).</span>
+
+<span class="sd">    The operator is bound via ``(_CMD_BIND, op)`` so a long-lived pool can</span>
+<span class="sd">    be reused across recipe stages with different operators (v0.1</span>
+<span class="sd">    ``PersistentWorkerPoolSession`` parity). Each worker owns its task</span>
+<span class="sd">    queue: the parent dispatches exactly one run at a time and only sends</span>
+<span class="sd">    the next after the previous outcome arrives.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        task_queue: This worker&#39;s private command queue (``None`` ends the</span>
+<span class="sd">            loop).</span>
+<span class="sd">        result_queue: Parent-owned queue for messages.</span>
+<span class="sd">        worker_index: Slot index attached to every message.</span>
+<span class="sd">        recycle_after_tasks: Exit cleanly after this many successful runs</span>
+<span class="sd">            (``0`` disables); the parent respawns the slot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_configure_worker_runtime</span><span class="p">(</span><span class="n">worker_index</span><span class="p">)</span>
+    <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">worker_index</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_MSG_STARTED</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">successful_tasks</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">task_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">message</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="n">_CMD_BIND</span><span class="p">:</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">successful_tasks</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">worker_index</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_MSG_BOUND</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="o">!=</span> <span class="n">_CMD_RUN</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">message</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">worker_index</span><span class="p">,</span>
+                    <span class="n">task</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span>
+                    <span class="n">_STATUS_ERROR</span><span class="p">,</span>
+                    <span class="n">HABITAPIError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Persistent worker </span><span class="si">{</span><span class="n">worker_index</span><span class="si">}</span><span class="s2"> received a run &quot;</span>
+                        <span class="s2">&quot;before its operator was bound.&quot;</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">op</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">MemoryError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">worker_index</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span> <span class="n">_STATUS_OOM</span><span class="p">,</span> <span class="n">_picklable</span><span class="p">(</span><span class="n">exc</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - isolation is the point</span>
+            <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">worker_index</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span> <span class="n">_STATUS_ERROR</span><span class="p">,</span> <span class="n">_picklable</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Pre-serialise synchronously: ``Queue.put`` pickles in a</span>
+            <span class="c1"># background feeder thread whose failure would otherwise drop</span>
+            <span class="c1"># the outcome silently and hang the parent&#39;s scheduling loop.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+                <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">worker_index</span><span class="p">,</span>
+                        <span class="n">task</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span>
+                        <span class="n">_STATUS_ERROR</span><span class="p">,</span>
+                        <span class="n">HABITAPIError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Result of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">op</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not picklable: &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">worker_index</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span> <span class="n">_STATUS_OK</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+                <span class="n">successful_tasks</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">recycle_after_tasks</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">successful_tasks</span> <span class="o">&gt;=</span> <span class="n">recycle_after_tasks</span><span class="p">:</span>
+                    <span class="k">return</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Task</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One pending subject computation.&quot;&quot;&quot;</span>
+
+    <span class="n">task_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">cache_key</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">item</span><span class="p">:</span> <span class="n">Any</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_PersistentSlot</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parent-side bookkeeping for one persistent worker.&quot;&quot;&quot;</span>
+
+    <span class="n">worker_index</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">proc</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="n">task_queue</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="n">started</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">bound</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">in_flight_task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">dispatched_at</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">consecutive_failures</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">successful_tasks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_detect_gpu_pool_size</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Probe the usable GPU count for ``cap_workers_to_gpu_pool``.</span>
+
+<span class="sd">    PyTorch is asked first (it honours ``CUDA_VISIBLE_DEVICES``);</span>
+<span class="sd">    ``nvidia-smi -L`` is the fallback. A zero means &quot;no pool could be</span>
+<span class="sd">    determined&quot;, in which case no capping is applied -- capping to zero</span>
+<span class="sd">    workers would be absurd.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The detected GPU count, or ``0`` when undetectable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>  <span class="c1"># type: ignore</span>
+
+        <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - torch absent or broken is fine</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">completed</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;nvidia-smi&quot;</span><span class="p">,</span> <span class="s2">&quot;-L&quot;</span><span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">completed</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span>
+                <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">completed</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;GPU &quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - no nvidia-smi is fine</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="ProcessPoolBackend">
+<a class="viewcode-back" href="../../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProcessPoolBackend</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Execute subject-level work across child processes.</span>
+
+<span class="sd">    This backend ports the v0.1 individual-level parallel machinery --</span>
+<span class="sd">    timeouts, graceful shutdown, failure isolation, OOM backoff, resume --</span>
+<span class="sd">    behind the :class:`~habit.contracts.ops.ExecutionBackend` protocol, so</span>
+<span class="sd">    no algorithm ever manages a process pool itself.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        workers: Parallel worker processes; ``1`` still runs the work in a</span>
+<span class="sd">            child (the process boundary is the point of this backend).</span>
+<span class="sd">        subject_timeout_sec: Wall-clock seconds per subject; ``None``</span>
+<span class="sd">            disables the per-subject timeout.</span>
+<span class="sd">        subject_spawn_timeout_sec: Seconds allowed for an isolated child to</span>
+<span class="sd">            start; ``None`` disables it. Only meaningful in ``isolated``</span>
+<span class="sd">            mode (persistent workers start once per round, not per</span>
+<span class="sd">            subject).</span>
+<span class="sd">        graceful_shutdown_sec: Seconds between ``terminate()`` and</span>
+<span class="sd">            ``kill()`` when a process must be stopped.</span>
+<span class="sd">        on_subject_failure: ``&quot;continue&quot;`` isolates a subject failure in</span>
+<span class="sd">            its result slot; ``&quot;fail_fast&quot;`` aborts the run.</span>
+<span class="sd">        oom_backoff: Reduce the effective worker count after a fatal</span>
+<span class="sd">            memory error.</span>
+<span class="sd">        oom_reduce_workers_by: Workers subtracted per OOM event; the</span>
+<span class="sd">            effective count never drops below one.</span>
+<span class="sd">        cap_workers_to_gpu_pool: Clamp ``workers`` to the detected GPU</span>
+<span class="sd">            pool; no-op when no pool is detectable.</span>
+<span class="sd">        parallel_mode: ``&quot;persistent&quot;`` keeps one long-lived worker per</span>
+<span class="sd">            slot; ``&quot;isolated&quot;`` spawns one child process per subject.</span>
+<span class="sd">        auto_retry_rounds: Extra dispatch rounds for failed subjects</span>
+<span class="sd">            within one run; ``0`` disables.</span>
+<span class="sd">        resume: Reuse checkpointed successes and honour recorded failures.</span>
+<span class="sd">        retry_failed_subjects: Re-run subjects whose checkpoint records a</span>
+<span class="sd">            failure instead of skipping them.</span>
+<span class="sd">        force_rerun_subjects: Subject ids reprocessed even when a</span>
+<span class="sd">            checkpoint success exists.</span>
+<span class="sd">        clear_checkpoint_on_success: Clear the checkpoint store after a</span>
+<span class="sd">            run with zero failures.</span>
+<span class="sd">        persistent_worker_max_consecutive_failures: Restart a persistent</span>
+<span class="sd">            slot after this many consecutive fatal-class failures.</span>
+<span class="sd">        persistent_worker_recycle_after_tasks: Restart a persistent worker</span>
+<span class="sd">            after this many successes (``0`` disables).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ProcessPoolBackend.__init__">
+<a class="viewcode-back" href="../../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.__init__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">subject_timeout_sec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">900.0</span><span class="p">,</span>
+        <span class="n">subject_spawn_timeout_sec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">120.0</span><span class="p">,</span>
+        <span class="n">graceful_shutdown_sec</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">15.0</span><span class="p">,</span>
+        <span class="n">on_subject_failure</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;continue&quot;</span><span class="p">,</span>
+        <span class="n">oom_backoff</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">oom_reduce_workers_by</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">cap_workers_to_gpu_pool</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">parallel_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;persistent&quot;</span><span class="p">,</span>
+        <span class="n">auto_retry_rounds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">resume</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">retry_failed_subjects</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">force_rerun_subjects</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">clear_checkpoint_on_success</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">persistent_worker_max_consecutive_failures</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">persistent_worker_recycle_after_tasks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># RunPolicy owns the validation rules; building one here keeps the</span>
+        <span class="c1"># two surfaces consistent by construction. The import is lazy on</span>
+        <span class="c1"># purpose: ``habit.spec`` is not a layer ``habit.execution`` may</span>
+        <span class="c1"># import at module load time (see tests/test_architecture_contracts).</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span>
+
+        <span class="n">policy</span> <span class="o">=</span> <span class="n">RunPolicy</span><span class="p">(</span>
+            <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
+            <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
+            <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="n">subject_timeout_sec</span><span class="p">,</span>
+            <span class="n">subject_spawn_timeout_sec</span><span class="o">=</span><span class="n">subject_spawn_timeout_sec</span><span class="p">,</span>
+            <span class="n">graceful_shutdown_sec</span><span class="o">=</span><span class="n">graceful_shutdown_sec</span><span class="p">,</span>
+            <span class="n">on_subject_failure</span><span class="o">=</span><span class="n">on_subject_failure</span><span class="p">,</span>
+            <span class="n">oom_backoff</span><span class="o">=</span><span class="n">oom_backoff</span><span class="p">,</span>
+            <span class="n">oom_reduce_workers_by</span><span class="o">=</span><span class="n">oom_reduce_workers_by</span><span class="p">,</span>
+            <span class="n">cap_workers_to_gpu_pool</span><span class="o">=</span><span class="n">cap_workers_to_gpu_pool</span><span class="p">,</span>
+            <span class="n">resume</span><span class="o">=</span><span class="n">resume</span><span class="p">,</span>
+            <span class="n">parallel_mode</span><span class="o">=</span><span class="n">parallel_mode</span><span class="p">,</span>
+            <span class="n">auto_retry_rounds</span><span class="o">=</span><span class="n">auto_retry_rounds</span><span class="p">,</span>
+            <span class="n">retry_failed_subjects</span><span class="o">=</span><span class="n">retry_failed_subjects</span><span class="p">,</span>
+            <span class="n">force_rerun_subjects</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">force_rerun_subjects</span><span class="p">),</span>
+            <span class="n">clear_checkpoint_on_success</span><span class="o">=</span><span class="n">clear_checkpoint_on_success</span><span class="p">,</span>
+            <span class="n">persistent_worker_max_consecutive_failures</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">persistent_worker_max_consecutive_failures</span>
+            <span class="p">),</span>
+            <span class="n">persistent_worker_recycle_after_tasks</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">persistent_worker_recycle_after_tasks</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_pool_size</span> <span class="o">=</span> <span class="n">_detect_gpu_pool_size</span><span class="p">()</span> <span class="k">if</span> <span class="n">cap_workers_to_gpu_pool</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">cap_workers_to_gpu_pool</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_pool_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">policy</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span>
+                <span class="n">policy</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">workers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_pool_size</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span> <span class="o">=</span> <span class="n">policy</span>
+        <span class="c1"># Optional multi-map session (see :meth:`reuse_workers`).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reuse_depth</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_ctx</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_result_queue</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_slots</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">_PersistentSlot</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_next_worker_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_bound_op_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="ProcessPoolBackend.from_policy">
+<a class="viewcode-back" href="../../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.from_policy">[文档]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_policy</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">policy</span><span class="p">:</span> <span class="s2">&quot;RunPolicy&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ProcessPoolBackend&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build a backend from its declarative snapshot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            policy: The run policy to transcribe; every field maps onto the</span>
+<span class="sd">                constructor parameter of the same name.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The configured backend.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">workers</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">workers</span><span class="p">,</span>
+            <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">subject_timeout_sec</span><span class="p">,</span>
+            <span class="n">subject_spawn_timeout_sec</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">subject_spawn_timeout_sec</span><span class="p">,</span>
+            <span class="n">graceful_shutdown_sec</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">graceful_shutdown_sec</span><span class="p">,</span>
+            <span class="n">on_subject_failure</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">on_subject_failure</span><span class="p">,</span>
+            <span class="n">oom_backoff</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">oom_backoff</span><span class="p">,</span>
+            <span class="n">oom_reduce_workers_by</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">oom_reduce_workers_by</span><span class="p">,</span>
+            <span class="n">cap_workers_to_gpu_pool</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">cap_workers_to_gpu_pool</span><span class="p">,</span>
+            <span class="n">parallel_mode</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">parallel_mode</span><span class="p">,</span>
+            <span class="n">auto_retry_rounds</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">auto_retry_rounds</span><span class="p">,</span>
+            <span class="n">resume</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">resume</span><span class="p">,</span>
+            <span class="n">retry_failed_subjects</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">retry_failed_subjects</span><span class="p">,</span>
+            <span class="n">force_rerun_subjects</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">force_rerun_subjects</span><span class="p">,</span>
+            <span class="n">clear_checkpoint_on_success</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">clear_checkpoint_on_success</span><span class="p">,</span>
+            <span class="n">persistent_worker_max_consecutive_failures</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">policy</span><span class="o">.</span><span class="n">persistent_worker_max_consecutive_failures</span>
+            <span class="p">),</span>
+            <span class="n">persistent_worker_recycle_after_tasks</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">policy</span><span class="o">.</span><span class="n">persistent_worker_recycle_after_tasks</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProcessPoolBackend.reuse_workers">
+<a class="viewcode-back" href="../../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.reuse_workers">[文档]</a>
+    <span class="nd">@contextmanager</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reuse_workers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="s2">&quot;ProcessPoolBackend&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Keep persistent workers alive across successive :meth:`map` calls.</span>
+
+<span class="sd">        Nested enters are reference-counted. Isolated mode is a no-op (each</span>
+<span class="sd">        subject already owns a short-lived child). Recipes use this to avoid</span>
+<span class="sd">        paying Windows spawn/import twice for two_step units + labels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">parallel_mode</span> <span class="o">!=</span> <span class="s2">&quot;persistent&quot;</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="bp">self</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reuse_depth</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="bp">self</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reuse_depth</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reuse_depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_shutdown_worker_session</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">policy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RunPolicy&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the validated policy snapshot behind this backend.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">workers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the effective worker count (after any GPU capping).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">workers</span>
+
+<div class="viewcode-block" id="ProcessPoolBackend.map">
+<a class="viewcode-back" href="../../../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.map">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">op</span><span class="p">:</span> <span class="n">SubjectOperator</span><span class="p">[</span><span class="n">TIn</span><span class="p">,</span> <span class="n">TOut</span><span class="p">],</span>
+        <span class="n">items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">TIn</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CheckpointStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">SubjectResult</span><span class="p">[</span><span class="n">TOut</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply ``op`` across ``items`` with checkpoint-aware resume.</span>
+
+<span class="sd">        Results stream out in COMPLETION order (successes immediately,</span>
+<span class="sd">        terminal failures after their retry rounds are exhausted); each</span>
+<span class="sd">        :class:`SubjectResult` names its subject so callers restore the</span>
+<span class="sd">        canonical order, per the backend protocol.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            op: The subject-level operation to run.</span>
+<span class="sd">            items: Subject-scoped inputs.</span>
+<span class="sd">            checkpoint: Optional store for resume and persistence.</span>
+<span class="sd">            progress: Optional callback receiving ``(completed, total)``.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            One :class:`SubjectResult` per item, exactly once.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            BaseException: The first subject failure under</span>
+<span class="sd">                ``on_subject_failure=&quot;fail_fast&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">materialised</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TIn</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">materialised</span><span class="p">)</span>
+        <span class="n">completed</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_report</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">progress</span><span class="p">(</span><span class="n">completed</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
+
+        <span class="n">policy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span>
+        <span class="n">forced</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">force_rerun_subjects</span><span class="p">)</span>
+        <span class="n">pending</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Task</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">had_failure</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">materialised</span><span class="p">):</span>
+            <span class="n">subject_id</span> <span class="o">=</span> <span class="n">_subject_id_of</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+            <span class="n">cache_key</span> <span class="o">=</span> <span class="n">_cache_key_of</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">)</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="n">_Task</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">cache_key</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="c1"># Pre-flight the pickling boundary in the parent: an</span>
+                <span class="c1"># unpicklable payload would otherwise kill a queue feeder</span>
+                <span class="c1"># thread silently and look like a hung worker.</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Payload for subject </span><span class="si">{</span><span class="n">subject_id</span><span class="si">!r}</span><span class="s2"> is not picklable &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;and cannot cross the process boundary: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">policy</span><span class="o">.</span><span class="n">on_subject_failure</span> <span class="o">==</span> <span class="s2">&quot;fail_fast&quot;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">error</span>
+                <span class="n">had_failure</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">completed</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">_report</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">SubjectResult</span><span class="p">(</span>
+                    <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+                    <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">error</span><span class="o">=</span><span class="n">error</span><span class="p">,</span>
+                    <span class="n">from_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">policy</span><span class="o">.</span><span class="n">resume</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">subject_id</span> <span class="ow">in</span> <span class="n">forced</span><span class="p">:</span>
+                    <span class="n">checkpoint</span><span class="o">.</span><span class="n">discard_failure</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cached</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">completed</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">_report</span><span class="p">()</span>
+                        <span class="k">yield</span> <span class="n">SubjectResult</span><span class="p">(</span>
+                            <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+                            <span class="n">value</span><span class="o">=</span><span class="n">cached</span><span class="p">,</span>
+                            <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">from_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="n">failure_message</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">get_failure</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">failure_message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">policy</span><span class="o">.</span><span class="n">retry_failed_subjects</span><span class="p">:</span>
+                        <span class="n">completed</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">_report</span><span class="p">()</span>
+                        <span class="k">yield</span> <span class="n">SubjectResult</span><span class="p">(</span>
+                            <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+                            <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">error</span><span class="o">=</span><span class="n">HABITAPIError</span><span class="p">(</span>
+                                <span class="s2">&quot;Subject has a recorded checkpoint failure: &quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">failure_message</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">),</span>
+                            <span class="n">from_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+            <span class="n">pending</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+
+        <span class="n">attempts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">task</span><span class="o">.</span><span class="n">task_id</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">pending</span><span class="p">}</span>
+
+        <span class="k">while</span> <span class="n">pending</span><span class="p">:</span>
+            <span class="n">retry</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Task</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">round_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_round</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">pending</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">task</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">payload</span> <span class="ow">in</span> <span class="n">round_iter</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">_STATUS_OK</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">checkpoint</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+                        <span class="n">completed</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">_report</span><span class="p">()</span>
+                        <span class="k">yield</span> <span class="n">SubjectResult</span><span class="p">(</span>
+                            <span class="n">subject_id</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                            <span class="n">value</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                            <span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">from_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="c1"># Named ``failure`` rather than ``exc``: Python deletes an</span>
+                    <span class="c1"># ``except ... as exc`` target at the end of its block, so</span>
+                    <span class="c1"># reusing that name here confuses both readers and mypy&#39;s</span>
+                    <span class="c1"># deleted-variable analysis.</span>
+                    <span class="n">failure</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">payload</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="ne">BaseException</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="p">))</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">policy</span><span class="o">.</span><span class="n">on_subject_failure</span> <span class="o">==</span> <span class="s2">&quot;fail_fast&quot;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">failure</span>
+                    <span class="n">had_failure</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">attempts</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">task_id</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">attempts</span><span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">task_id</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">policy</span><span class="o">.</span><span class="n">auto_retry_rounds</span><span class="p">:</span>
+                        <span class="n">retry</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">checkpoint</span><span class="o">.</span><span class="n">put_failure</span><span class="p">(</span>
+                            <span class="n">task</span><span class="o">.</span><span class="n">cache_key</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">failure</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">failure</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="n">completed</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">_report</span><span class="p">()</span>
+                    <span class="k">yield</span> <span class="n">SubjectResult</span><span class="p">(</span>
+                        <span class="n">subject_id</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                        <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">error</span><span class="o">=</span><span class="n">failure</span><span class="p">,</span>
+                        <span class="n">from_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="c1"># Closing the round generator terminates any surviving</span>
+                <span class="c1"># workers (its own finally block), including the fail-fast</span>
+                <span class="c1"># path above.</span>
+                <span class="n">round_iter</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">pending</span> <span class="o">=</span> <span class="n">retry</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">policy</span><span class="o">.</span><span class="n">clear_checkpoint_on_success</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">had_failure</span>
+        <span class="p">):</span>
+            <span class="n">checkpoint</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
+    <span class="c1"># ------------------------------------------------------------------</span>
+    <span class="c1"># Round schedulers</span>
+    <span class="c1"># ------------------------------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_execute_round</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">:</span> <span class="n">SubjectOperator</span><span class="p">[</span><span class="n">TIn</span><span class="p">,</span> <span class="n">TOut</span><span class="p">],</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Task</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">_Task</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run one dispatch round over ``tasks``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            op: The subject-level operator.</span>
+<span class="sd">            tasks: Tasks to compute in this round.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            ``(task, status, payload)`` triples in completion order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">parallel_mode</span> <span class="o">==</span> <span class="s2">&quot;isolated&quot;</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_round_isolated</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_round_persistent</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proc</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stop a child process with the graceful-shutdown ladder.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            proc: The ``multiprocessing.Process`` to stop.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">proc</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="n">proc</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">proc</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="n">proc</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">graceful_shutdown_sec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="n">proc</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_round_isolated</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">:</span> <span class="n">SubjectOperator</span><span class="p">[</span><span class="n">TIn</span><span class="p">,</span> <span class="n">TOut</span><span class="p">],</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Task</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">_Task</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dispatch one child process per subject, up to ``workers`` at once.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            op: The subject-level operator.</span>
+<span class="sd">            tasks: Tasks to compute.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            ``(task, status, payload)`` triples in completion order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="s2">&quot;spawn&quot;</span><span class="p">)</span>
+        <span class="n">max_concurrent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">)</span>
+        <span class="n">running</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">task_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="n">exhausted</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">exhausted</span> <span class="ow">or</span> <span class="n">running</span><span class="p">:</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">exhausted</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">running</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_concurrent</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">task</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">task_iter</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                        <span class="n">exhausted</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">continue</span>
+                    <span class="n">result_queue</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+                    <span class="c1"># Slot index ≈ concurrent index so TorchRadiomics can</span>
+                    <span class="c1"># hash across a multi-GPU pool when one is configured.</span>
+                    <span class="n">slot_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">running</span><span class="p">)</span>
+                    <span class="n">proc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
+                        <span class="n">target</span><span class="o">=</span><span class="n">_isolated_worker</span><span class="p">,</span>
+                        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">result_queue</span><span class="p">,</span> <span class="n">slot_index</span><span class="p">),</span>
+                        <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">proc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                    <span class="n">running</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;proc&quot;</span><span class="p">:</span> <span class="n">proc</span><span class="p">,</span>
+                            <span class="s2">&quot;queue&quot;</span><span class="p">:</span> <span class="n">result_queue</span><span class="p">,</span>
+                            <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="n">task</span><span class="p">,</span>
+                            <span class="s2">&quot;started&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                            <span class="s2">&quot;outcome&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="s2">&quot;dispatched_at&quot;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">(),</span>
+                            <span class="s2">&quot;started_at&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">_POLL_INTERVAL_SEC</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">running</span><span class="p">):</span>
+                    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">message</span> <span class="o">=</span> <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;queue&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+                        <span class="k">except</span> <span class="n">queue_module</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                            <span class="k">break</span>
+                        <span class="k">if</span> <span class="n">message</span> <span class="o">==</span> <span class="n">_MSG_STARTED</span><span class="p">:</span>
+                            <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;started&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;started_at&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;outcome&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">message</span>
+                    <span class="n">proc</span> <span class="o">=</span> <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;proc&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;outcome&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">running</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+                        <span class="n">proc</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">graceful_shutdown_sec</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_terminate</span><span class="p">(</span><span class="n">proc</span><span class="p">)</span>
+                        <span class="n">status</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;outcome&quot;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">_STATUS_OOM</span><span class="p">:</span>
+                            <span class="n">max_concurrent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oom_reduced</span><span class="p">(</span><span class="n">max_concurrent</span><span class="p">)</span>
+                        <span class="k">yield</span> <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">],</span> <span class="n">status</span><span class="p">,</span> <span class="n">payload</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">proc</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                        <span class="n">running</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+                        <span class="k">yield</span> <span class="p">(</span>
+                            <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">],</span>
+                            <span class="n">_STATUS_ERROR</span><span class="p">,</span>
+                            <span class="n">_WorkerDiedError</span><span class="p">(</span>
+                                <span class="s2">&quot;Isolated worker exited with code &quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">proc</span><span class="o">.</span><span class="n">exitcode</span><span class="si">}</span><span class="s2"> without reporting an outcome.&quot;</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+                    <span class="n">spawn_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">subject_spawn_timeout_sec</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="ow">not</span> <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;started&quot;</span><span class="p">]</span>
+                        <span class="ow">and</span> <span class="n">spawn_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;dispatched_at&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">spawn_timeout</span>
+                    <span class="p">):</span>
+                        <span class="n">running</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_terminate</span><span class="p">(</span><span class="n">proc</span><span class="p">)</span>
+                        <span class="k">yield</span> <span class="p">(</span>
+                            <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">],</span>
+                            <span class="n">_STATUS_ERROR</span><span class="p">,</span>
+                            <span class="n">SubjectTimeoutError</span><span class="p">(</span>
+                                <span class="s2">&quot;Worker process did not start within &quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spawn_timeout</span><span class="si">}</span><span class="s2">s.&quot;</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="n">subject_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">subject_timeout_sec</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;started&quot;</span><span class="p">]</span>
+                        <span class="ow">and</span> <span class="n">subject_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;started_at&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">subject_timeout</span>
+                    <span class="p">):</span>
+                        <span class="n">running</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_terminate</span><span class="p">(</span><span class="n">proc</span><span class="p">)</span>
+                        <span class="k">yield</span> <span class="p">(</span>
+                            <span class="n">slot</span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">],</span>
+                            <span class="n">_STATUS_ERROR</span><span class="p">,</span>
+                            <span class="n">SubjectTimeoutError</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;Subject exceeded its </span><span class="si">{</span><span class="n">subject_timeout</span><span class="si">}</span><span class="s2">s &quot;</span>
+                                <span class="s2">&quot;wall-clock budget.&quot;</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">running</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_terminate</span><span class="p">(</span><span class="n">slot</span><span class="p">[</span><span class="s2">&quot;proc&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_oom_reduced</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply one OOM backoff step to a worker count.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            current: Current effective worker count.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The reduced count (never below one, unchanged when backoff is</span>
+<span class="sd">            disabled).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">oom_backoff</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">current</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">current</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">oom_reduce_workers_by</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_shutdown_worker_session</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stop every persistent worker retained by :meth:`reuse_workers`.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_session_slots</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_persistent_slot</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_slots</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_ctx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_result_queue</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_next_worker_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session_bound_op_id</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stop_persistent_slot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slot</span><span class="p">:</span> <span class="n">_PersistentSlot</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Poison one persistent slot and join its process.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">slot</span><span class="o">.</span><span class="n">task_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - queue already broken</span>
+            <span class="k">pass</span>
+        <span class="n">slot</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">graceful_shutdown_sec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_terminate</span><span class="p">(</span><span class="n">slot</span><span class="o">.</span><span class="n">proc</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_round_persistent</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">:</span> <span class="n">SubjectOperator</span><span class="p">[</span><span class="n">TIn</span><span class="p">,</span> <span class="n">TOut</span><span class="p">],</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Task</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">_Task</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serve tasks from long-lived workers, one private queue per slot.</span>
+
+<span class="sd">        Dispatch is parent-driven: a slot holds at most one task and</span>
+<span class="sd">        receives the next only after reporting the previous outcome. A</span>
+<span class="sd">        worker that is terminated therefore never takes queued-but-</span>
+<span class="sd">        unaccounted tasks down with it, and late messages from replaced</span>
+<span class="sd">        workers are dropped instead of double-counted. OOM backoff is</span>
+<span class="sd">        realised as retirements consumed by slots as they become free, so</span>
+<span class="sd">        busy workers always finish their current subject.</span>
+
+<span class="sd">        When :meth:`reuse_workers` is active, slots and the result queue</span>
+<span class="sd">        survive across ``map`` calls; only the operator is rebound.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            op: The subject-level operator.</span>
+<span class="sd">            tasks: Tasks to compute.</span>
+
+<span class="sd">        Yields:</span>
+<span class="sd">            ``(task, status, payload)`` triples in completion order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">keep_alive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reuse_depth</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">recycle_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">persistent_worker_recycle_after_tasks</span>
+        <span class="n">max_consec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">persistent_worker_max_consecutive_failures</span>
+
+        <span class="k">if</span> <span class="n">keep_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session_ctx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session_ctx</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="s2">&quot;spawn&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session_result_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session_ctx</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session_ctx</span> <span class="k">if</span> <span class="n">keep_alive</span> <span class="k">else</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="s2">&quot;spawn&quot;</span><span class="p">)</span>
+        <span class="n">result_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session_result_queue</span> <span class="k">if</span> <span class="n">keep_alive</span> <span class="k">else</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">ctx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">result_queue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">task_by_id</span> <span class="o">=</span> <span class="p">{</span><span class="n">task</span><span class="o">.</span><span class="n">task_id</span><span class="p">:</span> <span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">}</span>
+        <span class="n">pending</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">_Task</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="n">slots</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">_PersistentSlot</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session_slots</span> <span class="k">if</span> <span class="n">keep_alive</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="n">slot_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)))</span> <span class="k">if</span> <span class="n">tasks</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">next_worker_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session_next_worker_index</span> <span class="k">if</span> <span class="n">keep_alive</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">completed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="n">pending_retirements</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">op_id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_spawn_slot</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">nonlocal</span> <span class="n">next_worker_index</span>
+            <span class="n">task_queue</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+            <span class="n">proc</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">_persistent_worker</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">task_queue</span><span class="p">,</span>
+                    <span class="n">result_queue</span><span class="p">,</span>
+                    <span class="n">next_worker_index</span><span class="p">,</span>
+                    <span class="n">recycle_after</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">proc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">slots</span><span class="p">[</span><span class="n">next_worker_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">_PersistentSlot</span><span class="p">(</span>
+                <span class="n">worker_index</span><span class="o">=</span><span class="n">next_worker_index</span><span class="p">,</span>
+                <span class="n">proc</span><span class="o">=</span><span class="n">proc</span><span class="p">,</span>
+                <span class="n">task_queue</span><span class="o">=</span><span class="n">task_queue</span><span class="p">,</span>
+                <span class="n">started</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">bound</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">in_flight_task</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">dispatched_at</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="n">next_worker_index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">keep_alive</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_session_next_worker_index</span> <span class="o">=</span> <span class="n">next_worker_index</span>
+            <span class="k">return</span> <span class="n">next_worker_index</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_bind_slot</span><span class="p">(</span><span class="n">slot</span><span class="p">:</span> <span class="n">_PersistentSlot</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># An unpicklable operator surfaces here, in the parent.</span>
+            <span class="n">slot</span><span class="o">.</span><span class="n">bound</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">slot</span><span class="o">.</span><span class="n">dispatched_at</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+            <span class="n">slot</span><span class="o">.</span><span class="n">task_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">_CMD_BIND</span><span class="p">,</span> <span class="n">op</span><span class="p">))</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_dispatch</span><span class="p">(</span><span class="n">slot</span><span class="p">:</span> <span class="n">_PersistentSlot</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="n">pending</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">task_id</span>
+            <span class="n">slot</span><span class="o">.</span><span class="n">dispatched_at</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+            <span class="n">slot</span><span class="o">.</span><span class="n">task_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">_CMD_RUN</span><span class="p">,</span> <span class="n">task</span><span class="p">))</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_restart_slot</span><span class="p">(</span><span class="n">old</span><span class="p">:</span> <span class="n">_PersistentSlot</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PersistentSlot</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_persistent_slot</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
+            <span class="n">slots</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">old</span><span class="o">.</span><span class="n">worker_index</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">new_index</span> <span class="o">=</span> <span class="n">_spawn_slot</span><span class="p">()</span>
+            <span class="n">new_slot</span> <span class="o">=</span> <span class="n">slots</span><span class="p">[</span><span class="n">new_index</span><span class="p">]</span>
+            <span class="n">_bind_slot</span><span class="p">(</span><span class="n">new_slot</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_slot</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_note_outcome</span><span class="p">(</span><span class="n">slot</span><span class="p">:</span> <span class="n">_PersistentSlot</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Update consecutive-failure counters; return whether to restart.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                slot: Slot that just finished a run.</span>
+<span class="sd">                kind: Outcome kind (``ok`` / ``error`` / ``oom``).</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                ``True`` when the slot should be restarted before reuse.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">_STATUS_OK</span><span class="p">:</span>
+                <span class="n">slot</span><span class="o">.</span><span class="n">consecutive_failures</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">slot</span><span class="o">.</span><span class="n">successful_tasks</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="n">_STATUS_ERROR</span><span class="p">,</span> <span class="n">_STATUS_OOM</span><span class="p">):</span>
+                <span class="n">slot</span><span class="o">.</span><span class="n">consecutive_failures</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">return</span> <span class="n">slot</span><span class="o">.</span><span class="n">consecutive_failures</span> <span class="o">&gt;=</span> <span class="n">max_consec</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Grow the pool up to slot_count (session reuse may already have</span>
+            <span class="c1"># some warm workers).</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">slot_count</span><span class="p">:</span>
+                <span class="n">_spawn_slot</span><span class="p">()</span>
+
+            <span class="c1"># Always (re)bind before dispatching. Session reuse across recipe</span>
+            <span class="c1"># stages changes the operator; skipping bind when ``bound`` was</span>
+            <span class="c1"># still True from the previous map would silently run the old op</span>
+            <span class="c1"># (e.g. units results under label cache keys).</span>
+            <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">slots</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">_bind_slot</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">keep_alive</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_session_bound_op_id</span> <span class="o">=</span> <span class="n">op_id</span>
+
+            <span class="c1"># Wait until every idle slot is bound, then dispatch.</span>
+            <span class="n">unbound</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">slots</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">bound</span><span class="p">]</span>
+            <span class="k">while</span> <span class="n">unbound</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">_POLL_INTERVAL_SEC</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">queue_module</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">worker_index</span><span class="p">,</span> <span class="n">_task_id</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">_payload</span> <span class="o">=</span> <span class="n">message</span>
+                    <span class="n">maybe_slot</span> <span class="o">=</span> <span class="n">slots</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">worker_index</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">maybe_slot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">slot</span> <span class="o">=</span> <span class="n">maybe_slot</span>
+                    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">_MSG_STARTED</span><span class="p">:</span>
+                        <span class="n">slot</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">_MSG_BOUND</span><span class="p">:</span>
+                        <span class="n">slot</span><span class="o">.</span><span class="n">bound</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">slot</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">continue</span>
+                <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+                <span class="n">spawn_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">subject_spawn_timeout_sec</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">slots</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">bound</span> <span class="ow">or</span> <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">slot</span><span class="o">.</span><span class="n">dispatched_at</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">spawn_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="n">spawn_timeout</span>
+                        <span class="ow">and</span> <span class="ow">not</span> <span class="n">slot</span><span class="o">.</span><span class="n">started</span>
+                    <span class="p">):</span>
+                        <span class="c1"># Startup hang during bind: replace the slot.</span>
+                        <span class="n">_restart_slot</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+                <span class="n">unbound</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">slots</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">bound</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">slots</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">pending</span> <span class="ow">and</span> <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">slot</span><span class="o">.</span><span class="n">bound</span><span class="p">:</span>
+                    <span class="n">_dispatch</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+
+            <span class="k">while</span> <span class="n">completed</span> <span class="o">&lt;</span> <span class="n">total</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="n">result_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">_POLL_INTERVAL_SEC</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">queue_module</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">worker_index</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">message</span>
+                    <span class="n">maybe_slot</span> <span class="o">=</span> <span class="n">slots</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">worker_index</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">maybe_slot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">slot</span> <span class="o">=</span> <span class="n">maybe_slot</span>
+                    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">_MSG_STARTED</span><span class="p">:</span>
+                        <span class="n">slot</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">_MSG_BOUND</span><span class="p">:</span>
+                        <span class="n">slot</span><span class="o">.</span><span class="n">bound</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">slot</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">if</span> <span class="n">pending</span> <span class="ow">and</span> <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">_dispatch</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">task_id</span> <span class="o">!=</span> <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">completed</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">restart</span> <span class="o">=</span> <span class="n">_note_outcome</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="n">kind</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">_STATUS_OOM</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">oom_backoff</span><span class="p">:</span>
+                        <span class="n">pending_retirements</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                            <span class="n">pending_retirements</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">oom_reduce_workers_by</span><span class="p">,</span>
+                            <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">task_by_id</span><span class="p">[</span><span class="n">task_id</span><span class="p">],</span> <span class="n">kind</span><span class="p">,</span> <span class="n">payload</span>
+                    <span class="k">if</span> <span class="n">pending_retirements</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">pending_retirements</span> <span class="o">-=</span> <span class="mi">1</span>
+                        <span class="n">slots</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">worker_index</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_persistent_slot</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">restart</span><span class="p">:</span>
+                        <span class="n">new_slot</span> <span class="o">=</span> <span class="n">_restart_slot</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">pending</span><span class="p">:</span>
+                            <span class="c1"># Wait for bind ack on the next loop iteration.</span>
+                            <span class="k">pass</span>
+                        <span class="k">del</span> <span class="n">new_slot</span>
+                    <span class="k">elif</span> <span class="n">pending</span> <span class="ow">and</span> <span class="n">slot</span><span class="o">.</span><span class="n">bound</span><span class="p">:</span>
+                        <span class="n">_dispatch</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+
+                <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+                <span class="n">spawn_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">subject_spawn_timeout_sec</span>
+                <span class="n">subject_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_policy</span><span class="o">.</span><span class="n">subject_timeout_sec</span>
+                <span class="n">timed_out</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">SubjectTimeoutError</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">slot</span><span class="o">.</span><span class="n">dispatched_at</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="ow">not</span> <span class="n">slot</span><span class="o">.</span><span class="n">started</span>
+                        <span class="ow">and</span> <span class="n">spawn_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="n">spawn_timeout</span>
+                    <span class="p">):</span>
+                        <span class="n">timed_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="n">index</span><span class="p">,</span>
+                                <span class="n">SubjectTimeoutError</span><span class="p">(</span>
+                                    <span class="s2">&quot;Worker process did not start within &quot;</span>
+                                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spawn_timeout</span><span class="si">}</span><span class="s2">s.&quot;</span>
+                                <span class="p">),</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="p">(</span>
+                        <span class="n">slot</span><span class="o">.</span><span class="n">started</span>
+                        <span class="ow">and</span> <span class="n">slot</span><span class="o">.</span><span class="n">bound</span>
+                        <span class="ow">and</span> <span class="n">subject_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="n">subject_timeout</span>
+                    <span class="p">):</span>
+                        <span class="n">timed_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="n">index</span><span class="p">,</span>
+                                <span class="n">SubjectTimeoutError</span><span class="p">(</span>
+                                    <span class="sa">f</span><span class="s2">&quot;Subject exceeded its </span><span class="si">{</span><span class="n">subject_timeout</span><span class="si">}</span><span class="s2">s &quot;</span>
+                                    <span class="s2">&quot;wall-clock budget.&quot;</span>
+                                <span class="p">),</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">timed_out</span><span class="p">:</span>
+                    <span class="n">slot</span> <span class="o">=</span> <span class="n">slots</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                    <span class="n">task_id</span> <span class="o">=</span> <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span>
+                    <span class="k">assert</span> <span class="n">task_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_terminate</span><span class="p">(</span><span class="n">slot</span><span class="o">.</span><span class="n">proc</span><span class="p">)</span>
+                    <span class="n">completed</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">slot</span><span class="o">.</span><span class="n">consecutive_failures</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">yield</span> <span class="n">task_by_id</span><span class="p">[</span><span class="n">task_id</span><span class="p">],</span> <span class="n">_STATUS_ERROR</span><span class="p">,</span> <span class="n">error</span>
+                    <span class="k">if</span> <span class="n">pending</span> <span class="ow">and</span> <span class="n">completed</span> <span class="o">&lt;</span> <span class="n">total</span><span class="p">:</span>
+                        <span class="n">new_slot</span> <span class="o">=</span> <span class="n">slots</span><span class="p">[</span><span class="n">_spawn_slot</span><span class="p">()]</span>
+                        <span class="n">_bind_slot</span><span class="p">(</span><span class="n">new_slot</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">slots</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                        <span class="k">continue</span>
+                    <span class="n">slots</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">completed</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">yield</span> <span class="p">(</span>
+                            <span class="n">task_by_id</span><span class="p">[</span><span class="n">slot</span><span class="o">.</span><span class="n">in_flight_task</span><span class="p">],</span>
+                            <span class="n">_STATUS_ERROR</span><span class="p">,</span>
+                            <span class="n">_WorkerDiedError</span><span class="p">(</span>
+                                <span class="s2">&quot;Persistent worker exited with code &quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">slot</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">exitcode</span><span class="si">}</span><span class="s2"> mid-subject.&quot;</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">pending</span> <span class="ow">and</span> <span class="n">completed</span> <span class="o">&lt;</span> <span class="n">total</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">slot_count</span><span class="p">:</span>
+                        <span class="n">new_slot</span> <span class="o">=</span> <span class="n">slots</span><span class="p">[</span><span class="n">_spawn_slot</span><span class="p">()]</span>
+                        <span class="n">_bind_slot</span><span class="p">(</span><span class="n">new_slot</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_alive</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">slots</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_stop_persistent_slot</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span>
+                <span class="n">slots</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

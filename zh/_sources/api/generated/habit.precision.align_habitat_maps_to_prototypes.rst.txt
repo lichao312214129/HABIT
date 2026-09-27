@@ -1,0 +1,19 @@
+﻿align\_habitat\_maps\_to\_prototypes
+====================================
+
+.. note::
+
+   This page is a reference documentation. It only explains the
+   function signature, and not how to use it. Please refer to the
+   :doc:`Habitat Guide </auto_examples/index>` and
+   :doc:`/api/python_api` for usage.
+
+.. currentmodule:: habit.precision
+
+.. autofunction:: align_habitat_maps_to_prototypes
+
+.. include:: habit.precision.align_habitat_maps_to_prototypes.examples
+
+.. raw:: html
+
+   <div style="clear:both"></div>

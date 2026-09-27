@@ -1,0 +1,1667 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../../../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>habit.adapters.writers &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/translations.js?v=beaddf03"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/habit/adapters/writers';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/_modules/habit/adapters/writers.html" />
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">模块代码</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">habit.adapters.writers</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>habit.adapters.writers 源代码</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Filesystem implementation of the :class:`ResultWriter` protocol (L1).</span>
+
+<span class="sd">Persisting results is deliberately a separate object from producing them.</span>
+<span class="sd">The recipe layer hands finished, in-memory artefacts to a writer, so the same</span>
+<span class="sd">recipe call runs unchanged inside a service that has no output directory --</span>
+<span class="sd">and so the v0.1 output layout becomes ONE writer rather than a property of</span>
+<span class="sd">the algorithms.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HabitatMap</span><span class="p">,</span>
+    <span class="n">HabitatModel</span><span class="p">,</span>
+    <span class="n">Supervoxelization</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunManifest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.habitats_results_io</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">normalize_habitats_results_format</span><span class="p">,</span>
+    <span class="n">save_habitats_results</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.write_access</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">is_filesystem_permission_error</span><span class="p">,</span>
+    <span class="n">probe_writable_directory</span><span class="p">,</span>
+    <span class="n">raise_unwritable_destination</span><span class="p">,</span>
+    <span class="n">write_via_temp_then_replace</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DirectoryResultWriter&quot;</span><span class="p">,</span> <span class="s2">&quot;normalize_map_format&quot;</span><span class="p">,</span> <span class="s2">&quot;subject_units_frame&quot;</span><span class="p">]</span>
+
+<span class="c1">#: Habitat label dtype written to disk. v0.1 wrote label maps through</span>
+<span class="c1">#: ``sitk.GetImageFromArray`` on an ``int32`` label array, and the golden</span>
+<span class="c1">#: baseline hashes those bytes, so the dtype is part of the artefact</span>
+<span class="c1">#: contract rather than an implementation detail.</span>
+<span class="n">_LABEL_DTYPE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+
+<span class="c1">#: Identifier/metadata columns of the v0.1 units table, in canonical order</span>
+<span class="c1">#: (feature columns follow). ``supervoxel`` and ``count`` exist only at</span>
+<span class="c1">#: supervoxel/habitat granularity: a voxel-level row needs no voxel count</span>
+<span class="c1">#: and has no partition id.</span>
+<span class="n">_SUBJECT_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;subject&quot;</span>
+<span class="n">_SUPERVOXEL_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;supervoxel&quot;</span>
+<span class="n">_HABITATS_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;habitats&quot;</span>
+<span class="n">_COUNT_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;count&quot;</span>
+
+<span class="c1">#: Canonical stem -&gt; file extension (including the leading dot) for habitat</span>
+<span class="c1">#: and supervoxel label maps. SimpleITK selects the encoder from the path</span>
+<span class="c1">#: suffix, so the extension IS the format contract.</span>
+<span class="n">_MAP_FORMAT_EXTENSIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;nrrd&quot;</span><span class="p">:</span> <span class="s2">&quot;.nrrd&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nii&quot;</span><span class="p">:</span> <span class="s2">&quot;.nii&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nii.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;.nii.gz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mha&quot;</span><span class="p">:</span> <span class="s2">&quot;.mha&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mhd&quot;</span><span class="p">:</span> <span class="s2">&quot;.mhd&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_require_simpleitk</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Import SimpleITK lazily so the adapter layer stays light to import.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">SimpleITK</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sitk</span>
+    <span class="k">except</span> <span class="ne">ModuleNotFoundError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pragma: no cover - present in CI</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;SimpleITK is required to write image files to disk.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">return</span> <span class="n">sitk</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_map_format</span><span class="p">(</span><span class="n">map_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Canonicalise a label-map on-disk format to a file extension.</span>
+
+<span class="sd">    Accepted values (case-insensitive, leading dot optional)::</span>
+
+<span class="sd">        nrrd | nii | nii.gz | mha | mhd</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        map_format: Format name or extension requested by the caller.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Extension including the leading dot, e.g. ``&quot;.nii.gz&quot;``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: When ``map_format`` is not one of the supported values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">map_format</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_MAP_FORMAT_EXTENSIONS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_MAP_FORMAT_EXTENSIONS</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported map_format </span><span class="si">{</span><span class="n">map_format</span><span class="si">!r}</span><span class="s2">; expected one of: </span><span class="si">{</span><span class="n">supported</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_geometry</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">geometry</span><span class="p">:</span> <span class="n">Geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stamp physical metadata onto a freshly created SimpleITK image.</span>
+
+<span class="sd">    A label map without spacing/origin/direction is not merely untidy: it</span>
+<span class="sd">    silently stops overlaying on the source series, and every downstream</span>
+<span class="sd">    volume in physical units becomes wrong.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: SimpleITK image created from a label array.</span>
+<span class="sd">        geometry: Grid the label array refers to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">SetSpacing</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">spacing</span><span class="p">))</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">SetOrigin</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">origin</span><span class="p">))</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">SetDirection</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">direction</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_label_image</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">destination</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Persist a SimpleITK label image via temp file + atomic replace.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: SimpleITK image ready to write (geometry already applied).</span>
+<span class="sd">        destination: Final on-disk path (extension selects the encoder).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: When the filesystem refuses the write or replace.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sitk</span> <span class="o">=</span> <span class="n">_require_simpleitk</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_tmp</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sitk</span><span class="o">.</span><span class="n">WriteImage</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">write_via_temp_then_replace</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="n">_write_tmp</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">HABITAPIError</span><span class="p">:</span>
+        <span class="k">raise</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="c1"># SimpleITK commonly raises RuntimeError(&quot;... Permission denied ...&quot;)</span>
+        <span class="c1"># instead of PermissionError; surface the same actionable HABIT error.</span>
+        <span class="k">if</span> <span class="n">is_filesystem_permission_error</span><span class="p">(</span><span class="n">exc</span><span class="p">):</span>
+            <span class="n">raise_unwritable_destination</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="n">cause</span><span class="o">=</span><span class="n">exc</span><span class="p">)</span>
+        <span class="k">raise</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unit_assignments</span><span class="p">(</span>
+    <span class="n">units</span><span class="p">:</span> <span class="n">Supervoxelization</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive (unit ids, assigned habitat per unit, voxel count per unit).</span>
+
+<span class="sd">    The assigner paints every voxel of a unit with that unit&#39;s habitat, so</span>
+<span class="sd">    the habitat of a unit&#39;s first voxel (in stable sorted order) IS the</span>
+<span class="sd">    unit&#39;s habitat. Re-deriving the assignment from the two label images --</span>
+<span class="sd">    rather than replicating the assigner&#39;s internals -- keeps the table</span>
+<span class="sd">    consistent with the written habitat map by construction.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        units: One subject&#39;s clustering units.</span>
+<span class="sd">        habitat_map: The same subject&#39;s habitat label image.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Three equally sized arrays over the non-background units in</span>
+<span class="sd">        ascending id order: unit ids, assigned habitat ids, voxel counts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">habitats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;stable&quot;</span><span class="p">)</span>
+    <span class="n">sorted_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+    <span class="n">unique</span><span class="p">,</span> <span class="n">first</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">sorted_labels</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">unique</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="n">unit_ids</span> <span class="o">=</span> <span class="n">unique</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unit_ids</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">empty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">unit_ids</span><span class="p">,</span> <span class="n">empty</span><span class="p">,</span> <span class="n">empty</span>
+    <span class="n">assigned</span> <span class="o">=</span> <span class="n">habitats</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="n">first</span><span class="p">[</span><span class="n">keep</span><span class="p">]]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span>
+        <span class="n">labels</span><span class="p">[</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">unit_ids</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">unit_ids</span><span class="p">,</span> <span class="n">assigned</span><span class="p">,</span> <span class="n">counts</span><span class="p">[</span><span class="n">unit_ids</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">subject_units_frame</span><span class="p">(</span>
+    <span class="n">units</span><span class="p">:</span> <span class="n">Supervoxelization</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span> <span class="n">granularity</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build one subject&#39;s rows of the v0.1 units table.</span>
+
+<span class="sd">    Public so the recipe layer can aggregate a subject&#39;s rows INSIDE a</span>
+<span class="sd">    worker process: at ``&quot;habitat&quot;`` granularity the pooled rows are a few</span>
+<span class="sd">    kilobytes, while the voxel-level units they derive from are the</span>
+<span class="sd">    memory-dominant payload of a one-step run. Aggregating at the source</span>
+<span class="sd">    keeps voxel feature matrices from ever crossing the process boundary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        units: The subject&#39;s clustering units.</span>
+<span class="sd">        habitat_map: The subject&#39;s habitat label image.</span>
+<span class="sd">        granularity: ``&quot;supervoxel&quot;`` (row per unit), ``&quot;habitat&quot;`` (row per</span>
+<span class="sd">            assigned habitat, features pooled) or ``&quot;voxel&quot;`` (row per</span>
+<span class="sd">            unit/voxel without partition metadata).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unit_ids</span><span class="p">,</span> <span class="n">assigned</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">_unit_assignments</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">)</span>
+    <span class="c1"># ``features`` is indexed by unit id; ``.loc`` keeps the table aligned</span>
+    <span class="c1"># with the label image and raises loudly if a feature row is missing.</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">unit_ids</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">subject_id</span>
+    <span class="k">if</span> <span class="n">granularity</span> <span class="o">==</span> <span class="s2">&quot;supervoxel&quot;</span><span class="p">:</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_COUNT_COLUMN</span><span class="p">,</span> <span class="n">counts</span><span class="p">)</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_HABITATS_COLUMN</span><span class="p">,</span> <span class="n">assigned</span><span class="p">)</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_SUPERVOXEL_COLUMN</span><span class="p">,</span> <span class="n">unit_ids</span><span class="p">)</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_SUBJECT_COLUMN</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame</span>
+    <span class="k">if</span> <span class="n">granularity</span> <span class="o">==</span> <span class="s2">&quot;voxel&quot;</span><span class="p">:</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_HABITATS_COLUMN</span><span class="p">,</span> <span class="n">assigned</span><span class="p">)</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_SUBJECT_COLUMN</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame</span>
+    <span class="c1"># ``&quot;habitat&quot;``: pool the unit rows of each assigned habitat. One-step</span>
+    <span class="c1"># habitats are defined inside their own subject, so a habitat never</span>
+    <span class="c1"># spans subjects and grouping within this frame is exact; with</span>
+    <span class="c1"># single-voxel units the pooled means are the cluster centroids.</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">frame</span><span class="p">[</span><span class="n">_HABITATS_COLUMN</span><span class="p">]</span> <span class="o">=</span> <span class="n">assigned</span>
+    <span class="n">frame</span><span class="p">[</span><span class="n">_COUNT_COLUMN</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">_HABITATS_COLUMN</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pooled</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">columns</span><span class="p">)]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">pooled_counts</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span><span class="n">_COUNT_COLUMN</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">habitat_ids</span> <span class="o">=</span> <span class="n">pooled</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">pooled</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_COUNT_COLUMN</span><span class="p">,</span> <span class="n">pooled_counts</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_HABITATS_COLUMN</span><span class="p">,</span> <span class="n">habitat_ids</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_SUPERVOXEL_COLUMN</span><span class="p">,</span> <span class="n">habitat_ids</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_SUBJECT_COLUMN</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_empty_units_frame</span><span class="p">(</span><span class="n">granularity</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the header-only units table of a subject-less study.&quot;&quot;&quot;</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="n">_SUBJECT_COLUMN</span><span class="p">,</span> <span class="n">_HABITATS_COLUMN</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">granularity</span> <span class="o">==</span> <span class="s2">&quot;voxel&quot;</span>
+        <span class="k">else</span> <span class="p">[</span>
+            <span class="n">_SUBJECT_COLUMN</span><span class="p">,</span>
+            <span class="n">_SUPERVOXEL_COLUMN</span><span class="p">,</span>
+            <span class="n">_HABITATS_COLUMN</span><span class="p">,</span>
+            <span class="n">_COUNT_COLUMN</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DirectoryResultWriter">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter">[文档]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DirectoryResultWriter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write study artefacts into one directory, in the v0.1 layout.</span>
+
+<span class="sd">    The layout is fixed here and nowhere else::</span>
+
+<span class="sd">        &lt;root&gt;/&lt;subject_id&gt;_habitats.&lt;ext&gt;</span>
+<span class="sd">        &lt;root&gt;/habitat_model.habitatmodel</span>
+<span class="sd">        &lt;root&gt;/&lt;name&gt;.csv</span>
+<span class="sd">        &lt;root&gt;/run_manifest.json</span>
+
+<span class="sd">    ``&lt;ext&gt;`` defaults to ``nrrd`` (v0.1). Pass ``map_format`` to write</span>
+<span class="sd">    NIfTI or MetaImage instead; SimpleITK chooses the encoder from the</span>
+<span class="sd">    destination suffix.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root: Destination directory. Created on first write rather than in</span>
+<span class="sd">            ``__init__``, so constructing a writer has no side effect -- a</span>
+<span class="sd">            caller may build one, decide not to use it, and leave no empty</span>
+<span class="sd">            directory behind. Named ``root`` to match</span>
+<span class="sd">            :class:`~habit.adapters.directory.DirectoryDataSource`: a</span>
+<span class="sd">            destination is a filesystem fact here, not a configuration</span>
+<span class="sd">            setting.</span>
+<span class="sd">        map_format: On-disk format for habitat and supervoxel label maps.</span>
+<span class="sd">            One of ``&quot;nrrd&quot;`` (default), ``&quot;nii&quot;``, ``&quot;nii.gz&quot;``, ``&quot;mha&quot;``,</span>
+<span class="sd">            ``&quot;mhd&quot;``. Leading dots are accepted (``&quot;.nii.gz&quot;``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DirectoryResultWriter.__init__">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.__init__">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">map_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nrrd&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_extension</span> <span class="o">=</span> <span class="n">normalize_map_format</span><span class="p">(</span><span class="n">map_format</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_probed</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="DirectoryResultWriter.probe_write_access">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.probe_write_access">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">probe_write_access</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">existing_paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fail fast if ``root`` (or listed overwrite targets) is not writable.</span>
+
+<span class="sd">        Safe to call more than once; constructing the writer still has no</span>
+<span class="sd">        side effect until this method or a write runs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            existing_paths: Optional files that will be overwritten.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The destination directory after a successful probe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">probe_writable_directory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">existing_paths</span><span class="o">=</span><span class="n">existing_paths</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_probed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_destination</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a path inside ``root``, probing write access on first use.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_probed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">probe_write_access</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="n">filename</span>
+
+<div class="viewcode-block" id="DirectoryResultWriter.write_habitat_map">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_habitat_map">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_habitat_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write one subject&#39;s habitat label image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            habitat_map: Labels plus the grid they refer to.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path written (extension follows :attr:`map_extension`).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sitk</span> <span class="o">=</span> <span class="n">_require_simpleitk</span><span class="p">()</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">_habitats</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">map_extension</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">_LABEL_DTYPE</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">GetImageFromArray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="n">_apply_geometry</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="n">_write_label_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DirectoryResultWriter.write_feature_table">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_feature_table">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_feature_table</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write one feature table as CSV.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            table: The table to persist.</span>
+<span class="sd">            name: File stem, e.g. ``&quot;habitat_features&quot;``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path written.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+        <span class="c1"># Temp file + atomic replace: an interrupted run must not leave a</span>
+        <span class="c1"># truncated CSV that a later resume would mistake for a result.</span>
+        <span class="n">write_via_temp_then_replace</span><span class="p">(</span>
+            <span class="n">destination</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">tmp</span><span class="p">:</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DirectoryResultWriter.write_supervoxel_map">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_supervoxel_map">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_supervoxel_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="n">Supervoxelization</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write one subject&#39;s supervoxel partition.</span>
+
+<span class="sd">        Not part of the :class:`~habit.contracts.ops.ResultWriter` protocol:</span>
+<span class="sd">        the partition map is a v0.1 reporting artefact (two-step training</span>
+<span class="sd">        wrote ``&lt;subject_id&gt;_supervoxel.nrrd`` during clustering), derived</span>
+<span class="sd">        from the study&#39;s clustering units rather than produced by the</span>
+<span class="sd">        algorithms. Keeping it off the protocol lets third-party writers</span>
+<span class="sd">        ignore it without structurally breaking the contract. The on-disk</span>
+<span class="sd">        extension follows the writer&#39;s :attr:`map_extension`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            units: The subject&#39;s supervoxel partition.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path written.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sitk</span> <span class="o">=</span> <span class="n">_require_simpleitk</span><span class="p">()</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">units</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">_supervoxel</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">map_extension</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">label_array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">_LABEL_DTYPE</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">GetImageFromArray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="n">_apply_geometry</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">units</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="n">_write_label_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DirectoryResultWriter.write_units_table">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_units_table">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_units_table</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">units</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Supervoxelization</span><span class="p">],</span>
+        <span class="n">habitat_maps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatMap</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">granularity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">table_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the v0.1 ``habitats`` unit table derived from a study&#39;s</span>
+<span class="sd">        clustering units and habitat maps.</span>
+
+<span class="sd">        Like :meth:`write_supervoxel_map` this is a v0.1-layout extra beyond</span>
+<span class="sd">        the writer protocol. Row granularity follows the recipe design:</span>
+
+<span class="sd">        * ``&quot;supervoxel&quot;`` -- one row per clustering unit (two-step):</span>
+<span class="sd">          ``subject, supervoxel, habitats, count, &lt;features...&gt;``.</span>
+<span class="sd">        * ``&quot;habitat&quot;`` -- one row per assigned habitat within each subject</span>
+<span class="sd">          (one-step, where units are single voxels and each defined cluster</span>
+<span class="sd">          IS a habitat): same columns, aggregated per habitat.</span>
+<span class="sd">        * ``&quot;voxel&quot;`` -- one row per ROI voxel (direct pooling):</span>
+<span class="sd">          ``subject, habitats, &lt;features...&gt;``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            units: Per-subject clustering units, in cohort order.</span>
+<span class="sd">            habitat_maps: Per-subject habitat label images, aligned with</span>
+<span class="sd">                ``units``.</span>
+<span class="sd">            granularity: ``&quot;supervoxel&quot;``, ``&quot;habitat&quot;`` or ``&quot;voxel&quot;``.</span>
+<span class="sd">            table_format: ``&quot;parquet&quot;`` (v0.1 default) or ``&quot;csv&quot;``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path written.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: On unknown granularity, length mismatch, or a</span>
+<span class="sd">                units/map pair belonging to different subjects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">granularity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;supervoxel&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat&quot;</span><span class="p">,</span> <span class="s2">&quot;voxel&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown units-table granularity </span><span class="si">{</span><span class="n">granularity</span><span class="si">!r}</span><span class="s2">; expected &quot;</span>
+                <span class="s2">&quot;&#39;supervoxel&#39;, &#39;habitat&#39; or &#39;voxel&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">normalize_habitats_results_format</span><span class="p">(</span><span class="n">table_format</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">habitat_maps</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot build the units table from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">)</span><span class="si">}</span><span class="s2"> unit sets &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2"> habitat maps; the two must align &quot;</span>
+                <span class="s2">&quot;one per subject.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">frames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">subject_units</span><span class="p">,</span> <span class="n">habitat_map</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">habitat_maps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">subject_units</span><span class="o">.</span><span class="n">subject_id</span> <span class="o">!=</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="s2">&quot;Units/habitat-map misalignment: units belong to &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject_units</span><span class="o">.</span><span class="n">subject_id</span><span class="si">!r}</span><span class="s2"> but the map belongs to &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">subject_units_frame</span><span class="p">(</span><span class="n">subject_units</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">granularity</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">frames</span>
+            <span class="k">else</span> <span class="n">_empty_units_frame</span><span class="p">(</span><span class="n">granularity</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="n">save_habitats_results</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">table_format</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DirectoryResultWriter.write_habitat_model">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_habitat_model">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_habitat_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">HabitatModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the fitted habitat definition in its versioned archive format.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model: The population-level habitat definition.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path written.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span><span class="p">(</span><span class="s2">&quot;habitat_model.habitatmodel&quot;</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DirectoryResultWriter.write_subject_model">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_subject_model">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_subject_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">HabitatModel</span><span class="p">,</span> <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write one subject&#39;s own habitat definition (one-step design).</span>
+
+<span class="sd">        Deliberately NOT part of the</span>
+<span class="sd">        :class:`~habit.contracts.ops.ResultWriter` protocol -- the protocol</span>
+<span class="sd">        persists one model per study, while the one-step design fits one</span>
+<span class="sd">        definition per subject. Keeping this a directory-writer extra lets</span>
+<span class="sd">        third-party writers ignore it without structurally breaking the</span>
+<span class="sd">        contract (same rationale as :meth:`write_supervoxel_map`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model: The subject&#39;s fitted habitat definition.</span>
+<span class="sd">            subject_id: Owning subject id; the file is named</span>
+<span class="sd">                ``&lt;subject_id&gt;.habitatmodel``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path written.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">.habitatmodel&quot;</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DirectoryResultWriter.write_units_frames">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_units_frames">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_units_frames</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frames</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">granularity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">table_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the units table from pre-aggregated per-subject rows.</span>
+
+<span class="sd">        Streaming runs aggregate each subject&#39;s units-table rows inside the</span>
+<span class="sd">        worker (via :func:`subject_units_frame`) so voxel-level arrays never</span>
+<span class="sd">        cross the process boundary; this persists their concatenation in</span>
+<span class="sd">        exactly the v0.1 layout :meth:`write_units_table` produces.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frames: Per-subject units-table rows, in cohort order.</span>
+<span class="sd">            granularity: ``&quot;supervoxel&quot;``, ``&quot;habitat&quot;`` or ``&quot;voxel&quot;`` --</span>
+<span class="sd">                only used for the header when ``frames`` is empty.</span>
+<span class="sd">            table_format: ``&quot;parquet&quot;`` (v0.1 default) or ``&quot;csv&quot;``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path written.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: On unknown granularity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">granularity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;supervoxel&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat&quot;</span><span class="p">,</span> <span class="s2">&quot;voxel&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown units-table granularity </span><span class="si">{</span><span class="n">granularity</span><span class="si">!r}</span><span class="s2">; expected &quot;</span>
+                <span class="s2">&quot;&#39;supervoxel&#39;, &#39;habitat&#39; or &#39;voxel&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">normalize_habitats_results_format</span><span class="p">(</span><span class="n">table_format</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">frames</span><span class="p">),</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">frames</span>
+            <span class="k">else</span> <span class="n">_empty_units_frame</span><span class="p">(</span><span class="n">granularity</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="n">save_habitats_results</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">table_format</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DirectoryResultWriter.write_manifest">
+<a class="viewcode-back" href="../../../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter.write_manifest">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_manifest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manifest</span><span class="p">:</span> <span class="n">RunManifest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the run manifest as JSON.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            manifest: Provenance and reporting record for the run.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path written.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span><span class="p">(</span><span class="s2">&quot;run_manifest.json&quot;</span><span class="p">)</span>
+        <span class="n">manifest</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

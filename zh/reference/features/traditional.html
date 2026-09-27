@@ -1,0 +1,1649 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>传统放射组学 &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=30646c52"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/features/traditional';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/reference/features/traditional.html" />
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="MSI 特征" href="msi.html" />
+    <link rel="prev" title="特征公式" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">特征公式</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">IBSI 数字体膜</a></li>
+<li class="toctree-l1"><a class="reference internal" href="msi.html">MSI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ith_score.html">ITH</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graph.html">图网络</a></li>
+<li class="toctree-l1"><a class="reference internal" href="non_radiomics.html">Non-放射组学 summaries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whole_each_habitat.html">整图与各生境放射组学</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">特征公式</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">传统放射组学</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="traditional-radiomics">
+<h1>传统放射组学<a class="headerlink" href="#traditional-radiomics" title="Link to this heading">#</a></h1>
+<p><strong>Config</strong> ： <code class="docutils literal notranslate"><span class="pre">feature_types</span></code> 含 <code class="docutils literal notranslate"><span class="pre">traditional</span></code></p>
+<p><strong>Output</strong>: <code class="docutils literal notranslate"><span class="pre">raw_image_radiomics.csv</span></code></p>
+<section id="definition">
+<h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
+<p>从肿瘤 ROI 内各 <strong>预处理后图像模态</strong> 提取 PyRadiomics 特征。ROI 为从生境标签图导出的 <strong>二值掩膜</strong> （标签 <span class="math notranslate nohighlight">\(ge 1\)</span> 体素 → 前景）；不用解剖 <code class="docutils literal notranslate"><span class="pre">masks/</span></code> 文件。否则忽略生境标签——特征反映 raw（多 delay）图像上瘤内信号与纹理。</p>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Parameter file: <code class="docutils literal notranslate"><span class="pre">params_file_of_non_habitat</span></code> (optional; bundled <code class="docutils literal notranslate"><span class="pre">roi</span></code> preset
+→ <code class="docutils literal notranslate"><span class="pre">habit/resources/radiomics/parameter.yaml</span></code> when omitted)</p></li>
+<li><p>Code: <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py</span></code>
+(<code class="docutils literal notranslate"><span class="pre">TraditionalRadiomicsPlugin</span></code>) → <code class="docutils literal notranslate"><span class="pre">habitat_radiomics.py</span></code></p></li>
+</ul>
+</section>
+<section id="output-columns">
+<h2>输出列<a class="headerlink" href="#output-columns" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 32.0%" />
+<col style="width: 68.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>列模式</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{pyradiomics_feature}_of_{modality}</span></code></p></td>
+<td><p>One column per PyRadiomics 特征 × image 模态 under the 受试者 folder</p></td>
+</tr>
+<tr class="row-odd"><td><p>(excluded)</p></td>
+<td><p>名称含 <code class="docutils literal notranslate"><span class="pre">diagnostic</span></code> 的列在导出前丢弃</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="feature-definitions">
+<h2>特征定义<a class="headerlink" href="#feature-definitions" title="Link to this heading">#</a></h2>
+<p>HABIT 用 PyRadiomics 3.1 公式（遵循 IBSI；<a class="reference external" href="https://doi.org/10.1148/radiol.2020191145">Zwanenburg et al., Radiology 2020</a>）提取一阶、GLCM、GLRLM、GLSZM、GLDM（IBSI NGLDM）、NGTDM 与 3-D 形状特征。纹理聚合为 IBSI <strong>3-D averaged</strong> （13 个唯一 3-D 角度均值），非 3-D merged。 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> 、 <code class="docutils literal notranslate"><span class="pre">traditional</span></code> / <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> 特征类型、 <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 、 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> 与 native C 路径使用相同定义。</p>
+<section id="pyradiomics-alignment">
+<h3>PyRadiomics 对齐<a class="headerlink" href="#pyradiomics-alignment" title="Link to this heading">#</a></h3>
+<p><strong>ROI 级放射组学、体素级放射组学与 3-D shape 均与 PyRadiomics 3.1</strong> <code class="docutils literal notranslate"><span class="pre">FeatureExtractor.execute()</span></code> 在相同图像、掩膜、标签与设置（ <code class="docutils literal notranslate"><span class="pre">binWidth</span></code> 、 <code class="docutils literal notranslate"><span class="pre">voxelArrayShift</span></code> 、distances 等）上一致。</p>
+<p><strong>ROI-level</strong> (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> / <code class="docutils literal notranslate"><span class="pre">traditional</span></code>, <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code>,
+<code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code>, <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> with default
+<code class="docutils literal notranslate"><span class="pre">union_bin=false</span></code>): first-order, GLCM, GLRLM, GLSZM, GLDM, NGTDM.
+<code class="docutils literal notranslate"><span class="pre">traditional</span></code> / <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> call <code class="docutils literal notranslate"><span class="pre">execute()</span></code> directly.
+<code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> and default <code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> use the native C
+path with per-label bins; vs <code class="docutils literal notranslate"><span class="pre">execute()</span></code> they agree to about
+<code class="docutils literal notranslate"><span class="pre">1e-10</span></code> relative (Energy / TotalEnergy at floating-point ULP).</p>
+<p><strong>Shape</strong> （仅 ROI）：PyRadiomics <code class="docutils literal notranslate"><span class="pre">original_shape_*</span></code> / <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 的 <code class="docutils literal notranslate"><span class="pre">computeShape</span></code> 。Shape 为整 ROI 网格量；无逐体素 shape 图。</p>
+<p><strong>体素-level</strong> (<code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code>): first-order and texture via <code class="docutils literal notranslate"><span class="pre">execute(...,</span> <span class="pre">voxelBased=True)</span></code>. The CPU path <strong>is</strong> that extractor (pre-crop does not change values). Torch / CUDA uses the same formulas; texture vs CPU sits at about <span class="math notranslate nohighlight">\(10^{-15}\)</span>, first-order percentiles at about <span class="math notranslate nohighlight">\(10^{-8}\)</span> (quantile algorithm). Set <code class="docutils literal notranslate"><span class="pre">torch_dtype:</span> <span class="pre">float64</span></code> for the closest CPU match.</p>
+<p>Gates: <code class="docutils literal notranslate"><span class="pre">tests/kernels/test_supervoxel_native_parity.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_ibsi_digital_phantom.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_*_gpu_parity.py</span></code>.</p>
+<p>These are <strong>not</strong> Py放射组学 and must not be compared to <code class="docutils literal notranslate"><span class="pre">execute()</span></code>: <code class="docutils literal notranslate"><span class="pre">graph</span></code>, <code class="docutils literal notranslate"><span class="pre">msi</span></code>, <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>, <code class="docutils literal notranslate"><span class="pre">volume</span></code>, <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code>, and 超体素 <code class="docutils literal notranslate"><span class="pre">mean</span></code> / <code class="docutils literal notranslate"><span class="pre">std</span></code> / <code class="docutils literal notranslate"><span class="pre">percentile</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> 与 <code class="docutils literal notranslate"><span class="pre">union_bin=true</span></code> 是不同离散化（union 掩膜上单一共享灰度）。 <code class="docutils literal notranslate"><span class="pre">JointAverage</span></code> / <code class="docutils literal notranslate"><span class="pre">Autocorrelation</span></code> / <code class="docutils literal notranslate"><span class="pre">HighGrayLevel*</span></code> 不会与逐 ROI <code class="docutils literal notranslate"><span class="pre">execute()</span></code> 一致；此为预期，非公式 bug。</p>
+<p>两种约定须与 IBSI 手册对照阅读，而非与之对立：</p>
+<ul class="simple">
+<li><p><strong>Kurtosis</strong> 为 Pearson 峰度。IBSI 报告 <em>超额</em> 峰度（Fisher，正态 = 0）。HABIT / PyRadiomics = IBSI + 3。</p></li>
+<li><p>HABIT does <strong>not</strong> extract IBSI families it does not implement: GLDZM, local-intensity peak, intensity-volume histogram, Moran's I, or Geary's C. Deprecated Py放射组学 shape names (Compactness 1/2, Spherical disproportion) are not computed.</p></li>
+</ul>
+</section>
+<section id="ibsi-1-phase-1-digital-phantom">
+<h3>IBSI-1 Phase 1 数字体膜<a class="headerlink" href="#ibsi-1-phase-1-digital-phantom" title="Link to this heading">#</a></h3>
+<p>表用官方 IBSI 数字体膜（5×4×4 体素，2 mm 各向同性，74 体素 ROI；强度含 1、3、4、6、9）来自 <a class="reference external" href="https://ibsi.readthedocs.io/en/latest/03_Image_features.html">theibsi/data_sets &lt;https://github.com/theibsi/data_sets/tree/master/ibsi_1_digital_phantom&gt;`_（CC-BY-4.0）及 IBSI 手册 **dig. phantom / 3-D averaged** 参考值（`Image features</a>）。设置对齐 Phase 1：无插值， <code class="docutils literal notranslate"><span class="pre">binWidth=1</span></code> ， <code class="docutils literal notranslate"><span class="pre">symmetricalGLCM=True</span></code> ， <code class="docutils literal notranslate"><span class="pre">distances=[1]</span></code> ，NGLDM <span class="math notranslate nohighlight">\(alpha=0\)</span> ， <code class="docutils literal notranslate"><span class="pre">voxelArrayShift=0</span></code> 。</p>
+<p><code class="docutils literal notranslate"><span class="pre">HABIT</span></code> is the native C + CPU-formula value when that family is in the
+fast path; shape is the PyRadiomics <code class="docutils literal notranslate"><span class="pre">execute</span></code> value used by
+<code class="docutils literal notranslate"><span class="pre">traditional_radiomics</span></code>. HABIT and PyRadiomics columns match. Remaining
+gaps versus the published IBSI figures are the Kurtosis convention
+(above) or the few significant digits in the IBSI manual (for example
+<code class="docutils literal notranslate"><span class="pre">556</span></code> vs <code class="docutils literal notranslate"><span class="pre">556.333</span></code>). A regression test loads the same NIfTI pair:
+<code class="docutils literal notranslate"><span class="pre">tests/kernels/test_ibsi_digital_phantom.py</span></code>.</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id1">
+<caption><span class="caption-text">IBSI-1 Phase 1 数字体膜（3-D averaged 纹理）</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 10.9%" />
+<col style="width: 25.5%" />
+<col style="width: 9.1%" />
+<col style="width: 10.9%" />
+<col style="width: 10.9%" />
+<col style="width: 10.9%" />
+<col style="width: 21.8%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Family</p></th>
+<th class="head"><p>Feature</p></th>
+<th class="head"><p>IBSI ID</p></th>
+<th class="head"><p>IBSI</p></th>
+<th class="head"><p>HABIT</p></th>
+<th class="head"><p>PyRadiomics</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>shape</p></td>
+<td><p>MeshVolume</p></td>
+<td><p>RNU0</p></td>
+<td><p>556</p></td>
+<td><p>556.3333333</p></td>
+<td><p>556.3333333</p></td>
+<td><p>经 PyRadiomics 计算形状；IBSI 四舍五入</p></td>
+</tr>
+<tr class="row-odd"><td><p>shape</p></td>
+<td><p>VoxelVolume</p></td>
+<td><p>YEKZ</p></td>
+<td><p>592</p></td>
+<td><p>592</p></td>
+<td><p>592</p></td>
+<td><p>通过 PyRadiomics 的 shape（traditional 路径）</p></td>
+</tr>
+<tr class="row-even"><td><p>shape</p></td>
+<td><p>SurfaceArea</p></td>
+<td><p>C0JK</p></td>
+<td><p>388</p></td>
+<td><p>388.0706299</p></td>
+<td><p>388.0706299</p></td>
+<td><p>经 PyRadiomics 计算形状；IBSI 四舍五入</p></td>
+</tr>
+<tr class="row-odd"><td><p>shape</p></td>
+<td><p>SurfaceVolumeRatio</p></td>
+<td><p>2PR5</p></td>
+<td><p>0.698</p></td>
+<td><p>0.697550563</p></td>
+<td><p>0.697550563</p></td>
+<td><p>通过 PyRadiomics 的 shape（traditional 路径）</p></td>
+</tr>
+<tr class="row-even"><td><p>shape</p></td>
+<td><p>Sphericity</p></td>
+<td><p>QCFX</p></td>
+<td><p>0.843</p></td>
+<td><p>0.8429401437</p></td>
+<td><p>0.8429401437</p></td>
+<td><p>通过 PyRadiomics 的 shape（traditional 路径）</p></td>
+</tr>
+<tr class="row-odd"><td><p>shape</p></td>
+<td><p>Maximum3DDiameter</p></td>
+<td><p>L0JK</p></td>
+<td><p>13.1</p></td>
+<td><p>13.11487705</p></td>
+<td><p>13.11487705</p></td>
+<td><p>通过 PyRadiomics 的 shape（traditional 路径）</p></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Mean</p></td>
+<td><p>Q4LE</p></td>
+<td><p>2.15</p></td>
+<td><p>2.148648649</p></td>
+<td><p>2.148648649</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Variance</p></td>
+<td><p>ECT3</p></td>
+<td><p>3.05</p></td>
+<td><p>3.045471147</p></td>
+<td><p>3.045471147</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Skewness</p></td>
+<td><p>KE2A</p></td>
+<td><p>1.08</p></td>
+<td><p>1.083820723</p></td>
+<td><p>1.083820723</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Kurtosis</p></td>
+<td><p>IPH6</p></td>
+<td><p>-0.355</p></td>
+<td><p>2.645379519</p></td>
+<td><p>2.645379519</p></td>
+<td><p>Pearson 峰度；IBSI 为 excess（HABIT = IBSI + 3）</p></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Median</p></td>
+<td><p>Y12H</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Minimum</p></td>
+<td><p>1GSF</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>10Percentile</p></td>
+<td><p>QG58</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>90Percentile</p></td>
+<td><p>8DWT</p></td>
+<td><p>4</p></td>
+<td><p>4</p></td>
+<td><p>4</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Maximum</p></td>
+<td><p>84IY</p></td>
+<td><p>6</p></td>
+<td><p>6</p></td>
+<td><p>6</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>InterquartileRange</p></td>
+<td><p>SALO</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
+<td><p>3</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Range</p></td>
+<td><p>2OJQ</p></td>
+<td><p>5</p></td>
+<td><p>5</p></td>
+<td><p>5</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>MeanAbsoluteDeviation</p></td>
+<td><p>4FUA</p></td>
+<td><p>1.55</p></td>
+<td><p>1.552227904</p></td>
+<td><p>1.552227904</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>RobustMeanAbsoluteDeviation</p></td>
+<td><p>1128</p></td>
+<td><p>1.11</p></td>
+<td><p>1.113833816</p></td>
+<td><p>1.113833816</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Energy</p></td>
+<td><p>N8CA</p></td>
+<td><p>567</p></td>
+<td><p>567</p></td>
+<td><p>567</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>RootMeanSquared</p></td>
+<td><p>5ZWQ</p></td>
+<td><p>2.77</p></td>
+<td><p>2.768061084</p></td>
+<td><p>2.768061084</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>firstorder</p></td>
+<td><p>Entropy</p></td>
+<td><p>TLU2</p></td>
+<td><p>1.27</p></td>
+<td><p>1.265611556</p></td>
+<td><p>1.265611556</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>firstorder</p></td>
+<td><p>Uniformity</p></td>
+<td><p>BJ5W</p></td>
+<td><p>0.512</p></td>
+<td><p>0.5124178232</p></td>
+<td><p>0.5124178232</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>MaximumProbability</p></td>
+<td><p>GYBY</p></td>
+<td><p>0.503</p></td>
+<td><p>0.5028111708</p></td>
+<td><p>0.5028111708</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>JointAverage</p></td>
+<td><p>60VM</p></td>
+<td><p>2.14</p></td>
+<td><p>2.142995006</p></td>
+<td><p>2.142995006</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>SumSquares</p></td>
+<td><p>UR99</p></td>
+<td><p>3.1</p></td>
+<td><p>3.099320789</p></td>
+<td><p>3.099320789</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>JointEntropy</p></td>
+<td><p>TU9B</p></td>
+<td><p>2.4</p></td>
+<td><p>2.399711278</p></td>
+<td><p>2.399711278</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>DifferenceAverage</p></td>
+<td><p>TF7R</p></td>
+<td><p>1.43</p></td>
+<td><p>1.430981176</p></td>
+<td><p>1.430981176</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>DifferenceVariance</p></td>
+<td><p>D3YU</p></td>
+<td><p>3.06</p></td>
+<td><p>3.056282622</p></td>
+<td><p>3.056282622</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>DifferenceEntropy</p></td>
+<td><p>NTRS</p></td>
+<td><p>1.56</p></td>
+<td><p>1.562733277</p></td>
+<td><p>1.562733277</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>SumAverage</p></td>
+<td><p>ZGXS</p></td>
+<td><p>4.29</p></td>
+<td><p>4.285990012</p></td>
+<td><p>4.285990012</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>SumEntropy</p></td>
+<td><p>P6QZ</p></td>
+<td><p>1.92</p></td>
+<td><p>1.922606453</p></td>
+<td><p>1.922606453</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>JointEnergy</p></td>
+<td><p>8ZQL</p></td>
+<td><p>0.303</p></td>
+<td><p>0.3029752503</p></td>
+<td><p>0.3029752503</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Contrast</p></td>
+<td><p>ACUI</p></td>
+<td><p>5.32</p></td>
+<td><p>5.324479994</p></td>
+<td><p>5.324479994</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>Id</p></td>
+<td><p>IB1Z</p></td>
+<td><p>0.677</p></td>
+<td><p>0.6766151333</p></td>
+<td><p>0.6766151333</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Idn</p></td>
+<td><p>NDRX</p></td>
+<td><p>0.851</p></td>
+<td><p>0.8506785598</p></td>
+<td><p>0.8506785598</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>Idm</p></td>
+<td><p>WF0Z</p></td>
+<td><p>0.618</p></td>
+<td><p>0.6177393638</p></td>
+<td><p>0.6177393638</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Idmn</p></td>
+<td><p>1QCO</p></td>
+<td><p>0.898</p></td>
+<td><p>0.8984432172</p></td>
+<td><p>0.8984432172</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>InverseVariance</p></td>
+<td><p>E8JP</p></td>
+<td><p>0.0604</p></td>
+<td><p>0.06041630527</p></td>
+<td><p>0.06041630527</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Correlation</p></td>
+<td><p>NI2N</p></td>
+<td><p>0.157</p></td>
+<td><p>0.1573500301</p></td>
+<td><p>0.1573500301</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>Autocorrelation</p></td>
+<td><p>QWB0</p></td>
+<td><p>5.06</p></td>
+<td><p>5.05543601</p></td>
+<td><p>5.05543601</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>ClusterTendency</p></td>
+<td><p>DG8W</p></td>
+<td><p>7.07</p></td>
+<td><p>7.072803163</p></td>
+<td><p>7.072803163</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>ClusterShade</p></td>
+<td><p>7NFM</p></td>
+<td><p>16.6</p></td>
+<td><p>16.64409305</p></td>
+<td><p>16.64409305</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>ClusterProminence</p></td>
+<td><p>AE86</p></td>
+<td><p>145</p></td>
+<td><p>144.7033814</p></td>
+<td><p>144.7033814</p></td>
+<td><p>IBSI rounded</p></td>
+</tr>
+<tr class="row-even"><td><p>glcm</p></td>
+<td><p>Imc1</p></td>
+<td><p>R8DG</p></td>
+<td><p>-0.157</p></td>
+<td><p>-0.1568482348</p></td>
+<td><p>-0.1568482348</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glcm</p></td>
+<td><p>Imc2</p></td>
+<td><p>JN9H</p></td>
+<td><p>0.52</p></td>
+<td><p>0.5195878631</p></td>
+<td><p>0.5195878631</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>ShortRunEmphasis</p></td>
+<td><p>22OV</p></td>
+<td><p>0.705</p></td>
+<td><p>0.7052347296</p></td>
+<td><p>0.7052347296</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>LongRunEmphasis</p></td>
+<td><p>W4KF</p></td>
+<td><p>3.06</p></td>
+<td><p>3.061120906</p></td>
+<td><p>3.061120906</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>LowGrayLevelRunEmphasis</p></td>
+<td><p>V3SW</p></td>
+<td><p>0.603</p></td>
+<td><p>0.6029798426</p></td>
+<td><p>0.6029798426</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>HighGrayLevelRunEmphasis</p></td>
+<td><p>G3QZ</p></td>
+<td><p>9.7</p></td>
+<td><p>9.69762412</p></td>
+<td><p>9.69762412</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>ShortRunLowGrayLevelEmphasis</p></td>
+<td><p>HTZT</p></td>
+<td><p>0.352</p></td>
+<td><p>0.351580276</p></td>
+<td><p>0.351580276</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>ShortRunHighGrayLevelEmphasis</p></td>
+<td><p>GD3A</p></td>
+<td><p>8.54</p></td>
+<td><p>8.539655587</p></td>
+<td><p>8.539655587</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>LongRunLowGrayLevelEmphasis</p></td>
+<td><p>IVPO</p></td>
+<td><p>2.39</p></td>
+<td><p>2.39096762</p></td>
+<td><p>2.39096762</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>LongRunHighGrayLevelEmphasis</p></td>
+<td><p>3KUM</p></td>
+<td><p>17.6</p></td>
+<td><p>17.56618866</p></td>
+<td><p>17.56618866</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>GrayLevelNonUniformity</p></td>
+<td><p>R5YN</p></td>
+<td><p>21.8</p></td>
+<td><p>21.77620074</p></td>
+<td><p>21.77620074</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>GrayLevelNonUniformityNormalized</p></td>
+<td><p>OVBL</p></td>
+<td><p>0.43</p></td>
+<td><p>0.4301751561</p></td>
+<td><p>0.4301751561</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>RunLengthNonUniformity</p></td>
+<td><p>W92Y</p></td>
+<td><p>26.9</p></td>
+<td><p>26.8533514</p></td>
+<td><p>26.8533514</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>RunLengthNonUniformityNormalized</p></td>
+<td><p>IC23</p></td>
+<td><p>0.513</p></td>
+<td><p>0.5127708186</p></td>
+<td><p>0.5127708186</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>RunPercentage</p></td>
+<td><p>9ZK5</p></td>
+<td><p>0.68</p></td>
+<td><p>0.6798336798</p></td>
+<td><p>0.6798336798</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>GrayLevelVariance</p></td>
+<td><p>8CE5</p></td>
+<td><p>3.46</p></td>
+<td><p>3.464978728</p></td>
+<td><p>3.464978728</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glrlm</p></td>
+<td><p>RunVariance</p></td>
+<td><p>SXLW</p></td>
+<td><p>0.574</p></td>
+<td><p>0.573542283</p></td>
+<td><p>0.573542283</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glrlm</p></td>
+<td><p>RunEntropy</p></td>
+<td><p>HJ9O</p></td>
+<td><p>2.43</p></td>
+<td><p>2.432074134</p></td>
+<td><p>2.432074134</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>LargeAreaEmphasis</p></td>
+<td><p>48P8</p></td>
+<td><p>550</p></td>
+<td><p>550</p></td>
+<td><p>550</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>LowGrayLevelZoneEmphasis</p></td>
+<td><p>XMSY</p></td>
+<td><p>0.253</p></td>
+<td><p>0.2527777778</p></td>
+<td><p>0.2527777778</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>HighGrayLevelZoneEmphasis</p></td>
+<td><p>5GN9</p></td>
+<td><p>15.6</p></td>
+<td><p>15.6</p></td>
+<td><p>15.6</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>SmallAreaLowGrayLevelEmphasis</p></td>
+<td><p>5RAI</p></td>
+<td><p>0.0256</p></td>
+<td><p>0.02560437642</p></td>
+<td><p>0.02560437642</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>SmallAreaHighGrayLevelEmphasis</p></td>
+<td><p>HW1V</p></td>
+<td><p>2.76</p></td>
+<td><p>2.763345306</p></td>
+<td><p>2.763345306</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>LargeAreaLowGrayLevelEmphasis</p></td>
+<td><p>YH51</p></td>
+<td><p>503</p></td>
+<td><p>502.7944444</p></td>
+<td><p>502.7944444</p></td>
+<td><p>IBSI rounded</p></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>LargeAreaHighGrayLevelEmphasis</p></td>
+<td><p>J17V</p></td>
+<td><p>1490</p></td>
+<td><p>1494.6</p></td>
+<td><p>1494.6</p></td>
+<td><p>IBSI rounded</p></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>GrayLevelNonUniformity</p></td>
+<td><p>JNSA</p></td>
+<td><p>1.4</p></td>
+<td><p>1.4</p></td>
+<td><p>1.4</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>GrayLevelNonUniformityNormalized</p></td>
+<td><p>Y1RO</p></td>
+<td><p>0.28</p></td>
+<td><p>0.28</p></td>
+<td><p>0.28</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>SizeZoneNonUniformity</p></td>
+<td><p>4JP3</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>SizeZoneNonUniformityNormalized</p></td>
+<td><p>VB3A</p></td>
+<td><p>0.2</p></td>
+<td><p>0.2</p></td>
+<td><p>0.2</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>ZonePercentage</p></td>
+<td><p>P30P</p></td>
+<td><p>0.0676</p></td>
+<td><p>0.06756756757</p></td>
+<td><p>0.06756756757</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>GrayLevelVariance</p></td>
+<td><p>BYLV</p></td>
+<td><p>2.64</p></td>
+<td><p>2.64</p></td>
+<td><p>2.64</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>glszm</p></td>
+<td><p>ZoneVariance</p></td>
+<td><p>3NSA</p></td>
+<td><p>331</p></td>
+<td><p>330.96</p></td>
+<td><p>330.96</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>ZoneEntropy</p></td>
+<td><p>GU8N</p></td>
+<td><p>2.32</p></td>
+<td><p>2.321928095</p></td>
+<td><p>2.321928095</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>ngtdm</p></td>
+<td><p>Coarseness</p></td>
+<td><p>QCDE</p></td>
+<td><p>0.0296</p></td>
+<td><p>0.0296042257</p></td>
+<td><p>0.0296042257</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>ngtdm</p></td>
+<td><p>Contrast</p></td>
+<td><p>65HE</p></td>
+<td><p>0.584</p></td>
+<td><p>0.5837109156</p></td>
+<td><p>0.5837109156</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>ngtdm</p></td>
+<td><p>Busyness</p></td>
+<td><p>NQ30</p></td>
+<td><p>6.54</p></td>
+<td><p>6.543568457</p></td>
+<td><p>6.543568457</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>ngtdm</p></td>
+<td><p>Complexity</p></td>
+<td><p>HDEZ</p></td>
+<td><p>13.5</p></td>
+<td><p>13.5397636</p></td>
+<td><p>13.5397636</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>ngtdm</p></td>
+<td><p>Strength</p></td>
+<td><p>1X9X</p></td>
+<td><p>0.763</p></td>
+<td><p>0.7634954331</p></td>
+<td><p>0.7634954331</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>SmallDependenceEmphasis</p></td>
+<td><p>SODN</p></td>
+<td><p>0.045</p></td>
+<td><p>0.04499635706</p></td>
+<td><p>0.04499635706</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>LargeDependenceEmphasis</p></td>
+<td><p>IMOQ</p></td>
+<td><p>109</p></td>
+<td><p>109</p></td>
+<td><p>109</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>LowGrayLevelEmphasis</p></td>
+<td><p>TL9H</p></td>
+<td><p>0.693</p></td>
+<td><p>0.6933183183</p></td>
+<td><p>0.6933183183</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>HighGrayLevelEmphasis</p></td>
+<td><p>OAE7</p></td>
+<td><p>7.66</p></td>
+<td><p>7.662162162</p></td>
+<td><p>7.662162162</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>SmallDependenceLowGrayLevelEmphasis</p></td>
+<td><p>EQ3F</p></td>
+<td><p>0.00963</p></td>
+<td><p>0.009630607594</p></td>
+<td><p>0.009630607594</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>SmallDependenceHighGrayLevelEmphasis</p></td>
+<td><p>JA6D</p></td>
+<td><p>0.736</p></td>
+<td><p>0.7361715884</p></td>
+<td><p>0.7361715884</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>LargeDependenceLowGrayLevelEmphasis</p></td>
+<td><p>NBZI</p></td>
+<td><p>102</p></td>
+<td><p>102.4508258</p></td>
+<td><p>102.4508258</p></td>
+<td><p>IBSI rounded</p></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>LargeDependenceHighGrayLevelEmphasis</p></td>
+<td><p>9QMG</p></td>
+<td><p>235</p></td>
+<td><p>234.9864865</p></td>
+<td><p>234.9864865</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>GrayLevelNonUniformity</p></td>
+<td><p>FP8K</p></td>
+<td><p>37.9</p></td>
+<td><p>37.91891892</p></td>
+<td><p>37.91891892</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>DependenceNonUniformity</p></td>
+<td><p>Z87G</p></td>
+<td><p>4.86</p></td>
+<td><p>4.864864865</p></td>
+<td><p>4.864864865</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>gldm</p></td>
+<td><p>DependenceNonUniformityNormalized</p></td>
+<td><p>OKJI</p></td>
+<td><p>0.0657</p></td>
+<td><p>0.06574141709</p></td>
+<td><p>0.06574141709</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>gldm</p></td>
+<td><p>DependenceEntropy</p></td>
+<td><p>FCBV</p></td>
+<td><p>4.4</p></td>
+<td><p>4.40373838</p></td>
+<td><p>4.40373838</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>glszm</p></td>
+<td><p>SmallAreaEmphasis</p></td>
+<td><p>P001</p></td>
+<td><p>0.255</p></td>
+<td><p>0.2551820408</p></td>
+<td><p>0.2551820408</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>See <a class="reference external" href="⟦0⟧">PyRadiomics Feature Reference</a> for per-特征 formulas.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">特征公式</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="msi.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">MSI 特征</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-columns">输出列</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-definitions">特征定义</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyradiomics-alignment">PyRadiomics 对齐</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ibsi-1-phase-1-digital-phantom">IBSI-1 Phase 1 数字体膜</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

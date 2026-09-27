@@ -1,0 +1,362 @@
+.. _api-kernels:
+
+Numeric kernels (``habit.kernels``)
+===================================
+
+.. automodule:: habit.kernels
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+.. currentmodule:: habit.kernels
+
+**User guide:** Habitat Guide
+:doc:`../auto_examples/04_quantifying_habitats/plot_04_graph_network_features`.
+Pure NumPy / SciPy functions. No ``Subject``, no YAML, no IO.
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   HabitatGraphFeatureOptions
+   GraphNullModelOptions
+   GraphNullModelResult
+   ICCEstimate
+
+Functions
+---------
+
+Habitat metrics
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   local_entropy_map
+   spatial_interaction_matrix
+   msi_features_from_matrix
+   habitat_volume_fractions
+   habitat_region_stats
+   habitat_ith_dispersion
+   ith_score
+   adjusted_rand_index
+   extract_graph_features
+   extract_graph_features_for_labels
+   extract_habitat_nodes
+   build_centroid_distance_graph
+   build_min_distance_graph
+   build_adjacency_graph
+   pair_count
+   compare_graph_to_degree_preserving_null
+   remove_small_connected_components
+
+Model selection
+~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   score_direction
+   knee_index
+   prior2024_bic_gradient_k
+   best_index
+   vote_best_index
+   gap_statistic
+
+.. currentmodule:: habit.kernels.cluster_selection
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   SCORE_DIRECTIONS
+   MAXIMIZE
+   MINIMIZE
+   KNEE
+
+.. currentmodule:: habit.kernels
+
+Image perturbation and voxel reliability
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   estimate_noise_sigma
+   add_gaussian_noise
+   translate_image
+   rotate_image
+   rigid_transform_image
+   morphological_grow_shrink
+   boundary_band_mask
+   boundary_weighted_perturbation
+   slice_extent_perturbation
+   icc3a_1
+   icc3c_1
+   icc2_1_estimate
+
+Classification and agreement statistics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bookmarks for table-ML kernels. Not the habitat core.
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   compute_midrank
+   fast_delong
+   delong_roc_variance
+   delong_roc_test
+   delong_roc_ci
+   hosmer_lemeshow_test
+   spiegelhalter_z_test
+   two_way_mean_squares
+   icc3_1
+   icc2_1
+
+.. code-block:: python
+
+   from habit.kernels import (
+       HabitatGraphFeatureOptions,
+       delong_roc_ci,
+       delong_roc_test,
+       delong_roc_variance,
+       extract_graph_features,
+       fast_delong,
+       habitat_ith_dispersion,
+       habitat_region_stats,
+       habitat_volume_fractions,
+       hosmer_lemeshow_test,
+       icc2_1,
+       icc3_1,
+       icc3a_1,
+       icc3c_1,
+       ith_score,
+       msi_features_from_matrix,
+       spatial_interaction_matrix,
+       spiegelhalter_z_test,
+       two_way_mean_squares,
+       compute_midrank,
+   )
+
+Habitat metrics (examples)
+--------------------------
+
+.. code-block:: python
+
+   import numpy as np
+
+   labels = np.zeros((16, 32, 32), dtype=np.int32)
+   labels[4:12, 8:24, 8:24] = 1
+   labels[6:10, 12:20, 12:20] = 2
+
+   matrix = spatial_interaction_matrix(labels, n_classes=3)
+   msi = msi_features_from_matrix(matrix)          # dict[str, float]
+   ith = ith_score(labels)                         # float
+   fractions = habitat_volume_fractions(labels, habitat_ids=(1, 2))
+   stats = habitat_region_stats(labels)            # id -> (n_regions, largest)
+   dispersion = habitat_ith_dispersion(labels)     # id -> per-habitat ITH
+
+Graph topology kernels
+----------------------
+
+Region graphs + NetworkX metrics (same definitions as the built-in
+``graph`` habitat feature family). Arrays in, ``dict`` out — no YAML / IO.
+
+.. code-block:: python
+
+   from habit.kernels import HabitatGraphFeatureOptions, extract_graph_features
+
+   options = HabitatGraphFeatureOptions(
+       edge_method="min_distance",
+       node_method="uniform_grid",
+       block_size=8,
+       distance_threshold=5.0,
+       erosion_radius=0,
+   )
+   graph_feats = extract_graph_features(
+       labels,
+       options=options,
+       expected_labels=(1, 2),
+   )
+   # Keys look like single_h1_n_nodes, pair_h1_h2_modularity, ...
+
+Also exported: :func:`~habit.kernels.extract_graph_features_for_labels`,
+:func:`~habit.kernels.extract_habitat_nodes`,
+:func:`~habit.kernels.build_centroid_distance_graph`,
+:func:`~habit.kernels.build_min_distance_graph`,
+:func:`~habit.kernels.build_adjacency_graph`, :func:`~habit.kernels.pair_count`.
+See :doc:`../reference/features/graph`.
+
+ICC kernels
+-----------
+
+.. code-block:: python
+
+   # n_targets x k_raters design matrices of mean squares helpers
+   ms = two_way_mean_squares(n_targets, k_raters)
+   icc_agreement = icc2_1(n_targets, k_raters)
+   icc_consistency = icc3_1(n_targets, k_raters)
+
+Voxel-level reliability (the precision screen's statistics) returns point
+estimates with confidence limits; negative values truncate at 0:
+
+.. code-block:: python
+
+   # matrix: n_voxels x n_conditions, one column per condition
+   est = icc3a_1(matrix)   # absolute agreement -> ICCEstimate(value, lcl, ucl)
+   est = icc3c_1(matrix)   # consistency
+
+Image perturbation
+------------------
+
+Simulated-retest kernels behind the ``image_perturbation`` domain. Noise
+estimation and addition work on plain arrays; the geometric kernels take
+and return ``sitk.Image`` so spacing, origin and direction are honoured,
+and resample back onto the original grid. The default recipe chain matches
+Prior et al. (*Radiol Artif Intell* 2024;6(2):e230118, Appendix S2 / MIRP
+1.2.0): Chang-estimated Gaussian noise, a 0.5-voxel translation fraction,
+and a 0.5° in-plane rotation. :func:`~habit.kernels.rigid_transform_image`
+composes translation+rotation into one affine (MIRP ≥ 2).
+
+.. code-block:: python
+
+   from habit.kernels import (
+       add_gaussian_noise,
+       boundary_band_mask,
+       boundary_weighted_perturbation,
+       estimate_noise_sigma,
+       morphological_grow_shrink,
+       rigid_transform_image,
+       rotate_image,
+       slice_extent_perturbation,
+       translate_image,
+   )
+
+   sigma = estimate_noise_sigma(array, method="chang")  # wavelet estimator
+   noisy = add_gaussian_noise(array, sigma, rng)        # zero-mean Gaussian
+   shifted = translate_image(image, shift_voxels=(0.3, -0.2, 0.0))
+   rotated = rotate_image(image, angle_degrees=0.5, axis="z")
+   # MIRP ≥ 2: translation + rotation in one resample
+   rigid = rigid_transform_image(image, (0.5, 0.5, 0.5), angle_degrees=0.5)
+
+   # Mask-only contour kernels (image intensities are never touched).
+   grown = morphological_grow_shrink(mask, grow_mm=4.0, spacing_xyz=spacing)
+   band = boundary_band_mask(mask, band_mm=4.0, spacing_xyz=spacing)
+   local = boundary_weighted_perturbation(mask, weights, rng, max_radius_voxels=3)
+   ends = slice_extent_perturbation(mask, grow_slices=2)
+
+Subject-level wrappers (``morphological``, ``gradient_weighted``,
+``slice_extent``) live on :class:`~habit.precision.ImagePerturbationRegistry`.
+Copy-ready demo and figures: :doc:`/auto_examples/05_validation_and_reuse/plot_05_precise_features`.
+
+.. figure:: ../_static/images/examples/contour_morphological_grow.png
+   :alt: Uniform morphological grow of an ROI contour
+   :width: 640
+
+   :func:`~habit.kernels.morphological_grow_shrink` via the
+   ``morphological`` registry name (grow +4 mm). Same PNG as the
+   gallery script ``contour_perturbation_demo.py``.
+
+.. figure:: ../_static/images/examples/contour_morphological_shrink.png
+   :alt: Uniform morphological shrink of an ROI contour
+   :width: 640
+
+   Same kernel, negative radius (shrink -4 mm).
+
+.. figure:: ../_static/images/examples/contour_boundary_band.png
+   :alt: Boundary band around an ROI
+   :width: 420
+
+   :func:`~habit.kernels.boundary_band_mask` (4 mm half-width).
+
+.. figure:: ../_static/images/examples/contour_gradient_weighted.png
+   :alt: Gradient-weighted boundary perturbation
+   :width: 640
+
+   :func:`~habit.kernels.boundary_weighted_perturbation` via
+   ``gradient_weighted``. Anatomy, gradient (bright = sharp), cyan vs
+   vermillion solid contours, plus sharp / fuzzy insets. Flip
+   probability scales with ``1 - normalised_gradient``.
+
+.. figure:: ../_static/images/examples/contour_slice_extent.png
+   :alt: First mid and last slices after z-extent grow
+   :width: 640
+
+   :func:`~habit.kernels.slice_extent_perturbation` via
+   ``slice_extent`` (``grow_slices=2``).
+
+Classification statistics
+-------------------------
+
+.. code-block:: python
+
+   midranks = compute_midrank(scores)
+   auc, var = fast_delong(predictions_sorted)
+   result = delong_roc_test(y_true, scores_a, scores_b)
+   ci = delong_roc_ci(y_true, scores)
+   var_ab = delong_roc_variance(y_true, scores_a, scores_b)
+   hl = hosmer_lemeshow_test(y_true, scores, n_groups=10)
+   sp = spiegelhalter_z_test(y_true, scores)
+
+Habitat label matching
+----------------------
+
+Independently clustered maps permute integer ids. Import the kernel
+directly (it is not re-exported from :mod:`habit.kernels`). There are
+two matchers, chosen by what the maps share:
+
+* **overlap** — the maps label the same voxels (observers, test–retest,
+  perturbation, another preprocessing chain): Hungarian on voxel
+  overlap, :func:`~habit.kernels.habitat_label_match.match_labels_by_overlap`.
+  Domain wrappers: :func:`~habit.precision.align_habitat_map`,
+  :func:`~habit.precision.habitat_stability`.
+* **prototypes** — the maps label different patients:
+  :func:`~habit.kernels.habitat_label_match.match_rows_to_prototypes`
+  (K = largest habitat count, iterative assign / update, one habitat per
+  prototype per subject). ``metric`` is ``"sqeuclidean"`` (default,
+  mean update), ``"manhattan"`` (median), ``"cosine"`` or
+  ``"correlation"`` (unit-vector mean); ``max_distance`` (off by
+  default) allows partial assignment; ``prototypes=`` freezes a trained
+  set. Two subjects are the special case of pairwise Hungarian on
+  squared Euclidean distance. Rescale columns first with
+  :func:`~habit.kernels.habitat_label_match.fit_feature_match_scale`
+  when features have different units. Domain wrapper:
+  :func:`~habit.precision.align_habitat_maps_to_prototypes`. Method and
+  references: :doc:`../reference/habitat_matching`.
+
+Copy-ready walkthroughs (all prototype matching):
+:doc:`/auto_examples/05_validation_and_reuse/plot_02_match_same_subject`,
+:doc:`/auto_examples/05_validation_and_reuse/plot_03_match_two_subjects`,
+:doc:`/auto_examples/05_validation_and_reuse/plot_04_match_group`.
+
+.. code-block:: python
+
+   from habit.kernels.habitat_label_match import (
+       match_labels_by_overlap,
+       match_rows_to_prototypes,
+   )
+
+   # Same tumour, two observers: overlap.
+   mapping = match_labels_by_overlap(physician2_labels, other_labels)
+
+   # Different patients: one (n_habitats, n_features) block per patient,
+   # habitat counts may differ. result.assignments[s][i] is the prototype
+   # index of habitat row i of patient s.
+   result = match_rows_to_prototypes([patient_a, patient_b, patient_c])
+
+   # A new patient named with the trained prototypes (no refit).
+   new = match_rows_to_prototypes([patient_d], prototypes=result.prototypes)
+
+Stability
+---------
+
+Published metrics (MSI, ITH, ICC, DeLong, Hosmer–Lemeshow, Spiegelhalter) are a
+**stable** subset within v1.x.

@@ -1,0 +1,149 @@
+.. _api-image-io:
+
+Low-level image I/O helpers
+===========================
+
+.. automodule:: habit.image
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+.. currentmodule:: habit.image
+
+**User guide:** :doc:`data_model`. Prefer contracts volumes inside
+pipelines; use these when you need SimpleITK-backed read / geometry
+checks outside a ``Subject``.
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   GeometryPolicy
+   GeometryReport
+   ImageMaskPair
+
+``habit.image.ImageVolume`` and ``habit.image.MaskVolume`` are the same
+classes as :class:`habit.contracts.ImageVolume` and
+:class:`habit.contracts.MaskVolume` (re-exported), so they are documented
+once, on :doc:`contracts`.
+
+.. currentmodule:: habit.radiomics.extract
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   FeatureResult
+   FeatureTableResult
+
+Functions
+---------
+
+.. currentmodule:: habit.image
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   read_image
+   read_mask
+   validate_geometry
+   align_image_mask
+
+.. currentmodule:: habit.radiomics.extract
+
+.. autosummary::
+   :toctree: generated
+   :nosignatures:
+
+   extract_features
+   extract_batch
+
+File I/O helpers (``read_image`` / ``read_mask`` / geometry checks). Prefer
+contracts volumes inside pipelines (:doc:`data_model`); use these when you
+need SimpleITK-backed read / geometry checks outside a ``Subject``.
+
+.. code-block:: python
+
+   from habit.image import (
+       GeometryPolicy,
+       ImageMaskPair,
+       align_image_mask,
+       read_image,
+       read_mask,
+       validate_geometry,
+   )
+
+   image = read_image("data/subj001/T2.nii.gz", modality="T2")
+   mask = read_mask("data/subj001/mask_T2.nii.gz")
+
+   report = validate_geometry(image, mask)
+   print(report.compatible, report.mismatches)
+
+   pair = align_image_mask(
+       ImageMaskPair(image, mask),
+       policy=GeometryPolicy.RESAMPLE_MASK,
+   )
+   aligned_image, aligned_mask = pair.image, pair.mask
+   print(pair.geometry_report)
+
+GeometryPolicy modes
+--------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 78
+
+   * - Policy
+     - Behaviour on mismatch
+   * - ``STRICT``
+     - Raise :class:`~habit.exceptions.GeometryError` (default for this API
+       and for ``extract_features`` / ``extract_batch``)
+   * - ``WARN``
+     - Emit ``RuntimeWarning``; leave arrays/metadata unchanged;
+       ``geometry_report.compatible`` is ``False``, ``action="warn"``
+   * - ``RESAMPLE_MASK``
+     - Resample mask onto the image grid (nearest neighbour); report
+       ``compatible=True``, ``action="resample_mask"``
+   * - ``RESAMPLE_IMAGE``
+     - Resample image onto the mask grid (linear); report
+       ``compatible=True``, ``action="resample_image"``
+   * - ``HARMONIZE``
+     - When shapes match, copy the image spacing, origin, and direction
+       onto the mask array without resampling
+       (``action="harmonize"``). When shapes differ, fall through to
+       ``RESAMPLE_MASK``.
+
+Exports: ``GeometryPolicy``, ``GeometryReport``, ``ImageVolume``,
+``MaskVolume``, ``ImageMaskPair``, ``read_image``, ``read_mask``,
+``validate_geometry``, ``align_image_mask``.
+
+.. warning::
+
+   Top-level ``ImageVolume`` / ``MaskVolume`` here are the **API** types.
+   Pipeline code should use ``habit.contracts.ImageVolume`` /
+   ``habit.contracts.MaskVolume``.
+
+Low-level radiomics extraction
+------------------------------
+
+Component API (not the YAML workflow)::
+
+   from habit.image import GeometryPolicy
+   from habit.radiomics.extract import extract_batch, extract_features
+
+   result = extract_features(image, mask, params="params.yaml")
+   batch = extract_batch(
+       cases,
+       params="params.yaml",
+       geometry_policy=GeometryPolicy.STRICT,
+       fail_fast=True,   # default: raise on first pair failure
+   )
+
+``fail_fast=False`` keeps successful rows and records per-subject errors in
+``FeatureTableResult.failures`` (see :doc:`/auto_examples/07_advanced/plot_08_backends`).
+
+Returns ``FeatureResult`` / ``FeatureTableResult``.

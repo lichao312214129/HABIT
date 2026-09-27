@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=a1466298" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=c2179bb5" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
@@ -57,7 +57,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Volume and fractions" href="plot_01_volume_fractions.html" />
-    <link rel="prev" title="Clustering algorithm and number of habitats" href="../03_clustering/plot_03_clustering_algorithm.html" />
+    <link rel="prev" title="Consensus clustering of habitats" href="../03_clustering/plot_04_consensus_clustering.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="3.0.0" />
@@ -323,6 +323,30 @@
         </li>
 </ul></div>
       
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
     </div>
     
   </div>
@@ -527,6 +551,30 @@
         </li>
 </ul></div>
         
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
       </div>
     
   </div>
@@ -573,6 +621,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../03_clustering/plot_01_supervoxel_method_and_count.html">Supervoxel method and count</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../03_clustering/plot_02_what_supervoxel_summarizes.html">Supervoxel feature extraction and acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../03_clustering/plot_03_clustering_algorithm.html">Clustering algorithm and number of habitats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../03_clustering/plot_04_consensus_clustering.html">Consensus clustering of habitats</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Quantifying habitats</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -707,12 +756,12 @@ radiomics (each habitat + whole map).</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../03_clustering/plot_03_clustering_algorithm.html"
+       href="../03_clustering/plot_04_consensus_clustering.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Clustering algorithm and number of habitats</p>
+        <p class="prev-next-title">Consensus clustering of habitats</p>
       </div>
     </a>
     <a class="right-next"

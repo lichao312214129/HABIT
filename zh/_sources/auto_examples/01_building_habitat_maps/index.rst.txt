@@ -1,0 +1,181 @@
+
+
+.. _sphx_glr_auto_examples_01_building_habitat_maps:
+
+Building habitat maps
+=====================
+
+Spec pages declare the analysis; atomic pages rebuild it from
+components and check voxel agreement. Then QC and cleaning.
+
+Order: two-step Spec, two-step atomic, inside-each-subject Spec,
+inside-each-subject atomic, pooled Spec, pooled atomic, quality
+control, cleaning.
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Including new-patient prediction.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_01_two_step_spec_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_01_two_step_spec`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Two-step habitats with a Spec</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_01_two_step_spec declares a whole habitat study in one HabitatSpec and runs it with one Study(spec).fit_predict(...) call (serial RunPolicy, continue on subject failure). Behind that call sit a handful of ordinary Python objects: a voxel feature extractor, two preprocessing chains, a supervoxelizer, a habitat model fitter, an assigner and four habitat feature extractors. Each of them is public and can be called on one subject, in memory, without a spec, a YAML file or an output folder.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_02_atomic_two_step_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_02_atomic_two_step`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Two-step habitats from atomic components</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="A per-patient heterogeneity score.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_03_inside_each_subject_spec_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_03_inside_each_subject_spec`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitats inside each subject with a Spec</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_02_atomic_two_step rebuilds the two-step design from HABIT&#x27;s individual components and shows it matches Study. The two other designs use the same components with fewer steps: the per-subject (one-step) design of /auto_examples/00_introductory_tutorials/plot_02_inside_each_subject fits one model per patient on that patient&#x27;s voxels, and the pooled-voxel design of /auto_examples/00_introductory_tutorials/plot_03_pooled_voxels fits one cohort model on every patient&#x27;s voxels. Neither has a supervoxelizer.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_04_atomic_inside_each_subject_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_04_atomic_inside_each_subject`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Habitats inside each subject from atomic components</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. The two-step design first cuts every tumour into supervoxels and clusters those. The pooled-voxel design (also called direct pooling) skips that step: every ROI voxel of every training patient goes into one matrix, and one cohort model is fitted on it. Habitat ids are still shared across patients.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_05_pooled_voxels_spec_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_05_pooled_voxels_spec`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Pooled-voxel habitats with a Spec</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. /auto_examples/01_building_habitat_maps/plot_02_atomic_two_step rebuilds the two-step design from HABIT&#x27;s individual components and shows it matches Study. The two other designs use the same components with fewer steps: the per-subject (one-step) design of /auto_examples/00_introductory_tutorials/plot_02_inside_each_subject fits one model per patient on that patient&#x27;s voxels, and the pooled-voxel design of /auto_examples/00_introductory_tutorials/plot_03_pooled_voxels fits one cohort model on every patient&#x27;s voxels. Neither has a supervoxelizer.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_06_atomic_pooled_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_06_atomic_pooled`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Pooled-voxel habitats from atomic components</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. A habitat model always returns a map, even when the definition behind it is poor. Two failure patterns are common and easy to miss if you only read the feature table: a one-block map, where most of a tumour falls into a single habitat (often because the scan is globally brighter or darker than the training scans), and a fragmented map, where habitats break into many tiny specks that no reader would call a region. Both still produce volume fractions, MSI and ITH numbers, so they must be caught by looking and by simple checks.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_07_quality_control_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_07_quality_control`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Quality control of habitat maps</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Background. Habitat assignment paints every ROI voxel with a nearest centroid id. That can leave tiny islands of a few voxels that no reader would call a region, and that inflate ITH and graph metrics. Connected- component cleanup drops islands smaller than a size cut-off and fills those voxels with neighbouring habitat ids, so the map stays the same definition with less speck.">
+
+.. only:: html
+
+  .. image:: /auto_examples/01_building_habitat_maps/images/thumb/sphx_glr_plot_08_cleaning_maps_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/01_building_habitat_maps/plot_08_cleaning_maps`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Cleaning habitat maps (connected components)</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/01_building_habitat_maps/plot_01_two_step_spec
+   /auto_examples/01_building_habitat_maps/plot_02_atomic_two_step
+   /auto_examples/01_building_habitat_maps/plot_03_inside_each_subject_spec
+   /auto_examples/01_building_habitat_maps/plot_04_atomic_inside_each_subject
+   /auto_examples/01_building_habitat_maps/plot_05_pooled_voxels_spec
+   /auto_examples/01_building_habitat_maps/plot_06_atomic_pooled
+   /auto_examples/01_building_habitat_maps/plot_07_quality_control
+   /auto_examples/01_building_habitat_maps/plot_08_cleaning_maps
+

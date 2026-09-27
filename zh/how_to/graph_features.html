@@ -1,0 +1,907 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>图拓扑特征 &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'how_to/graph_features';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/how_to/graph_features.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/architecture.html">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">图拓扑特征</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="graph-topology-features">
+<h1>图拓扑特征<a class="headerlink" href="#graph-topology-features" title="Link to this heading">#</a></h1>
+<p>目标：从生境标签图提取内置生境 <strong>图拓扑</strong> 特征（节点 / 边 / 指标），可选 2D/3D 图。</p>
+<p>需先生境图（<a class="reference internal" href="segment_habitat.html"><span class="doc">生境分割（CLI / YAML）</span></a> ）。本页为 CLI / YAML 书签。端到端 Python 图库：<a class="reference internal" href="../auto_examples/04_quantifying_habitats/plot_04_graph_network_features.html"><span class="doc">生境 graph network 特征</span></a> 。审稿级公式：<a class="reference internal" href="../reference/features/graph.html"><span class="doc">图拓扑特征</span></a> 。</p>
+<p><code class="docutils literal notranslate"><span class="pre">graph</span></code> 为 <a class="reference internal" href="../reference/features/index.html"><span class="doc">特征公式</span></a> 下 <strong>内置</strong> 轻量族（与 <code class="docutils literal notranslate"><span class="pre">volume</span></code> / <code class="docutils literal notranslate"><span class="pre">msi</span></code> / <code class="docutils literal notranslate"><span class="pre">ith_score</span></code> 同级）。优先域/公开 API； <code class="docutils literal notranslate"><span class="pre">habit.compat</span></code> graph shim 为弃用过渡加载器。</p>
+<section id="cli-yaml">
+<h2>CLI / YAML<a class="headerlink" href="#cli-yaml" title="Link to this heading">#</a></h2>
+<p>随附 extract YAML 已在默认轻量 <code class="docutils literal notranslate"><span class="pre">graph</span></code> 中列出 <code class="docutils literal notranslate"><span class="pre">feature_types</span></code> 。可选调顶层 <code class="docutils literal notranslate"><span class="pre">graph:</span></code> 块（验证为 <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code> ）。每条 shell 命令一行（Windows / conda PowerShell）:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">extract</span> <span class="o">--</span><span class="n">config</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your_extract_with_graph</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p>最小 YAML 片段：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">feature_types</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">volume</span>
+  <span class="o">-</span> <span class="n">graph</span>
+
+<span class="n">graph</span><span class="p">:</span>
+  <span class="n">edge_method</span><span class="p">:</span> <span class="n">min_distance</span>
+  <span class="n">distance_threshold</span><span class="p">:</span> <span class="mf">5.0</span>
+  <span class="n">node_method</span><span class="p">:</span> <span class="n">uniform_grid</span>
+  <span class="n">block_size</span><span class="p">:</span> <span class="mi">8</span>
+  <span class="n">block_min_coverage</span><span class="p">:</span> <span class="mf">0.2</span>
+  <span class="n">connectivity</span><span class="p">:</span> <span class="n">full</span>
+  <span class="n">erosion_radius</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">visualize</span><span class="p">:</span> <span class="n">false</span>
+  <span class="n">visualization_show_grid</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">visualization_block_size</span><span class="p">:</span> <span class="n">null</span>
+  <span class="n">visualization_grid_linestyle</span><span class="p">:</span> <span class="s2">&quot;--&quot;</span>
+</pre></div>
+</div>
+<p>Outputs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">habitat_graph_features.csv</span></code> under <code class="docutils literal notranslate"><span class="pre">out_dir</span></code></p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">graph.visualize:</span> <span class="pre">true</span></code> 时， <code class="docutils literal notranslate"><span class="pre">out_dir/visualizations/graph/</span></code> 下的可选数字（2D 需要 matplotlib；3D 还需要 napari）</p></li>
+</ul>
+<p>默认节点位于全局 VOI 格子上 <strong>每格子区域质心</strong> （ <code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">uniform_grid</span></code> ， <code class="docutils literal notranslate"><span class="pre">block_size:</span> <span class="pre">8</span></code> <strong>体素</strong> ，非毫米）。立方体占用比例超过 <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> （默认 <code class="docutils literal notranslate"><span class="pre">0.2</span></code> ）时保留；其内每个连通生境片段成为独立节点。当两节点最近体素在 <strong>5</strong> 个体素索引单位内（ <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">min_distance</span></code> ， <code class="docutils literal notranslate"><span class="pre">distance_threshold:</span> <span class="pre">5</span></code> ）时 <strong>存在边</strong> 。面邻 8 立方体相连（最近体素相距一跳）。立方体间空一格时最近体素距离约 8，大于 5，故仍断开。 <strong>无</strong> 形态学腐蚀（ <code class="docutils literal notranslate"><span class="pre">erosion_radius:</span> <span class="pre">0</span></code> ）。 <code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">component</span></code> 为连通分量节点； <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">adjacency</span></code> 为接触体素边（默认接触计数 &gt;= 10）。 <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> 为旧质心邻近规则。2D 图以虚线绘制 <strong>相同格子</strong> 。每个 featured-habitat 面板仅该生境填色；白节点与白内部边叠加（中深灰底使白线可见；无浅灰其他生境填充）。每个无序生境对单独面板，两色填充且 <strong>仅该对之间白 inter-edges</strong> 。</p>
+<p>参数参考：<a class="reference internal" href="../configuration/feature_extraction.html"><span class="doc">特征提取配置</span></a> 。</p>
+</section>
+<section id="python-api">
+<h2>Python API<a class="headerlink" href="#python-api" title="Link to this heading">#</a></h2>
+<p>下图由图网络图库（<a class="reference internal" href="../auto_examples/04_quantifying_habitats/plot_04_graph_network_features.html"><span class="doc">生境 graph network 特征</span></a> ）生成 — 一步法 <strong>固定</strong> <code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code> 与库默认图（8 体素均匀立方 + 子区域质心节点 + min-distance 边 + 虚线格网）。复现：:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">graph_features_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>或粘贴图库所示相同代码：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_demo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span> <span class="n">extract_graph_features</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <span class="n">one_step_habitat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">,</span> <span class="n">plot_habitat_graph_slice</span>
+
+<span class="n">DATA</span> <span class="o">=</span> <span class="n">fetch_demo</span><span class="p">()</span>
+<span class="n">MODALITIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
+    <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">()</span>
+<span class="c1"># Extended metrics (efficiency / Humphries sigma / rich-club) are on</span>
+<span class="c1"># by default. Pass include_extended_metrics=False to omit. Default</span>
+<span class="c1"># small-world null is analytic ER; pass graph_null_sampler=&#39;config&#39;</span>
+<span class="c1"># or &#39;rewire&#39; to replace it (not add a second column). See the</span>
+<span class="c1"># reference page.</span>
+<span class="c1"># Full 3D map for features; the 2D network below is display-only.</span>
+<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_slice</span><span class="p">(</span>
+    <span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span>
+<span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span>
+    <span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Stream the same options through a 一步法 <a class="reference internal" href="../api/generated/habit.report.Report.html#habit.report.Report" title="habit.report.Report"><code class="xref py py-class docutils literal notranslate"><span class="pre">Report</span></code></a> so each completed 受试者 writes <code class="docutils literal notranslate"><span class="pre">graph_slice.png</span></code> and <code class="docutils literal notranslate"><span class="pre">graph_network_2d.png</span></code> (2D display-only; metrics stay 3D):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectoryResultWriter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatGraphFeatureOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphNetwork2D</span><span class="p">,</span> <span class="n">GraphSlice</span><span class="p">,</span> <span class="n">Report</span>
+
+<span class="n">graph</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">edge_method</span><span class="o">=</span><span class="s2">&quot;min_distance&quot;</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">writer</span> <span class="o">=</span> <span class="n">DirectoryResultWriter</span><span class="p">(</span><span class="s2">&quot;out/study&quot;</span><span class="p">)</span>
+<span class="c1"># Spec(&quot;graph&quot;, asdict(graph)) on the quantify stage, then:</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">(</span>
+    <span class="n">figures</span><span class="o">=</span><span class="p">(</span><span class="n">GraphSlice</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">graph</span><span class="p">),</span> <span class="n">GraphNetwork2D</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">graph</span><span class="p">)),</span>
+    <span class="n">figure_layout</span><span class="o">=</span><span class="s2">&quot;by_subject&quot;</span><span class="p">,</span>
+    <span class="n">writer</span><span class="o">=</span><span class="n">writer</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>完整演练：<a class="reference internal" href="../auto_examples/00_introductory_tutorials/plot_02_inside_each_subject.html"><span class="doc">生境 inside each 受试者</span></a> （ <strong>Stream per subject</strong> ）。</p>
+<p>Optional: other <code class="docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions(...)</span></code> fields, registry
+<code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractorRegistry.create(&quot;graph&quot;,</span> <span class="pre">...)</span></code>, and 3D
+<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a> /
+<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a> (needs napari).</p>
+</section>
+<section id="small-world-sigma-and-random-graph-nulls">
+<h2>小世界 <span class="math notranslate nohighlight">\(sigma\)</span> 与随机图零模型<a class="headerlink" href="#small-world-sigma-and-random-graph-nulls" title="Link to this heading">#</a></h2>
+<p>公式、三种 null 与引用论文：<a class="reference internal" href="../reference/features/graph.html"><span class="doc">图拓扑特征</span></a> （ <strong>Small-worldness and random-graph nulls</strong> ）。简图：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">graph_null_sampler='analytic'</span></code> （默认）— Humphries <em>S</em> 对同 <span class="math notranslate nohighlight">\(n\)</span> 、<span class="math notranslate nohighlight">\(m\)</span> 的 Erdős–Rényi 图（闭式 <span class="math notranslate nohighlight">\(C_{mathrm{rand}}\)</span> 、<span class="math notranslate nohighlight">\(L_{mathrm{rand}}\)</span> ）。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'config'</span></code> — 配置模型（保持度序列；stub matching）。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'rewire'</span></code> — Maslov–Sneppen 双边交换（NetworkX <code class="docutils literal notranslate"><span class="pre">sigma</span></code> / <code class="docutils literal notranslate"><span class="pre">random_reference</span></code> ）。</p></li>
+</ul>
+<p>These are alternative <strong>random-graph references</strong>, not three extra 特征. One <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> column; changing the sampler replaces the number. 生境图 are spatial: none of the three nulls preserve 体素 geometry.</p>
+</section>
+<section id="degree-preserving-null-model-api">
+<h2>保度零模型 API<a class="headerlink" href="#degree-preserving-null-model-api" title="Link to this heading">#</a></h2>
+<p>零模型仅用于解释须控制度序列的拓扑指标；不用于物理接触、距离、离散或节点体积特征归一化。结果记录请求与成功随机图数，用 Z 分数前检查 <code class="docutils literal notranslate"><span class="pre">is_valid</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GraphNullModelOptions</span><span class="p">,</span>
+    <span class="n">build_min_distance_graph</span><span class="p">,</span>
+    <span class="n">compare_graph_to_degree_preserving_null</span><span class="p">,</span>
+    <span class="n">extract_habitat_nodes</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Swap in a HabitatMap.label_array from the previous block when you have one.</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+<span class="n">labels</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">labels</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">extract_habitat_nodes</span><span class="p">(</span>
+    <span class="n">label_array</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+    <span class="n">node_method</span><span class="o">=</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">block_min_coverage</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
+    <span class="n">node_result</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+    <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span>  <span class="c1"># Compare topology of habitat 1.</span>
+    <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+    <span class="n">distance_threshold</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">compare_graph_to_degree_preserving_null</span><span class="p">(</span>
+    <span class="n">graph</span><span class="p">,</span>
+    <span class="n">nx</span><span class="o">.</span><span class="n">average_clustering</span><span class="p">,</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">GraphNullModelOptions</span><span class="p">(</span>
+        <span class="n">n_random_graphs</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">sampler</span><span class="o">=</span><span class="s2">&quot;rewire&quot;</span><span class="p">,</span>
+        <span class="n">swaps_per_edge</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">observed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">z_score</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">empirical_two_sided_p</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>随机图保留各节点度、总节点数与总边数，但不保留连通分量、物理坐标、距离、接触或生境标签。见 <a class="reference internal" href="../reference/features/graph.html"><span class="doc">图拓扑特征</span></a> 中适用该参考的特征列表与报告限制。</p>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/graph_habitat_network_2d.png"><img alt="2D 切片上的生境图网络" src="../_images/graph_habitat_network_2d.png" style="width: 520px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">与 gallery 脚本写入 <code class="docutils literal notranslate"><span class="pre">out/graph_habitat_network_2d.png</span></code> 的同一文件。特征来自完整 3D 图；此 2D 网络仅用于显示。gallery 亦在 <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> 比较相同 3D 图。</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="also-see">
+<h2>Also see<a class="headerlink" href="#also-see" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>特征提取通用 how-to：<a class="reference internal" href="extract_features.html"><span class="doc">之后：用于统计 / ML 的生境特征</span></a></p></li>
+<li><p>示例图库：<a class="reference internal" href="../auto_examples/04_quantifying_habitats/plot_04_graph_network_features.html"><span class="doc">生境 graph network 特征</span></a></p></li>
+<li><p>特征列：<a class="reference internal" href="../reference/features/graph.html"><span class="doc">图拓扑特征</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-yaml">CLI / YAML</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-api">Python API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#small-world-sigma-and-random-graph-nulls">小世界 <span class="math notranslate nohighlight">\(sigma\)</span> 与随机图零模型</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#degree-preserving-null-model-api">保度零模型 API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#also-see">Also see</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

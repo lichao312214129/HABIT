@@ -1,0 +1,1505 @@
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" data-theme="dark">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Architecture &#8212; HABIT Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "dark";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=c2179bb5" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../_static/documentation_options.js?v=cd91d057"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/translations.js?v=beaddf03"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'development/architecture';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/development/architecture.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="扩展 HABIT" href="../customization/index.html" />
+    <link rel="prev" title="Contributing" href="contributing.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="zh-CN"/>
+  <meta name="docsearch:version" content="3.0.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="dark">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">跳转至主要内容</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>回到顶部</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="版本警告"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="网页导航">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HABIT Documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    Architecture
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="搜索" aria-label="搜索" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">搜索</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="当前页面">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_python.html">
+    快速开始：Python API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_quickstart/plot_quickstart_yaml.html">
+    快速开始：YAML 与 CLI
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/optional_dependencies.html">
+    可选依赖
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    用户指南
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API 参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../configuration/recipe_catalog.html">
+    YAML 配置文件
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/cli.html">
+    命令参考
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/habitat_matching.html">
+    匹配生境标签
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/features/index.html">
+    特征公式
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/glossary.html">
+    Glossary
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Architecture
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../customization/index.html">
+    扩展 HABIT
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../acknowledgments.html">
+    引用与致谢
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="亮色"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="暗色"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>亮色</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>暗色</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/lichao312214129/HABIT" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="章节导航">
+  <p class="bd-links__title" role="heading" aria-level="1">章节导航</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="初始页面">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Architecture</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">#</a></h1>
+<p>自 v1.0.0 起 HABIT 为 <strong>API-first</strong> ：Python API 即产品，CLI 与 YAML 配置为其薄壳。代码库组织为六层，L0 底至 L5 顶。层只能向下 import，使数值核心无 I/O、配置解析不进算法。</p>
+<p>按以下顺序阅读公开的开发者文档：</p>
+<ol class="arabic simple">
+<li><p><strong>本页</strong> — 分层、公开 API 边界、不变量。</p></li>
+<li><p><a class="reference internal" href="contributing.html"><span class="doc">Contributing</span></a> — environment, tests, and pull requests.</p></li>
+<li><p><a class="reference internal" href="../customization/index.html"><span class="doc">扩展 HABIT</span></a> — 注册表和入口点插件。</p></li>
+</ol>
+<section id="design-principles">
+<h2>设计原则<a class="headerlink" href="#design-principles" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>API first</strong> ：每项研究为 <a class="reference internal" href="../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study"><code class="xref py py-class docutils literal notranslate"><span class="pre">Study</span></code></a> （ <code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">=</span> <span class="pre">recipes.Study(spec=spec).fit_predict(cohort)</span></code> 且 <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> ）；YAML 与 CLI 为同一调用的投影。生境工厂（ <code class="docutils literal notranslate"><span class="pre">two_step_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">one_step_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling_habitat</span></code> ）返回带声明设计的 Study。</p></li>
+<li><p><strong>Typed specifications</strong> ：分析声明为不可变、带指纹的 spec 对象（<a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> 、<a class="reference internal" href="../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code></a> ），而非松散字典。</p></li>
+<li><p><strong>注册表模式</strong> ：算法按名称注册，而非硬编码进工作流逻辑。</p></li>
+<li><p><strong>Unified contracts</strong> ：数据以类型化契约在层间传递（<a class="reference internal" href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> 、<a class="reference internal" href="../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureTable</span></code></a> 、<a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> 等）。</p></li>
+<li><p><strong>惰性导入</strong> ：可选且体积大的依赖仅在需要时加载。</p></li>
+</ol>
+</section>
+<section id="the-six-layers">
+<h2>六层架构<a class="headerlink" href="#the-six-layers" title="Link to this heading">#</a></h2>
+<pre  class="mermaid">
+        flowchart TD
+  subgraph L5[&quot;L5 — interfaces (habit/cli.py, habit/commands/)&quot;]
+    CLI[&quot;CLI commands&quot;]
+    YAML[&quot;YAML documents&quot;]
+  end
+  L4[&quot;L4 — recipes (habit/recipes/)&lt;br/&gt;Study.fit / fit_predict / predict&lt;br/&gt;two_step_habitat · one_step_habitat · direct_pooling_habitat&lt;br/&gt;train_model · cross_validate · predict_model&lt;br/&gt;extract · radiomics · compare_models · run_from_yaml&quot;]
+  L3[&quot;L3 — domain (habit/domain/)&lt;br/&gt;protocols + component registries&lt;br/&gt;SubjectPipeline · TablePipeline&quot;]
+  L2[&quot;L2 — contracts (habit/contracts/)&lt;br/&gt;Subject · Cohort · FeatureTable&lt;br/&gt;HabitatModel · RunManifest&quot;]
+  L1[&quot;L1 — adapters (habit/adapters/)&lt;br/&gt;DirectoryDataSource · sinks&lt;br/&gt;(the only layer that reads files)&quot;]
+  L0[&quot;L0 — kernels (habit/kernels/)&lt;br/&gt;pure numpy / SimpleITK math&lt;br/&gt;no I/O, no state, no logging&quot;]
+
+  L5 --&gt; L4
+  L4 --&gt; L3
+  L3 --&gt; L2
+  L2 --&gt; L1
+  L1 --&gt; L0
+    </pre><p>栈旁支持包： <code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code> （spec 对象与 v0.1→v1 转换器）、 <code class="docutils literal notranslate"><span class="pre">habit/execution/</span></code> （并行后端与检查点）、 <code class="docutils literal notranslate"><span class="pre">habit/datasets/</span></code> （合成数据）、 <code class="docutils literal notranslate"><span class="pre">habit/plugins/</span></code> （组件发现）、 <code class="docutils literal notranslate"><span class="pre">habit/schemas/</span></code> （v0.1 YAML schema）、 <code class="docutils literal notranslate"><span class="pre">habit/compat/</span></code> （v0.1 引擎，保留 YAML parity 与旧文件）。</p>
+<p>Public Python symbols are listed under <a class="reference internal" href="../api/index.html"><span class="doc">API 参考</span></a>. A third party
+should be able to call <code class="docutils literal notranslate"><span class="pre">op(subject)</span></code> or <code class="docutils literal notranslate"><span class="pre">Study(spec).fit_predict(cohort)</span></code>
+without HABIT's directory layout. If <code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> and <code class="docutils literal notranslate"><span class="pre">habit/commands/</span></code>
+were deleted, the scientific capability would still be callable.</p>
+</section>
+<section id="two-execution-paths">
+<h2>两条执行路径<a class="headerlink" href="#two-execution-paths" title="Link to this heading">#</a></h2>
+<p><strong>The v1 path (specs and recipes).</strong> Python callers build a spec, assemble a 队列 or 特征 table through the contracts/adapters, and call a recipe. The recipe wires domain components from the L3 registries into a pipeline, runs it through an execution backend, and returns a typed result with a <a class="reference internal" href="../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest" title="habit.contracts.RunManifest"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunManifest</span></code></a> for provenance:</p>
+<pre  class="mermaid">
+        flowchart TD
+  S[&quot;HabitatSpec / MLSpec&lt;br/&gt;(immutable, fingerprinted)&quot;] --&gt; R[&quot;habit.recipes.*&quot;]
+  C[&quot;Cohort / FeatureTable&quot;] --&gt; R
+  R --&gt; P[&quot;SubjectPipeline / TablePipeline&lt;br/&gt;(L3 registries resolve Spec('name', params))&quot;]
+  P --&gt; X[&quot;Execution backend&lt;br/&gt;serial / multiprocessing&quot;]
+  X --&gt; RES[&quot;StudyResult / ModelResult&lt;br/&gt;+ RunManifest&quot;]
+    </pre><p><strong>v0.1 路径（YAML schema 与配置器）。</strong> CLI 仍接受 v0.1 YAML。命令对照 <code class="docutils literal notranslate"><span class="pre">habit/schemas/</span></code> 中 Pydantic schema 校验，用 <a class="reference internal" href="../api/generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter" title="habit.spec.legacy.LegacyConfigAdapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></a> 转换，再调用 <strong>相同</strong> v1 配方。经典 schema → 配置器 → 编排器链仅存于 <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code> ，少数工作流（特征提取、传统放射组学、旧 pickle 预测）仍经此路由：</p>
+<pre  class="mermaid">
+        flowchart TD
+  Y[&quot;v0.1 YAML&quot;] --&gt; SC[&quot;habit/schemas/&lt;br/&gt;Pydantic validation&quot;]
+  SC --&gt; TR[&quot;LegacyConfigAdapter&lt;br/&gt;translate to v1&quot;]
+  TR --&gt; REC[&quot;habit.recipes.*&lt;br/&gt;(same as the Python path)&quot;]
+  SC -.-&gt;|&quot;extract / radiomics /&lt;br/&gt;legacy pickles&quot;| CF[&quot;compat configurators&lt;br/&gt;MLConfigurator etc.&quot;]
+  CF --&gt; ORC[&quot;compat orchestrators&lt;br/&gt;BatchProcessor · HabitatAnalysis&lt;br/&gt;KFoldWorkflow&quot;]
+    </pre><p>Maintainer notes for the YAML loader, PathResolver, and compat engine
+tours live in the repository at <code class="docutils literal notranslate"><span class="pre">developer/sphinx_archive/</span></code>
+(<code class="docutils literal notranslate"><span class="pre">configuration_system.rst</span></code>, <code class="docutils literal notranslate"><span class="pre">request_lifecycle.rst</span></code>,
+<code class="docutils literal notranslate"><span class="pre">subsystems.rst</span></code>).</p>
+</section>
+<section id="key-components">
+<h2>关键组件<a class="headerlink" href="#key-components" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Specs</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code> ）将分析声明为数据。spec 不可变、可序列化、可指纹化，保存的模型始终知道产生它的分析。</p></li>
+<li><p><strong>Recipes</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/recipes/</span></code> ）是标准研究设计。是多数用户与全部 entry point 唯一需要的编排。</p></li>
+<li><p><strong>契约</strong> (<code class="docutils literal notranslate"><span class="pre">habit/contracts/</span></code>) are the typed data model; every layer speaks in these objects.</p></li>
+<li><p><strong>Domain registries</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/domain/</span></code> ）将 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;kmeans&quot;,</span> <span class="pre">{...})</span></code> 组件引用映射到实现。</p></li>
+<li><p><strong>Execution backends</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/execution/</span></code> ）运行受试者并行工作并为中断队列提供检查点。</p></li>
+<li><p><strong>Compat engines</strong> （ <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code> ）是 v1 前实现（ <code class="docutils literal notranslate"><span class="pre">BatchProcessor</span></code> 、 <code class="docutils literal notranslate"><span class="pre">HabitatAnalysis</span></code> 、 <code class="docutils literal notranslate"><span class="pre">HoldoutWorkflow</span></code>/<code class="docutils literal notranslate"><span class="pre">KFoldWorkflow</span></code> ）。YAML  parity 工作流仍完全支持，但不再是架构重心。</p></li>
+</ul>
+</section>
+<section id="subsystems">
+<h2>Subsystems<a class="headerlink" href="#subsystems" title="Link to this heading">#</a></h2>
+<p><strong>Habitat analysis</strong> 支持三种策略 — <code class="docutils literal notranslate"><span class="pre">two_step</span></code> 、 <code class="docutils literal notranslate"><span class="pre">one_step</span></code> 、 <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> — 作为同一领域组件上的 v1 配方实现。拟合状态以自描述 <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> 归档持久化以供可复现预测。</p>
+<p><strong>预处理</strong> and <strong>tabular machine learning</strong> are supporting shells: <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code> calls <a class="reference internal" href="../api/generated/habit.recipes.preprocess_images.html#habit.recipes.preprocess_images" title="habit.recipes.preprocess_images"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.preprocess_images()</span></code></a>; <a class="reference internal" href="../api/generated/habit.recipes.train_model.html#habit.recipes.train_model" title="habit.recipes.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">train_model()</span></code></a> / <a class="reference internal" href="../api/generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate()</span></code></a> / <a class="reference internal" href="../api/generated/habit.recipes.predict_model.html#habit.recipes.predict_model" title="habit.recipes.predict_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict_model()</span></code></a> run a <a class="reference internal" href="../api/generated/habit.pipeline.TablePipeline.html#habit.pipeline.TablePipeline" title="habit.pipeline.TablePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">TablePipeline</span></code></a>. Compat engines under <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code> remain for YAML parity. Those trees are frozen for product work; 生境分析 is the extension surface.</p>
+</section>
+<section id="cli-to-core-mapping">
+<h2>CLI 到核心映射<a class="headerlink" href="#cli-to-core-mapping" title="Link to this heading">#</a></h2>
+<p>每条 CLI 命令为 L5 装配：解析验证 YAML、必要时转换、调用 recipe、写输出。命令层无算法。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 30.0%" />
+<col style="width: 54.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>CLI 命令</p></th>
+<th class="head"><p>Configuration</p></th>
+<th class="head"><p>v1 entry point</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">preprocess</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PreprocessingConfig</span></code></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.preprocess_images.html#habit.recipes.preprocess_images" title="habit.recipes.preprocess_images"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.preprocess_images()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">get-habitat</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HabitatAnalysisConfig</span></code> → <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.Study.html#habit.recipes.Study" title="habit.recipes.Study"><code class="xref py py-class docutils literal notranslate"><span class="pre">habit.recipes.Study</span></code></a> （工厂： <code class="docutils literal notranslate"><span class="pre">two_step_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">one_step_habitat</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling_habitat</span></code> ）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extract</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FeatureExtractionConfig</span></code></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.extract_habitat_features.html#habit.recipes.extract_habitat_features" title="habit.recipes.extract_habitat_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.extract_habitat_features()</span></code></a> （domain 提取器；未注册插件才 compat 回退）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">radiomics</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RadiomicsConfig</span></code></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.traditional_radiomics.html#habit.recipes.traditional_radiomics" title="habit.recipes.traditional_radiomics"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.traditional_radiomics()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">model</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MLConfig</span></code> → <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.train_model.html#habit.recipes.train_model" title="habit.recipes.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.train_model()</span></code></a> （+ <code class="docutils literal notranslate"><span class="pre">ml_reporting</span></code> / <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> ）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cv</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MLConfig</span></code> → <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.cross_validate()</span></code></a> （ <code class="docutils literal notranslate"><span class="pre">ml_reporting</span></code> / <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> ）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">compare</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ModelComparisonConfig</span></code></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.compare_models()</span></code></a> （域评价 + <code class="docutils literal notranslate"><span class="pre">comparison_reporting</span></code> / <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> ）</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="design-philosophy">
+<h2>设计哲学<a class="headerlink" href="#design-philosophy" title="Link to this heading">#</a></h2>
+<p>成像论文需要 <strong>可重复</strong> 且 <strong>可复现</strong> 的生境图。体素强度依赖扫描仪与预处理；聚类依赖 <span class="math notranslate nohighlight">\(k\)</span> 与特征向量；单个体素掩膜偏移可改写放射组学图。HABIT 不能消除该物理。它使改变生境图的选择 <strong>显式、有类型并随结果携带</strong> （<a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> 、<a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> 、<a class="reference internal" href="../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest.describe_methods" title="habit.contracts.RunManifest.describe_methods"><code class="xref py py-meth docutils literal notranslate"><span class="pre">describe_methods()</span></code></a> ）。单元测试通过不等于多中心复现。</p>
+<p>产品答案是可复制进 notebook 或另一流水线的 <strong>库 API</strong> 。CLI 与 YAML 是该 API 的壳，非第二套科学栈。默认（k-means 生境数：inertia <strong>elbow</strong> ，<span class="math notranslate nohighlight">\(kin[2,10]\)</span> ）是起始协议，非声称默认对每个肿瘤最优。</p>
+<p>由此产生五个工程支柱：</p>
+<ol class="arabic simple">
+<li><p><strong>Configuration is an interface</strong> ，非一层 — YAML 与 Python 经 <a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a> 共享语义。</p></li>
+<li><p><strong>Schemas fail fast</strong> — Pydantic 在计算前验证；严格处 <code class="docutils literal notranslate"><span class="pre">extra='forbid'</span></code> 。</p></li>
+<li><p><strong>Registry 解耦算法</strong> ——按名切换实现。</p></li>
+<li><p><strong>Train and predict share a contract</strong> — inference reuses fitted state, including 队列级 preprocessing on <a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a>.</p></li>
+<li><p><strong>Commands stay thin</strong> — L5 委托 <code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code> 。</p></li>
+</ol>
+</section>
+<section id="habitat-and-api-glossary">
+<h2>生境与 API 术语表<a class="headerlink" href="#habitat-and-api-glossary" title="Link to this heading">#</a></h2>
+<p>任务级生境 walkthrough 在生境指南（<a class="reference internal" href="../auto_examples/index.html"><span class="doc">Examples</span></a> ）。下表为本章使用的 <strong>开发者</strong> 词汇。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Term</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Voxel feature</strong></p></td>
+<td><p>聚类读取的逐体素向量（强度、动力学、局部放射组学等）。</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Supervoxel</strong></p></td>
+<td><p>单受试者内相似体素局部组； <code class="docutils literal notranslate"><span class="pre">two_step</span></code> 策略的中间产物。</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Habitat</strong></p></td>
+<td><p>An image-phenotype region inside a 肿瘤, stored as an integer label image.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Habitat feature</strong></p></td>
+<td><p>生境图存在后的下游量（体积、MSI、ITH、放射组学、图指标等）。</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>聚类模式</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">two_step</span></code>, <code class="docutils literal notranslate"><span class="pre">one_step</span></code>, 或 <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> 。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 45.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Role</p></th>
+<th class="head"><p>Responsibility</p></th>
+<th class="head"><p>代表符号</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Spec</strong></p></td>
+<td><p>将分析声明为不可变的、带指纹的数据。</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> 、 <code class="docutils literal notranslate"><span class="pre">MLSpec</span></code> 、 <code class="docutils literal notranslate"><span class="pre">Spec</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Recipe</strong></p></td>
+<td><p>Assembles domain components, executes, returns a typed result.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">recipes.Study(...).fit_predict</span></code> 、 <code class="docutils literal notranslate"><span class="pre">recipes.train_model</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Contract</strong></p></td>
+<td><p>在层间传递的类型化对象。</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Subject</span></code> 、 <code class="docutils literal notranslate"><span class="pre">Cohort</span></code> 、 <code class="docutils literal notranslate"><span class="pre">FeatureTable</span></code> 、 <code class="docutils literal notranslate"><span class="pre">HabitatModel</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Pipeline</strong></p></td>
+<td><p>配方构建的可执行对象；拟合状态在此。</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code> 、 <code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>数据源 / 接收端</strong></p></td>
+<td><p>L1 适配器；唯一读文件之处。</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DirectoryDataSource</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Component registry</strong></p></td>
+<td><p>Maps <code class="docutils literal notranslate"><span class="pre">Spec(&quot;name&quot;,</span> <span class="pre">params)</span></code> to implementations.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">VoxelFeatureExtractorRegistry</span></code>, <code class="docutils literal notranslate"><span class="pre">ComponentRegistry</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>v0.1 YAML 路径上 <strong>Configurator</strong> 组装、 <strong>Orchestrator</strong> 执行、 <strong>Factory</strong> 解析名称。这些角色仍描述 <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code> 。v1 路径上 recipe 兼三职，由 spec 驱动。</p>
+</section>
+<section id="invariants">
+<h2>Invariants<a class="headerlink" href="#invariants" title="Link to this heading">#</a></h2>
+<p>These rules must not be broken. Most are checked by
+<code class="docutils literal notranslate"><span class="pre">tests/test_architecture_contracts.py</span></code>.</p>
+<div class="admonition important">
+<p class="admonition-title">重要</p>
+<p>提交变更前运行架构契约测试:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span> <span class="n">tests</span><span class="o">/</span><span class="n">test_architecture_contracts</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">m</span> <span class="n">unit</span>
+</pre></div>
+</div>
+</div>
+<p><strong>科学正确性</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Invariant</p></th>
+<th class="head"><p>Rationale</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>防止数据泄露</strong></p></td>
+<td><p>特征 selection, scaling, and resampling must be inside one sklearn Pipeline and fitted only on training folds.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Train/predict symmetry</strong></p></td>
+<td><p>predict 须复用 fit 学到的聚类中心、缩放参数、所选特征等状态。</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Controlled randomness</strong></p></td>
+<td><p>每一个随机步骤都必须接受并传递一个随机种子，以便可以重现相同的配置。</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Configuration</strong></p>
+<ul class="simple">
+<li><p>根配置模型在需严格验证处用 <code class="docutils literal notranslate"><span class="pre">extra='forbid'</span></code> 。新字段须在 schema 中声明。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habit/schemas/</span></code> 是 schema 定义的真相源。兼容模块可再导出 schema 但不得定义重复。</p></li>
+<li><p>可配置 <code class="docutils literal notranslate"><span class="pre">params</span></code> 的组件须定义并注册 Pydantic 参数模型（v0.1 YAML）或在组件构造函数上暴露（v1 <code class="docutils literal notranslate"><span class="pre">Registry.create</span></code> ）。</p></li>
+<li><p>v1 spec objects (<code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code>) are immutable and fingerprinted; a fitted
+model must always be traceable to the exact spec that produced it.</p></li>
+</ul>
+<p><strong>Registry contracts</strong></p>
+<p>所有注册表必须：</p>
+<ul class="simple">
+<li><p>继承相应 <code class="docutils literal notranslate"><span class="pre">_BaseRegistry</span></code> 子类；</p></li>
+<li><p>暴露 <code class="docutils literal notranslate"><span class="pre">register</span></code> 、 <code class="docutils literal notranslate"><span class="pre">get</span></code> 、 <code class="docutils literal notranslate"><span class="pre">available</span></code> 、 <code class="docutils literal notranslate"><span class="pre">register_params_model</span></code> 、 <code class="docutils literal notranslate"><span class="pre">get_params_model</span></code> ；</p></li>
+<li><p>保留独立 <code class="docutils literal notranslate"><span class="pre">_registry</span></code> 字典；</p></li>
+<li><p>从 <code class="docutils literal notranslate"><span class="pre">available()</span></code> 返回一个列表。</p></li>
+</ul>
+<p>类工厂另提供 <code class="docutils literal notranslate"><span class="pre">create()</span></code> 。可调用注册表提供其可调用入口访问器。</p>
+<p><strong>Orchestrator contracts</strong></p>
+<p>每个顶层编排器须暴露 <code class="docutils literal notranslate"><span class="pre">ORCHESTRATOR_CONTRACT</span></code> 声明的终端方法。批处理器与工作流通常暴露 <code class="docutils literal notranslate"><span class="pre">run()</span></code> ；生境分析暴露 <code class="docutils literal notranslate"><span class="pre">fit()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">predict()</span></code> 。</p>
+<p><strong>工程惯例</strong></p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">habit/utils/progress_utils.py</span></code> for all progress bars.</p></li>
+<li><p>可复用跨子系统工具放在 <code class="docutils literal notranslate"><span class="pre">habit/utils/</span></code> 。</p></li>
+<li><p>图内生成的文字必须为英文。</p></li>
+<li><p>在命令或工厂方法内部懒加载导入重量级可选依赖。</p></li>
+<li><p>Keep business logic out of the command layer: commands are L5 wiring that
+delegate to <code class="docutils literal notranslate"><span class="pre">habit/recipes/</span></code>; v0.1 engine logic lives in
+<code class="docutils literal notranslate"><span class="pre">compat/engines/*/run.py</span></code>.</p></li>
+<li><p>遵守层方向：L0 kernel 保持纯函数（无 I/O、状态、日志），且不得向上 import。</p></li>
+<li><p>显式标注函数输入输出，代码注释用英文。</p></li>
+</ul>
+</section>
+<section id="where-to-look-in-the-repo">
+<h2>在仓库中何处查找<a class="headerlink" href="#where-to-look-in-the-repo" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 28.0%" />
+<col style="width: 72.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Path</p></th>
+<th class="head"><p>Responsibility</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/kernels/</span></code></p></td>
+<td><p><strong>L0</strong> 数值 kernel。无 I/O、无状态、无日志。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/adapters/</span></code></p></td>
+<td><p><strong>L1</strong> 数据源与 sink。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/contracts/</span></code></p></td>
+<td><p><strong>L2</strong> <code class="docutils literal notranslate"><span class="pre">Subject</span></code>, <code class="docutils literal notranslate"><span class="pre">Cohort</span></code>, <code class="docutils literal notranslate"><span class="pre">FeatureTable</span></code>, <code class="docutils literal notranslate"><span class="pre">HabitatModel</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/domain/</span></code></p></td>
+<td><p><strong>L3</strong> 协议，注册表， <code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code> 。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/recipes/</span></code></p></td>
+<td><p><strong>L4</strong> <code class="docutils literal notranslate"><span class="pre">Study</span></code> 与生境 / extract / ML 配方。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code>, <code class="docutils literal notranslate"><span class="pre">habit/commands/</span></code></p></td>
+<td><p><strong>L5</strong> 仅 Click 接线。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> / <code class="docutils literal notranslate"><span class="pre">MLSpec</span></code> / <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code> 。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/execution/</span></code></p></td>
+<td><p>并行后端与检查点。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/plugins/</span></code></p></td>
+<td><p>Entry-point discovery (<code class="docutils literal notranslate"><span class="pre">list_plugins</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/</span></code></p></td>
+<td><p>冻结的 v0.1 引擎（YAML 一致）。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tests/</span></code></p></td>
+<td><p>Pytest; architecture contracts in
+<code class="docutils literal notranslate"><span class="pre">tests/test_architecture_contracts.py</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>修改生境分析从这里开始：</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Goal</p></th>
+<th class="head"><p>起点</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>添加体素/超体素/生境插件</p></td>
+<td><p><a class="reference internal" href="../customization/index.html"><span class="doc">扩展 HABIT</span></a> 和匹配的 L3 注册表</p></td>
+</tr>
+<tr class="row-odd"><td><p>切换三种生境策略</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habit/recipes/habitat.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>更改 CLI 接线</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> + <code class="docutils literal notranslate"><span class="pre">habit/commands/cmd_*.py</span></code> (keep commands thin)</p></td>
+</tr>
+<tr class="row-odd"><td><p>修改数值核</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habit/kernels/</span></code> （Spec 不变则定义不变）</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>更长包图（utils 清单、compat 引擎目录、ML 起点）归档于 <code class="docutils literal notranslate"><span class="pre">developer/sphinx_archive/repo_layout.rst</span></code> 。</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="contributing.html"><span class="doc">Contributing</span></a> —— 环境、测试、Pull Request。</p></li>
+<li><p><a class="reference internal" href="../customization/index.html"><span class="doc">扩展 HABIT</span></a> — 生境注册表插件。</p></li>
+<li><p><a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Habitat Spec 组件目录</span></a> —— 内置 <code class="docutils literal notranslate"><span class="pre">Spec</span></code> 名称。</p></li>
+<li><p><a class="reference internal" href="../reference/upstream_libraries.html"><span class="doc">上游依赖与文档链接</span></a> — third-party library notes.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="contributing.html"
+       title="上一页">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title">Contributing</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../customization/index.html"
+       title="下一页">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title">扩展 HABIT</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 当前页面
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-principles">设计原则</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-six-layers">六层架构</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-execution-paths">两条执行路径</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-components">关键组件</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subsystems">Subsystems</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli-to-core-mapping">CLI 到核心映射</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-philosophy">设计哲学</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#habitat-and-api-glossary">生境与 API 术语表</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#invariants">Invariants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-look-in-the-repo">在仓库中何处查找</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See also</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, HABIT Team.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    由 <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3创建。
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  使用 <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0构建.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
