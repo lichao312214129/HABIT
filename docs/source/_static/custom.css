@@ -199,3 +199,20 @@
   font-size: 0.92em;
 }
 .habit-home-card:hover { border-left-color: var(--habit-accent); }
+.habit-home-card p { margin: 0.2rem 0; }
+.habit-home-card a { font-weight: 600; font-size: 1.05em; }
+
+/* Header link: English site → 中文, Chinese site → EN. */
+.habit-lang-link {
+  display: inline-flex;
+  align-items: center;
+  margin-inline: 0.35rem;
+  padding: 0.1rem 0.55rem;
+  border: 1px solid var(--pst-color-border, var(--habit-border));
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.6;
+  text-decoration: none;
+  white-space: nowrap;
+}

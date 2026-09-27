@@ -42,8 +42,14 @@ author = "HABIT Team"
 version = _load_package_version()
 release = version
 
-# Language
+# Source language is English. Chinese is a gettext catalog
+# (``locale/zh_CN``) published under ``<site>/zh/``. ``-D language=zh_CN``
+# selects that catalog; the default build stays English.
 language = "en"
+locale_dirs = ["locale"]
+# One catalog so repeated sentences are translated once.
+gettext_compact = "habit"
+gettext_location = True
 
 # Source file suffix: use .rst only.
 source_suffix = ".rst"
@@ -181,6 +187,9 @@ html_theme_options = {
     "show_toc_level": 2,
     "navbar_align": "left",
     "secondary_sidebar_items": ["page-toc", "edit-this-page"],
+    # Keep the theme defaults, then add the EN / 中文 link. The template
+    # swaps ``/zh/`` in the current path so both builds share one button.
+    "navbar_end": ["theme-switcher", "navbar-icon-links", "language-switch"],
 }
 
 # Template path.
@@ -582,10 +591,36 @@ def touch_example_backreferences(
         examples_path.touch()
 
 
+def _blank_generated_api_for_gettext(app, docname: str, source: list[str]) -> None:
+    """Omit generated API stubs from the translation catalog.
+
+    Those pages are Python docstrings. The Chinese HTML build keeps the
+    English text when a string has no ``msgstr``. Blanking the source is
+    limited to the gettext builder, so the HTML API reference is unchanged.
+
+    Parameters
+    ----------
+    app :
+        Sphinx application. ``builder.name`` is ``gettext`` only while
+        messages are extracted.
+    docname :
+        Document name relative to the source root, using forward slashes.
+    source :
+        One-element list; Sphinx replaces the file body with ``source[0]``.
+    """
+    if getattr(app.builder, "name", "") != "gettext":
+        return
+    normalized = docname.replace("\\", "/")
+    if normalized.startswith("api/generated/"):
+        source[0] = ""
+
+
 def setup(app) -> dict[str, object]:
     """Register docs-only Sphinx event hooks."""
     app.connect("builder-inited", _ensure_api_generated_dir)
     app.connect("source-read", _repair_gallery_headings)
     app.connect("source-read", _lift_gallery_nested_toctree)
     app.connect("autodoc-process-docstring", touch_example_backreferences)
+    # Last, so a gettext build does not catalog generated API pages.
+    app.connect("source-read", _blank_generated_api_for_gettext)
     return {"parallel_read_safe": True, "parallel_write_safe": True}

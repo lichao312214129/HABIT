@@ -12,13 +12,25 @@ Project repository: https://github.com/lichao312214129/HABIT
 
    Research / education only. Not for clinical diagnosis.
 
-.. raw:: html
+.. container:: habit-home-cards
 
-   <div class="habit-home-cards">
-     <a class="habit-home-card" href="auto_quickstart/plot_quickstart_python.html"><strong>Quickstart</strong><span>First habitat map in Python</span></a>
-     <a class="habit-home-card" href="auto_examples/index.html"><strong>Examples</strong><span>Tutorials and how-tos</span></a>
-     <a class="habit-home-card" href="user_guide/index.html"><strong>User guide</strong><span>Concepts without full code</span></a>
-   </div>
+   .. container:: habit-home-card
+
+      :doc:`Quickstart <auto_quickstart/plot_quickstart_python>`
+
+      First habitat map in Python
+
+   .. container:: habit-home-card
+
+      :doc:`Examples <auto_examples/index>`
+
+      Tutorials and how-tos
+
+   .. container:: habit-home-card
+
+      :doc:`User guide <user_guide/index>`
+
+      Concepts without full code
 
 Featured examples
 -----------------

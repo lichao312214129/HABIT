@@ -1,0 +1,25 @@
+{# EN / 中文. Both HTML trees share this template. JS inserts or removes the
+   ``zh`` path segment so the button opens the same page in the other language.
+   Project Pages live at ``/HABIT/``; a local build without that prefix still works. #}
+<a id="habit-lang-link" class="habit-lang-link" href="zh/index.html">中文</a>
+<script>
+(function () {
+  var link = document.getElementById("habit-lang-link");
+  if (!link) return;
+  var segs = window.location.pathname.split("/");
+  var zhAt = segs.indexOf("zh");
+  var label;
+  if (zhAt !== -1) {
+    segs.splice(zhAt, 1);
+    label = "EN";
+  } else {
+    var insertAt = segs[1] === "HABIT" ? 2 : 1;
+    segs.splice(insertAt, 0, "zh");
+    label = "中文";
+  }
+  var next = segs.join("/");
+  if (!next) next = "/";
+  link.textContent = label;
+  link.setAttribute("href", next || "/");
+})();
+</script>
