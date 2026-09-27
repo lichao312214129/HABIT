@@ -15516,9 +15516,9 @@ msgstr "四名受试者定义生境；第五名稍后扮演新患者。下载包
 msgid "Build the analysis step by step"
 msgstr "一步步建立分析"
 #: ../../source/auto_quickstart/plot_quickstart_python.rst:177
-msgid "A habitat analysis is a list of stages. This is the two-step design: each tumour is normalized on its own scale, split into 30 supervoxels (``partition``), the supervoxels of all subjects are put together (``pool``) and clustered once (``fit``), so habitat 2 means the same enhancement pattern in every patient. Drop ``pool`` and every subject is clustered on its own (one-step); drop ``partition`` and voxels are clustered directly (direct pooling). The fitter tries 2 to 10 habitats and keeps the elbow."
+msgid "A habitat analysis is a list of stages. This is the two-step design: each tumour is normalized on its own scale, split into 30 supervoxels (``partition``), the supervoxels of all subjects are put together (``pool``) and clustered once (``fit``), so habitat 2 means the same enhancement pattern in every patient. Drop ``pool`` and every subject is clustered on its own (one-step); drop ``partition`` and voxels are clustered directly (direct pooling). The fitter tries 2 to 10 habitats and uses the elbow criterion to select the optimal k."
 msgstr ""
-"生境分析是阶段列表。此为两步法：各肿瘤自有尺度归一化，切 30 超体素（ ``partition`` ），全体超体素合并（ ``pool`` ）并聚类一次（ ``fit`` ），故生境 2 在各患者含义相同增强模式。去掉 ``pool`` 则逐受试者聚类（一步法）；去掉 ``partition`` 则直接体素聚类（直接池化）。拟合器试 2–10 个生境并保留 elbow。"
+"生境分析是阶段列表。此为两步法：各肿瘤自有尺度归一化，切 30 超体素（ ``partition`` ），全体超体素合并（ ``pool`` ）并聚类一次（ ``fit`` ），故生境 2 在各患者含义相同增强模式。去掉 ``pool`` 则逐受试者聚类（一步法）；去掉 ``partition`` 则直接体素聚类（直接池化）。拟合器在 2 到 10 个生境里尝试，并用 elbow 准则选择最优的 k。"
 #: ../../source/auto_quickstart/plot_quickstart_python.rst:268
 msgid "How many habitats, and why"
 msgstr "多少生境，以及为何"

@@ -114,7 +114,7 @@ plt.show()
 # enhancement pattern in every patient. Drop ``pool`` and every subject
 # is clustered on its own (one-step); drop ``partition`` and voxels are
 # clustered directly (direct pooling). The fitter tries 2 to 10 habitats
-# and keeps the elbow.
+# and uses the elbow criterion to select the optimal k.
 spec = HabitatSpec(
     name="quickstart_two_step",
     stages=(
