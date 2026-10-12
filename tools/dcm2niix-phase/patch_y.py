@@ -20,6 +20,12 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
     new: replacement substring.
     label: short name used in the error if the match count is wrong.
     """
+    # Several replacements keep the old text as a prefix of the new text
+    # (for example the rawDataRunNumber initializer). After one successful
+    # apply, `old` is still found inside `new`, so a second build.sh run
+    # must stop once `new` is already present.
+    if new in text:
+        return text
     found: int = text.count(old)
     if found != 1:
         raise SystemExit(f"{label}: expected 1 match, found {found}")
@@ -30,21 +36,42 @@ def add_header_field(text: str) -> str:
     """Add temporalPositionIdentifier next to the rawDataRunNumber field.
 
     text: contents of nii_dicom.h.
+
+    v1.0.20260724 packs rawDataRunNumber into a multi-line comma-separated
+    int declaration, so it is not its own statement. The new field is a
+    separate int placed immediately after that declaration. Filename code
+    %y reads it; rawDataRunNumber itself stays the volume-grouping field.
     """
     if "temporalPositionIdentifier" in text:
         return text
-    lines: list[str] = text.splitlines(keepends=True)
-    for index, line in enumerate(lines):
-        stripped: str = line.strip()
-        if stripped.startswith("int rawDataRunNumber") and stripped.endswith(";"):
-            indent: str = line[: len(line) - len(line.lstrip(" \t"))]
-            lines.insert(
-                index + 1,
-                indent
-                + "int temporalPositionIdentifier; // (0020,0100) only; filename %y\n",
-            )
-            return "".join(lines)
-    raise SystemExit("nii_dicom.h: int rawDataRunNumber field not found")
+    needle: str = "rawDataRunNumber"
+    start: int = text.find(needle)
+    if start < 0 or text.find(needle, start + len(needle)) >= 0:
+        raise SystemExit(
+            f"nii_dicom.h: expected 1 rawDataRunNumber, found {text.count(needle)}"
+        )
+    semi: int = text.find(";", start)
+    if semi < 0:
+        raise SystemExit("nii_dicom.h: rawDataRunNumber declaration has no semicolon")
+    line_start: int = text.rfind("\n", 0, start) + 1
+    indent: str = text[line_start:start]
+    indent = indent[: len(indent) - len(indent.lstrip(" \t"))]
+    # The semicolon may sit mid-line, in front of a trailing comment.
+    # Insert the new field after that whole line so the comment stays
+    # attached to the original declaration.
+    line_end: int = text.find("\n", semi)
+    if line_end < 0:
+        insert_at = len(text)
+        prefix = "\n"
+    else:
+        insert_at = line_end + 1
+        prefix = ""
+    field: str = (
+        prefix
+        + indent
+        + "int temporalPositionIdentifier; // (0020,0100) only; filename %y\n"
+    )
+    return text[:insert_at] + field + text[insert_at:]
 
 
 def patch_reader(text: str) -> str:
@@ -112,6 +139,30 @@ def patch_filename(text: str) -> str:
     return text
 
 
+def patch_superbuild(text: str) -> str:
+    """Forward CMAKE_SYSTEM_NAME into the console ExternalProject.
+
+    text: contents of SuperBuild/SuperBuild.cmake.
+
+    v1.0.20260724 copies the C and C++ compilers into the nested console
+    build, but not the target system name. mingw-w64 still writes
+    dcm2niix.exe, while the generated install() rule looks for an
+    unsuffixed dcm2niix and stops the build after the link succeeded.
+    """
+    old: str = (
+        "        -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}\n"
+        "        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}\n"
+    )
+    new: str = (
+        "        -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}\n"
+        "        -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}\n"
+        "        # Windows cross builds need the target system name so the\n"
+        "        # nested console project installs dcm2niix.exe, not dcm2niix.\n"
+        "        -DCMAKE_SYSTEM_NAME:STRING=${CMAKE_SYSTEM_NAME}\n"
+    )
+    return replace_once(text, old, new, "superbuild-system-name")
+
+
 def main() -> None:
     """Patch a dcm2niix checkout given as the first argument."""
     if len(sys.argv) != 2:
@@ -120,9 +171,14 @@ def main() -> None:
     header: Path = root / "console" / "nii_dicom.h"
     reader: Path = root / "console" / "nii_dicom.cpp"
     batch: Path = root / "console" / "nii_dicom_batch.cpp"
+    superbuild: Path = root / "SuperBuild" / "SuperBuild.cmake"
     header.write_text(add_header_field(header.read_text(encoding="utf-8")), encoding="utf-8")
     reader.write_text(patch_reader(reader.read_text(encoding="utf-8")), encoding="utf-8")
     batch.write_text(patch_filename(batch.read_text(encoding="utf-8")), encoding="utf-8")
+    superbuild.write_text(
+        patch_superbuild(superbuild.read_text(encoding="utf-8")),
+        encoding="utf-8",
+    )
     print("patched", root)
 
 
